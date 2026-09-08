@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arco Verde - Typography Animation Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --panel-bg: rgba(255, 255, 255, 0.05);
+      --panel-border: rgba(255, 255, 255, 0.1);
+      --green: #1a7d4a;
+      --gold: #FFB800;
+      --cyan: #00CED1;
+      --white: #FFFFFF;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Outer Container */
+    .app-container {
+      max-width: 1100px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--white) 30%, #a2a8b5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header p {
+      color: #717b8f;
+      font-size: 0.95rem;
+      margin-top: 5px;
+      font-weight: 400;
+    }
+
+    /* Video Player Canvas Container */
+    .canvas-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      background-color: #000;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--panel-border);
+      box-shadow: 
+        0 25px 60px rgba(0, 0, 0, 0.6),
+        0 0 100px rgba(26, 125, 74, 0.1);
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Glassmorphic Control Bar */
+    .controls-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--panel-border);
+      border-radius: 100px;
+      padding: 12px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 800px;
+      gap: 20px;
+    }
+
+    .btn-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--white);
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green) 0%, #115331 100%);
+      border: 1px solid rgba(26, 125, 74, 0.5);
+      box-shadow: 0 4px 15px rgba(26, 125, 74, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #22995b 0%, #16683e 100%);
+      box-shadow: 0 8px 25px rgba(26, 125, 74, 0.45);
+    }
+
+    .btn-record {
+      background: linear-gradient(135deg, #d32f2f 0%, #9a0007 100%);
+      border: 1px solid rgba(211, 47, 47, 0.5);
+      box-shadow: 0 4px 15px rgba(211, 47, 47, 0.25);
+    }
+
+    .btn-record:hover {
+      background: linear-gradient(135deg, #ef5350 0%, #b71c1c 100%);
+      box-shadow: 0 8px 25px rgba(211, 47, 47, 0.45);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* Progress Indicator */
+    .progress-bar-container {
+      flex-grow: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--green) 0%, var(--gold) 50%, var(--cyan) 100%);
+      transition: width 0.05s linear;
+    }
+
+    .time-display {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #717b8f;
+      min-width: 45px;
+      text-align: right;
+    }
+
+    /* Briefing details */
+    .briefing-panel {
+      width: 100%;
+      max-width: 800px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .briefing-panel h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--gold);
+    }
+
+    .briefing-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .step-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 8px;
+    }
+
+    .step-item:last-child {
+      border: none;
+      padding-bottom: 0;
+    }
+
+    .step-time {
+      color: var(--cyan);
+      font-weight: 800;
+      min-width: 80px;
+    }
+
+    .step-text {
+      flex-grow: 1;
+      color: #a2a8b5;
+      padding-left: 15px;
+    }
+
+    .step-sfx {
+      color: var(--gold);
+      font-weight: 800;
+      font-size: 0.75rem;
+      background: rgba(255, 184, 0, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* Recording overlay state */
+    .rec-overlay {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: rgba(211, 47, 47, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      z-index: 10;
+      border: 1px solid rgba(255,255,255,0.25);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { opacity: 0.8; }
+    }
+
+    .rec-dot {
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header>
+      <h1>Arco Verde - Typography Animator</h1>
+      <p>Animação tipográfica sincronizada com Web Audio API e gravação WebM/MP4 integrada</p>
+    </header>
+
+    <!-- Canvas Container -->
+    <div class="canvas-container">
+      <div class="rec-overlay" id="recOverlay">
+        <span class="rec-dot"></span>
+        GRAVANDO VÍDEO...
+      </div>
+      <canvas id="animCanvas" width="1920" height="1080"></canvas>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-panel">
+      <div class="btn-group">
+        <select class="btn" id="animSelector" style="background: rgba(255, 255, 255, 0.08); border-radius: 50px; padding: 12px 20px; font-weight: 800; color: #fff; border: 1px solid rgba(255, 255, 255, 0.1); outline: none; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em;">
+          <option value="teaser" style="background: #07090e; color: #fff;">Teaser Promocional (10s)</option>
+          <option value="institucional" style="background: #07090e; color: #fff;">Vídeo Institucional (30s)</option>
+        </select>
+        <button class="btn btn-primary" id="playBtn">Iniciar</button>
+        <button class="btn" id="resetBtn" disabled>Reiniciar</button>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="time-display" id="timeDisplay">0.0s</div>
+
+      <div class="btn-group">
+        <button class="btn btn-record" id="recordBtn">Gravar e Exportar</button>
+      </div>
+    </div>
+
+    <!-- Info/Briefing panel -->
+    <div class="briefing-panel">
+      <h3 id="briefingTitle">📋 Sequência do Vídeo (10 segundos)</h3>
+      <div class="briefing-steps" id="briefingSteps">
+        <div class="step-item">
+          <span class="step-time">0.0s - 3.0s</span>
+          <span class="step-text"><strong>ARCO VERDE</strong> - Explosão e rotação elástica 360° em neon verde</span>
+          <span class="step-sfx">BOOM + DROP</span>
+        </div>
+        <div class="step-item">
+          <span class="step-time">0.5s - 1.5s</span>
+          <span class="step-text"><strong>Táxi Executivo</strong> - Deslizamento horizontal com normalização de letras</span>
+          <span class="step-sfx">WHOOSH</span>
+        </div>
+        <div class="step-item">
+          <span class="step-time">3.0s - 5.0s</span>
+          <span class="step-text"><strong>SEGURANÇA • CONFORTO • EXCELÊNCIA</strong> - Bounce vertical elástico individual</span>
+          <span class="step-sfx">PINGs</span>
+        </div>
+        <div class="step-item">
+          <span class="step-time">5.0s - 6.5s</span>
+          <span class="step-text"><strong>15+ Anos de Confiança</strong> - Entrada com fade-in e ampliação suave</span>
+          <span class="step-sfx">FADE NOTE</span>
+        </div>
+        <div class="step-item">
+          <span class="step-time">6.0s - 7.0s</span>
+          <span class="step-text"><strong>Rio de Janeiro</strong> - Efeito de onda senoidal vertical nas letras</span>
+          <span class="step-sfx">BEAT NOTE</span>
+        </div>
+        <div class="step-item">
+          <span class="step-time">7.0s - 9.0s</span>
+          <span class="step-text"><strong>CONECTANDO PESSOAS AOS SEUS DESTINOS</strong> - Divisão horizontal de letras + Flash</span>
+          <span class="step-sfx">IMPACT</span>
+        </div>
+        <div class="step-item">
+          <span class="step-time">9.0s - 10.0s</span>
+          <span class="step-text"><strong>Com Tranquilidade, Profissionalismo e Confiança</strong> - Encerramento elegante</span>
+          <span class="step-sfx">CHIME</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Elements
+      const canvas = document.getElementById("animCanvas");
+      const ctx = canvas.getContext("2d");
+      const playBtn = document.getElementById("playBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const recordBtn = document.getElementById("recordBtn");
+      const progressBar = document.getElementById("progressBar");
+      const timeDisplay = document.getElementById("timeDisplay");
+      const recOverlay = document.getElementById("recOverlay");
+      const animSelector = document.getElementById("animSelector");
+      const briefingTitle = document.getElementById("briefingTitle");
+      const briefingSteps = document.getElementById("briefingSteps");
+
+      // App state
+      let activeMode = "teaser"; // "teaser" ou "institucional"
+      let maxDuration = 10.0;
+      let audioCtx = null;
+      let isPlaying = false;
+      let isRecording = false;
+      let startTime = 0;
+      let elapsedSeconds = 0;
+      let animationFrameId = null;
+      let recorder = null;
+      let recordedChunks = [];
+      let schedulerIntervalId = null;
+
+      // Audio Nodes for recording
+      let recordDest = null;
+      let masterGainNode = null;
+
+      // Soundtrack parameters
+      const BPM = 130;
+      const beatDuration = 60 / BPM; // 0.4615 seconds
+      let nextBeatTime = 0;
+      let beatCounter = 0;
+      let noiseBuffer = null;
+
+      // SFX Trigger States to prevent double plays
+      let sfxTriggers = {
+        boom: false,
+        whoosh: false,
+        ping1: false,
+        ping2: false,
+        ping3: false,
+        ping4: false,
+        ping5: false,
+        ping6: false, // Pings adicionais para o modo de 30s
+        ping7: false,
+        ping8: false,
+        impact: false,
+        chime: false
+      };
+
+      // Ease functions
+      function easeOutElastic(x) {
+        const c4 = (2 * Math.PI) / 3;
+        return x === 0 ? 0 : x === 1 ? 1
+          : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
+      }
+
+      function easeOutBack(x) {
+        const c1 = 1.70158;
+        const c3 = c1 + 1;
+        return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+      }
+
+      function easeOutQuad(x) {
+        return 1 - (1 - x) * (1 - x);
+      }
+
+      // Initialize audio context
+      function initAudio() {
+        if (audioCtx) return;
+        
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+        
+        // Setup Master Gain Node
+        masterGainNode = audioCtx.createGain();
+        masterGainNode.gain.value = 0.8;
+        
+        // If recording, pipe through destination
+        recordDest = audioCtx.createMediaStreamDestination();
+        masterGainNode.connect(recordDest);
+        masterGainNode.connect(audioCtx.destination);
+
+        // Pre-create White Noise Buffer
+        const bufferSize = audioCtx.sampleRate * 2; // 2 seconds
+        noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+      }
+
+      // Synthesis Instruments
+      function playKick(time) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(masterGainNode);
+        
+        osc.frequency.setValueAtTime(120, time);
+        osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.3);
+        
+        gain.gain.setValueAtTime(1.0, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+        
+        osc.start(time);
+        osc.stop(time + 0.3);
+      }
+
+      function playHihat(time) {
+        const osc = audioCtx.createOscillator();
+        const filter = audioCtx.createBiquadFilter();
+        const gain = audioCtx.createGain();
+        
+        osc.type = "triangle";
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGainNode);
+        
+        filter.type = "highpass";
+        filter.frequency.setValueAtTime(8000, time);
+        
+        osc.frequency.setValueAtTime(10000, time);
+        
+        gain.gain.setValueAtTime(0.08, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+        
+        osc.start(time);
+        osc.stop(time + 0.05);
+      }
+
+      // Play bass notes on scheduled beat
+      function playBassNode(time, noteFreq, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.type = "sawtooth";
+        osc.connect(gain);
+        gain.connect(masterGainNode);
+        
+        osc.frequency.setValueAtTime(noteFreq, time);
+        
+        gain.gain.setValueAtTime(0.22, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+        
+        osc.start(time);
+        osc.stop(time + duration);
+      }
+
+      // SFX Synthesizers
+      function triggerBoom(time) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(masterGainNode);
+        
+        osc.frequency.setValueAtTime(180, time);
+        osc.frequency.exponentialRampToValueAtTime(25, time + 1.8);
+        
+        gain.gain.setValueAtTime(1.2, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 2.0);
+        
+        osc.start(time);
+        osc.stop(time + 2.0);
+      }
+
+      function triggerWhoosh(time) {
+        if (!noiseBuffer) return;
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.Q.value = 3.0;
+        
+        const gain = audioCtx.createGain();
+        
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGainNode);
+        
+        filter.frequency.setValueAtTime(200, time);
+        filter.frequency.exponentialRampToValueAtTime(2200, time + 0.4);
+        filter.frequency.exponentialRampToValueAtTime(300, time + 0.8);
+        
+        gain.gain.setValueAtTime(0.001, time);
+        gain.gain.linearRampToValueAtTime(0.35, time + 0.3);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.9);
+        
+        noise.start(time);
+        noise.stop(time + 0.95);
+      }
+
+      function triggerPing(time, freq) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.type = "sine";
+        osc.connect(gain);
+        gain.connect(masterGainNode);
+        
+        osc.frequency.setValueAtTime(freq, time);
+        
+        gain.gain.setValueAtTime(0.4, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.35);
+        
+        osc.start(time);
+        osc.stop(time + 0.35);
+      }
+
+      function triggerImpact(time) {
+        // Impact is a massive sub-heavy drum combined with high noise splash
+        triggerBoom(time);
+        
+        if (!noiseBuffer) return;
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = "highpass";
+        
+        const gain = audioCtx.createGain();
+        
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGainNode);
+        
+        filter.frequency.setValueAtTime(2000, time);
+        
+        gain.gain.setValueAtTime(0.4, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 1.2);
+        
+        noise.start(time);
+        noise.stop(time + 1.25);
+      }
+
+      function triggerChime(time) {
+        // Build chords of high frequencies for bell-like chime
+        const freqs = [880, 1100, 1320, 1760, 2200];
+        freqs.forEach((freq, index) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          
+          osc.type = "sine";
+          osc.connect(gain);
+          gain.connect(masterGainNode);
+          
+          osc.frequency.setValueAtTime(freq, time);
+          
+          // Cascading delays
+          const noteTime = time + (index * 0.03);
+          gain.gain.setValueAtTime(0.0, noteTime);
+          gain.gain.linearRampToValueAtTime(0.12, noteTime + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 2.5);
+          
+          osc.start(noteTime);
+          osc.stop(noteTime + 2.6);
+        });
+      }
+
+      // Drum sequencer clock
+      function scheduler() {
+        while (nextBeatTime < audioCtx.currentTime + 0.1) {
+          const t = nextBeatTime - startTime;
+          
+          // Schedule only if within our animation limits
+          if (t >= 0 && t < maxDuration) {
+            if (activeMode === "teaser") {
+              // Beat loops (Intro beat starts at 1.0s)
+              if (t >= 0.5 && t < 9.0) {
+                const localBeat = beatCounter % 8;
+                
+                // Kick drum pattern
+                if (localBeat === 0 || localBeat === 4) {
+                  playKick(nextBeatTime);
+                }
+                // Offbeat hats
+                if (localBeat === 2 || localBeat === 6 || localBeat === 4) {
+                  playHihat(nextBeatTime + beatDuration / 2);
+                }
+                
+                // Bassline (Notes E -> G -> A -> C)
+                let noteFreq = 55; // E1
+                if (t >= 3.0 && t < 5.0) noteFreq = 65.41; // C2
+                else if (t >= 5.0 && t < 7.0) noteFreq = 73.42; // D2
+                else if (t >= 7.0) noteFreq = 82.41; // E2
+
+                if (localBeat === 0 || localBeat === 3 || localBeat === 5) {
+                  playBassNode(nextBeatTime, noteFreq, beatDuration * 0.8);
+                }
+              }
+            } else {
+              // Mode: Institucional (30s)
+              if (t >= 0.5 && t < 29.0) {
+                const localBeat = beatCounter % 8;
+                
+                // Kick drum pattern
+                if (localBeat === 0 || localBeat === 4) {
+                  playKick(nextBeatTime);
+                }
+                // Offbeat hats
+                if (localBeat === 2 || localBeat === 6 || localBeat === 4) {
+                  playHihat(nextBeatTime + beatDuration / 2);
+                }
+                
+                // Bassline (cycle bass chords every 2.5s)
+                let noteFreq = 55; // E1
+                const chordIndex = Math.floor(t / 2.5) % 4;
+                if (chordIndex === 0) noteFreq = 55; // E1
+                else if (chordIndex === 1) noteFreq = 65.41; // C2
+                else if (chordIndex === 2) noteFreq = 73.42; // D2
+                else if (chordIndex === 3) noteFreq = 82.41; // E2
+
+                if (localBeat === 0 || localBeat === 3 || localBeat === 5) {
+                  playBassNode(nextBeatTime, noteFreq, beatDuration * 0.8);
+                }
+              }
+            }
+          }
+          
+          nextBeatTime += beatDuration;
+          beatCounter++;
+        }
+      }
+
+      // Check and play one-shot SFX synchronized to time
+      function checkSFX(t) {
+        if (activeMode === "teaser") {
+          // Teaser promotional sfx (original timings)
+          if (t >= 0.5 && !sfxTriggers.boom) {
+            triggerBoom(startTime + 0.5);
+            sfxTriggers.boom = true;
+          }
+          if (t >= 0.5 && !sfxTriggers.whoosh) {
+            triggerWhoosh(startTime + 0.5);
+            sfxTriggers.whoosh = true;
+          }
+          if (t >= 3.0 && !sfxTriggers.ping1) {
+            triggerPing(startTime + 3.0, 1500);
+            sfxTriggers.ping1 = true;
+          }
+          if (t >= 3.1 && !sfxTriggers.ping2) {
+            triggerPing(startTime + 3.1, 1750);
+            sfxTriggers.ping2 = true;
+          }
+          if (t >= 3.2 && !sfxTriggers.ping3) {
+            triggerPing(startTime + 3.2, 2000);
+            sfxTriggers.ping3 = true;
+          }
+          if (t >= 5.0 && !sfxTriggers.ping4) {
+            triggerPing(startTime + 5.0, 1200);
+            sfxTriggers.ping4 = true;
+          }
+          if (t >= 6.0 && !sfxTriggers.ping5) {
+            triggerPing(startTime + 6.0, 1300);
+            sfxTriggers.ping5 = true;
+          }
+          if (t >= 7.0 && !sfxTriggers.impact) {
+            triggerImpact(startTime + 7.0);
+            sfxTriggers.impact = true;
+          }
+          if (t >= 9.0 && !sfxTriggers.chime) {
+            triggerChime(startTime + 9.0);
+            sfxTriggers.chime = true;
+          }
+        } else {
+          // Institutional (30s) sfx timings
+          if (t >= 0.2 && !sfxTriggers.boom) {
+            triggerBoom(startTime + 0.2);
+            sfxTriggers.boom = true;
+          }
+          if (t >= 0.2 && !sfxTriggers.whoosh) {
+            triggerWhoosh(startTime + 0.2);
+            sfxTriggers.whoosh = true;
+          }
+          if (t >= 5.0 && !sfxTriggers.ping1) {
+            triggerPing(startTime + 5.0, 1400);
+            sfxTriggers.ping1 = true;
+          }
+          if (t >= 10.0 && !sfxTriggers.ping2) {
+            triggerPing(startTime + 10.0, 1600);
+            sfxTriggers.ping2 = true;
+          }
+          if (t >= 15.0 && !sfxTriggers.impact) {
+            triggerImpact(startTime + 15.0);
+            sfxTriggers.impact = true;
+          }
+          if (t >= 20.0 && !sfxTriggers.ping3) {
+            triggerPing(startTime + 20.0, 1800);
+            sfxTriggers.ping3 = true;
+          }
+          if (t >= 25.0 && !sfxTriggers.chime) {
+            triggerChime(startTime + 25.0);
+            sfxTriggers.chime = true;
+          }
+        }
+      }
+
+      // Reset SFX states
+      function resetSFXStates() {
+        Object.keys(sfxTriggers).forEach(k => sfxTriggers[k] = false);
+      }
+
+      // Drawing helper functions
+      function drawTextGlow(text, x, y, font, color, glowColor, glowSize) {
+        ctx.save();
+        ctx.font = font;
+        ctx.fillStyle = color;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        
+        ctx.shadowColor = glowColor;
+        ctx.shadowBlur = glowSize;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        
+        ctx.fillText(text, x, y);
+        ctx.restore();
+      }
+
+      // Main Render loop
+      function render(now) {
+        if (!isPlaying) return;
+
+        elapsedSeconds = audioCtx.currentTime - startTime;
+        if (elapsedSeconds > maxDuration + 0.05) {
+          stopAnimation();
+          elapsedSeconds = maxDuration;
+          updateUI(elapsedSeconds);
+          drawFrame(maxDuration);
+          return;
+        }
+
+        updateUI(elapsedSeconds);
+        checkSFX(elapsedSeconds);
+        drawFrame(elapsedSeconds);
+
+        animationFrameId = requestAnimationFrame(render);
+      }
+
+      function updateUI(t) {
+        const pct = Math.min((t / maxDuration) * 100, 100);
+        progressBar.style.width = `${pct}%`;
+        timeDisplay.textContent = `${t.toFixed(1)}s`;
+      }
+
+      // Draw standard frames
+      function drawTeaserFrame(t) {
+        // Clear screen with custom background transitions
+        let bgGrad = ctx.createLinearGradient(0, 0, 0, 1080);
+        
+        if (t < 3.0) {
+          // Beginning: solid black
+          ctx.fillStyle = "#000000";
+          ctx.fillRect(0, 0, 1920, 1080);
+        } else if (t >= 3.0 && t < 9.0) {
+          // Middle: fade black to dark green
+          bgGrad.addColorStop(0, "#000000");
+          bgGrad.addColorStop(1, "#0a3d1f");
+          ctx.fillStyle = bgGrad;
+          ctx.fillRect(0, 0, 1920, 1080);
+        } else {
+          // Ending (9s - 10s): Smooth transition to white
+          const transitionPct = Math.min((t - 9.0) / 1.0, 1.0);
+          const r = Math.round(transitionPct * 240);
+          const g = Math.round(transitionPct * 242);
+          const b = Math.round(transitionPct * 245);
+          
+          // Draw gradient transitioning to solid white-ish
+          bgGrad.addColorStop(0, `rgb(${Math.round(r*0.2)}, ${Math.round(g*0.2)}, ${Math.round(b*0.2)})`);
+          bgGrad.addColorStop(1, `rgb(${r}, ${g}, ${b})`);
+          ctx.fillStyle = bgGrad;
+          ctx.fillRect(0, 0, 1920, 1080);
+        }
+
+        const centerX = 1920 / 2;
+        const centerY = 1080 / 2;
+
+        // --- SCENE 1: "ARCO VERDE" + "Táxi Executivo" (0s - 3s) ---
+        if (t >= 0 && t < 3.05) {
+          const s1Dur = 3.0;
+          const s1Pct = t / s1Dur;
+
+          // Fade out at end of scene
+          let opacity = 1.0;
+          if (t > 2.8) opacity = Math.max(0, 1.0 - (t - 2.8) / 0.2);
+
+          ctx.save();
+          ctx.globalAlpha = opacity;
+
+          // 1. ARCO VERDE Text animation
+          // Elastic scale + rotation + neon glow pulse
+          const t1Start = 0.0;
+          const t1End = 2.0;
+          let t1Val = 0;
+          if (t >= t1Start) {
+            const factor = Math.min((t - t1Start) / (t1End - t1Start), 1.0);
+            t1Val = easeOutElastic(factor);
+          }
+
+          const scale = t1Val;
+          const angle = (1.0 - t1Val) * 2 * Math.PI; // Spin 360 to 0
+          
+          // Neon glow pulse calculation
+          const glowPulse = 20 + Math.sin(t * 12) * 12;
+
+          ctx.save();
+          ctx.translate(centerX, centerY - 60);
+          ctx.scale(scale, scale);
+          ctx.rotate(angle);
+          drawTextGlow("ARCO VERDE", 0, 0, "900 170px Montserrat", "#1a7d4a", "#00FF7F", glowPulse);
+          ctx.restore();
+
+          // 2. "Táxi Executivo" Slide In + Letter Spacing
+          // Timeline: 0.5s - 1.5s
+          const t2Start = 0.5;
+          const t2End = 1.5;
+          if (t >= t2Start) {
+            const factor = Math.min((t - t2Start) / (t2End - t2Start), 1.0);
+            const easeFactor = easeOutQuad(factor); // Slide in ease
+            
+            const startX = -600;
+            const endX = centerX;
+            const currentX = startX + (endX - startX) * easeFactor;
+            const currentOpacity = factor;
+
+            // Letter spacing goes from high (50px) to normal (0px)
+            const spaceFactor = (1.0 - easeFactor) * 25;
+
+            ctx.save();
+            ctx.globalAlpha = currentOpacity * opacity;
+            ctx.font = "800 80px Montserrat";
+            ctx.fillStyle = "#FFB800"; // Gold
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            const phrase = "Táxi Executivo";
+            const letters = phrase.split("");
+            
+            // Draw letters with custom spacing
+            let totalWidth = 0;
+            const letterWidths = letters.map(l => ctx.measureText(l).width);
+            const letterSpaces = letters.map((l, i) => letterWidths[i] + spaceFactor);
+            const fullWidth = letterSpaces.reduce((a, b) => a + b, 0);
+
+            let xOffset = currentX - (fullWidth / 2);
+            letters.forEach((char, idx) => {
+              ctx.fillText(char, xOffset + letterWidths[idx]/2, centerY + 100);
+              xOffset += letterSpaces[idx];
+            });
+
+            ctx.restore();
+          }
+
+          ctx.restore();
+        }
+
+        // --- SCENE 2: "SEGURANÇA • CONFORTO • EXCELÊNCIA" (3s - 5s) ---
+        if (t >= 3.0 && t < 5.05) {
+          let opacity = 1.0;
+          if (t > 4.8) opacity = Math.max(0, 1.0 - (t - 4.8) / 0.2);
+
+          const sceneElapsed = t - 3.0;
+          const factor = Math.min(sceneElapsed / 1.0, 1.0); // 1s bounce-in
+          const bounceFactor = easeOutElastic(factor);
+
+          // Position starts at 1200 (below screen) and bounces to centerY (540)
+          const startY = 1200;
+          const endY = centerY;
+          const currentY = startY - (startY - endY) * bounceFactor;
+
+          ctx.save();
+          ctx.globalAlpha = opacity;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.font = "800 68px Montserrat";
+
+          // Calculate spacing of the 3 words
+          const dot = " • ";
+          const w1 = "SEGURANÇA";
+          const w2 = "CONFORTO";
+          const w3 = "EXCELÊNCIA";
+          
+          const w1Width = ctx.measureText(w1).width;
+          const dotWidth = ctx.measureText(dot).width;
+          const w2Width = ctx.measureText(w2).width;
+          const w3Width = ctx.measureText(w3).width;
+
+          const totalWidth = w1Width + dotWidth + w2Width + dotWidth + w3Width;
+          let currentX = centerX - (totalWidth / 2);
+
+          // SEGURANÇA (Verde)
+          ctx.fillStyle = "#1a7d4a";
+          ctx.fillText(w1, currentX + w1Width / 2, currentY);
+          currentX += w1Width;
+
+          // DOT 1 (Branco)
+          ctx.fillStyle = "#ffffff";
+          ctx.fillText(dot, currentX + dotWidth / 2, currentY);
+          currentX += dotWidth;
+
+          // CONFORTO (Ouro)
+          ctx.fillStyle = "#FFB800";
+          ctx.fillText(w2, currentX + w2Width / 2, currentY);
+          currentX += w2Width;
+
+          // DOT 2 (Branco)
+          ctx.fillStyle = "#ffffff";
+          ctx.fillText(dot, currentX + dotWidth / 2, currentY);
+          currentX += dotWidth;
+
+          // EXCELÊNCIA (Azul ciano)
+          ctx.fillStyle = "#00CED1";
+          ctx.fillText(w3, currentX + w3Width / 2, currentY);
+
+          ctx.restore();
+        }
+
+        // --- SCENE 3: "15+ Anos de Confiança" + "Rio de Janeiro" (5s - 7s) ---
+        if (t >= 5.0 && t < 7.05) {
+          let opacity = 1.0;
+          if (t > 6.8) opacity = Math.max(0, 1.0 - (t - 6.8) / 0.2);
+
+          ctx.save();
+          ctx.globalAlpha = opacity;
+
+          // 1. "15+ Anos de Confiança" Fade In + Zoom
+          // Timeline: 5.0s - 6.5s
+          const t4Start = 5.0;
+          const t4End = 6.0;
+          if (t >= t4Start) {
+            const factor = Math.min((t - t4Start) / (t4End - t4Start), 1.0);
+            const easeFactor = easeOutQuad(factor); // Smooth grow
+
+            const currentScale = 0.5 + (0.5 * easeFactor);
+            const currentOpacity = factor;
+
+            ctx.save();
+            ctx.globalAlpha = currentOpacity * opacity;
+            ctx.translate(centerX, centerY - 60);
+            ctx.scale(currentScale, currentScale);
+            ctx.font = "400 68px Montserrat";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("15+ Anos de Confiança", 0, 0);
+            ctx.restore();
+          }
+
+          // 2. "Rio de Janeiro" Wave effect
+          // Timeline: 6.0s - 7.0s
+          const t5Start = 6.0;
+          const t5End = 7.0;
+          if (t >= t5Start) {
+            const factor = Math.min((t - t5Start) / (t5End - t5Start), 1.0);
+            
+            ctx.save();
+            ctx.globalAlpha = factor * opacity;
+            ctx.font = "800 65px Montserrat";
+            ctx.fillStyle = "#00CED1"; // Cyan
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            const text = "Rio de Janeiro";
+            const letters = text.split("");
+            
+            let totalWidth = 0;
+            const letterWidths = letters.map(l => ctx.measureText(l).width);
+            const fullWidth = letterWidths.reduce((a, b) => a + b, 0);
+            let xOffset = centerX - (fullWidth / 2);
+
+            letters.forEach((char, idx) => {
+              // Wave offset: dynamic vertical offset based on index and time
+              const waveOffset = Math.sin(t * 15 + idx * 0.6) * 16;
+              ctx.fillText(char, xOffset + letterWidths[idx] / 2, centerY + 80 + waveOffset);
+              xOffset += letterWidths[idx];
+            });
+
+            ctx.restore();
+          }
+
+          ctx.restore();
+        }
+
+        // --- SCENE 4: "CONECTANDO PESSOAS..." + Final Text (7s - 10s) ---
+        if (t >= 7.0) {
+          // 1. "CONECTANDO PESSOAS AOS SEUS DESTINOS"
+          // Timeline: 7.0s - 9.0s (Starts splitting and reconverging)
+          const phrase = "CONECTANDO PESSOAS AOS SEUS DESTINOS";
+          const glowPulse = 20 + Math.sin(t * 8) * 10;
+          
+          let color = "#FFB800"; // Yellow default
+          // If background transitions to white (9-10s), text goes to Dark Green for contrast!
+          if (t >= 9.0) {
+            const transitionPct = Math.min((t - 9.0) / 1.0, 1.0);
+            color = interpolateColors("#FFB800", "#0a5e2f", transitionPct);
+          }
+
+          // Offscreen buffers to do horizontal cutting/splitting of text
+          const offscreenCanvas = document.createElement("canvas");
+          offscreenCanvas.width = 1920;
+          offscreenCanvas.height = 300;
+          const oCtx = offscreenCanvas.getContext("2d");
+          
+          // Draw text centered on offscreen canvas
+          oCtx.font = "900 78px Montserrat";
+          
+          // Create gradient for text fill
+          const textGrad = oCtx.createLinearGradient(0, 0, 1920, 0);
+          textGrad.addColorStop(0, "#1a7d4a"); // Green
+          textGrad.addColorStop(0.5, "#FFB800"); // Gold
+          textGrad.addColorStop(1, "#1a7d4a");
+          
+          oCtx.fillStyle = t >= 9.0 ? color : textGrad;
+          oCtx.textAlign = "center";
+          oCtx.textBaseline = "middle";
+          
+          // Setup neon shadow in offscreen if background is dark
+          if (t < 9.0) {
+            oCtx.shadowColor = "#00FF7F";
+            oCtx.shadowBlur = glowPulse;
+          }
+          
+          oCtx.fillText(phrase, 1920/2, 150);
+
+          // Split animation calculations
+          // Starts split (7.0s), reaches max divergence (8.0s), reconverges (8.8s)
+          let splitOffset = 0;
+          if (t >= 7.0 && t < 8.8) {
+            const factor = (t - 7.0) / 1.8; // 0 to 1
+            // We want splitOffset to start at 0, grow to 45px at 0.5 (8s), and go back to 0 at 1 (8.8s)
+            splitOffset = Math.sin(factor * Math.PI) * 45;
+          }
+
+          ctx.save();
+          // Draw top half moving up (draw top 150px of offscreen canvas)
+          ctx.drawImage(offscreenCanvas, 0, 0, 1920, 150, 0, centerY - 150 - splitOffset, 1920, 150);
+          // Draw bottom half moving down (draw bottom 150px of offscreen canvas)
+          ctx.drawImage(offscreenCanvas, 0, 150, 1920, 150, 0, centerY - splitOffset, 1920, 150);
+          ctx.restore();
+
+          // Flash overlay on reunion
+          // Reunion happens around 8.8s
+          if (t >= 8.7 && t < 9.1) {
+            const flashPct = Math.max(0, 1.0 - (t - 8.7) / 0.4); // quick fade
+            ctx.save();
+            ctx.fillStyle = `rgba(255, 255, 255, ${flashPct})`;
+            ctx.fillRect(0, 0, 1920, 1080);
+            ctx.restore();
+          }
+
+          // 2. Final Text: "Com Tranquilidade, Profissionalismo e Confiança"
+          // Timeline: 9.0s - 10.0s
+          const t7Start = 9.0;
+          const t7End = 10.0;
+          if (t >= t7Start) {
+            const factor = Math.min((t - t7Start) / (t7End - t7Start), 1.0);
+            const easeFactor = easeOutQuad(factor);
+
+            ctx.save();
+            ctx.globalAlpha = easeFactor;
+            ctx.font = "400 42px Montserrat";
+            
+            // Text turns black/charcoal on white ending background
+            ctx.fillStyle = interpolateColors("#ffffff", "#1c1c1c", factor);
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("Com Tranquilidade, Profissionalismo e Confiança", centerX, centerY + 140);
+            ctx.restore();
+          }
+        }
+      }
+
+      function drawFrame(t) {
+        if (activeMode === "teaser") {
+          drawTeaserFrame(t);
+        } else {
+          drawInstitucionalFrame(t);
+        }
+      }
+
+      function drawInstitucionalFrame(t) {
+        // Clear screen with custom background transitions for 30s
+        let bgGrad = ctx.createLinearGradient(0, 0, 0, 1080);
+        
+        if (t < 10.0) {
+          // Beginning: solid black
+          ctx.fillStyle = "#000000";
+          ctx.fillRect(0, 0, 1920, 1080);
+        } else if (t >= 10.0 && t < 25.0) {
+          // Middle: fade black to dark green
+          bgGrad.addColorStop(0, "#000000");
+          bgGrad.addColorStop(1, "#0a3d1f");
+          ctx.fillStyle = bgGrad;
+          ctx.fillRect(0, 0, 1920, 1080);
+        } else {
+          // Ending (25s - 30s): Smooth transition to white-ish
+          const transitionPct = Math.min((t - 25.0) / 5.0, 1.0);
+          const r = Math.round(transitionPct * 240);
+          const g = Math.round(transitionPct * 242);
+          const b = Math.round(transitionPct * 245);
+          
+          bgGrad.addColorStop(0, `rgb(${Math.round(r*0.2)}, ${Math.round(g*0.2)}, ${Math.round(b*0.2)})`);
+          bgGrad.addColorStop(1, `rgb(${r}, ${g}, ${b})`);
+          ctx.fillStyle = bgGrad;
+          ctx.fillRect(0, 0, 1920, 1080);
+        }
+
+        const centerX = 1920 / 2;
+        const centerY = 1080 / 2;
+
+        // Slide duration is 5 seconds. Total 6 slides = 30 seconds.
+        const slideIndex = Math.min(Math.floor(t / 5.0), 5);
+        const slideTime = t % 5.0;
+
+        // Draw Slide index indicators (subtle dot controls at bottom)
+        ctx.save();
+        for (let i = 0; i < 6; i++) {
+          ctx.beginPath();
+          ctx.arc(centerX - 100 + i * 40, 1000, 6, 0, Math.PI * 2);
+          ctx.fillStyle = i === slideIndex ? "var(--gold)" : "rgba(255, 255, 255, 0.25)";
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // 1. SLIDE 1 (0s - 5s): Fundação & Referência
+        if (t >= 0.0 && t < 5.05) {
+          let opacity = 1.0;
+          if (slideTime > 4.5) opacity = Math.max(0, 1.0 - (slideTime - 4.5) / 0.5);
+
+          ctx.save();
+          ctx.globalAlpha = opacity;
+
+          // Split line 1 and 2
+          ctx.font = "800 52px Montserrat";
+          ctx.fillStyle = "#ffffff";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+
+          const line1Text = "Fundada em 2009, a Cooperativa Arco Verde Táxi Executivo";
+          const line2Text = "é referência em mobilidade no Rio de Janeiro,";
+          const line3Text = "unindo segurança, pontualidade, conforto e excelência.";
+          
+          // Animate lines fade-in based on slideTime
+          if (slideTime >= 0.5) {
+            const l1Op = Math.min((slideTime - 0.5) / 0.8, 1.0);
+            ctx.save();
+            ctx.globalAlpha = l1Op * opacity;
+            ctx.fillText(line1Text, centerX, centerY - 100);
+            ctx.restore();
+          }
+
+          if (slideTime >= 1.8) {
+            const l2Op = Math.min((slideTime - 1.8) / 0.8, 1.0);
+            ctx.save();
+            ctx.globalAlpha = l2Op * opacity;
+            ctx.fillStyle = "var(--gold)";
+            ctx.shadowColor = "#FFB800";
+            ctx.shadowBlur = 10;
+            ctx.fillText(line2Text, centerX, centerY);
+            ctx.restore();
+          }
+
+          if (slideTime >= 3.0) {
+            const l3Op = Math.min((slideTime - 3.0) / 0.8, 1.0);
+            ctx.save();
+            ctx.globalAlpha = l3Op * opacity;
+            ctx.font = "400 36px Montserrat";
+            ctx.fillText(line3Text, centerX, centerY + 90);
+            ctx.restore();
+          }
+          ctx.restore();
+        }
+
+        // 2. SLIDE 2 (5s - 10s): 15+ Anos & Confiança
+        if (t >= 5.0 && t < 10.05) {
+          let opacity = 1.0;
+          if (slideTime > 4.5) opacity = Math.max(0, 1.0 - (slideTime - 4.5) / 0.5);
+
+          const scaleFactor = 0.85 + 0.15 * easeOutQuad(Math.min(slideTime / 1.5, 1.0));
+          const zoomOpacity = Math.min(slideTime / 1.0, 1.0);
+
+          ctx.save();
+          ctx.globalAlpha = opacity * zoomOpacity;
+          ctx.translate(centerX, centerY);
+          ctx.scale(scaleFactor, scaleFactor);
+
+          ctx.font = "400 42px Montserrat";
+          ctx.fillStyle = "#ffffff";
+          ctx.textAlign = "center";
+          ctx.fillText("Ao longo de mais de 15 anos de história,", 0, -80);
+
+          ctx.font = "900 60px Montserrat";
+          ctx.fillStyle = "var(--cyan)";
+          ctx.shadowColor = "var(--cyan)";
+          ctx.shadowBlur = 20;
+          ctx.fillText("CONSTRUÍMOS RELAÇÕES DE CONFIANÇA", 0, 10);
+
+          ctx.font = "400 34px Montserrat";
+          ctx.fillStyle = "rgba(255,255,255,0.75)";
+          ctx.shadowBlur = 0;
+          ctx.fillText("com clientes particulares, empresas, hotéis e instituições.", 0, 100);
+
+          ctx.restore();
+        }
+
+        // 3. SLIDE 3 (10s - 15s): Corporativo & Vouchers
+        if (t >= 10.0 && t < 15.05) {
+          let opacity = 1.0;
+          if (slideTime > 4.5) opacity = Math.max(0, 1.0 - (slideTime - 4.5) / 0.5);
+
+          ctx.save();
+          ctx.globalAlpha = opacity;
+
+          ctx.font = "800 52px Montserrat";
+          ctx.fillStyle = "#ffffff";
+          ctx.textAlign = "center";
+          ctx.fillText("Oferecemos Contas Corporativas e Vouchers", centerX, centerY - 180);
+
+          // Render 3 blocks/pills sliding in from bottom
+          const items = [
+            { title: "Contas Corporativas", desc: "Para Empresas", color: "var(--gold)", xOffset: -400, delay: 0.3 },
+            { title: "Atendimento por Voucher", desc: "Hotéis, Agências & Eventos", color: "var(--cyan)", xOffset: 0, delay: 0.8 },
+            { title: "Serviço de Transfers", desc: "Aeroportos, Portos & Rodoviárias", color: "#00FF7F", xOffset: 400, delay: 1.3 }
+          ];
+
+          items.forEach(item => {
+            const itemTime = Math.max(0, slideTime - item.delay);
+            const itemFactor = Math.min(itemTime / 0.8, 1.0);
+            const easeY = 150 * (1.0 - easeOutBack(itemFactor)); // Slide up with overshoot
+            
+            ctx.save();
+            ctx.globalAlpha = itemFactor * opacity;
+            ctx.translate(centerX + item.xOffset, centerY + 30 + easeY);
+
+            // Draw pill container
+            ctx.strokeStyle = "rgba(255,255,255,0.25)";
+            ctx.lineWidth = 1.5;
+            ctx.fillStyle = "rgba(255,255,255,0.06)";
+            ctx.beginPath();
+            if (ctx.roundRect) {
+              ctx.roundRect(-180, -65, 360, 130, 20);
+            } else {
+              ctx.rect(-180, -65, 360, 130);
+            }
+            ctx.fill();
+            ctx.stroke();
+
+            // Draw text
+            ctx.font = "800 22px Montserrat";
+            ctx.fillStyle = item.color;
+            ctx.shadowColor = item.color;
+            ctx.shadowBlur = 8;
+            ctx.fillText(item.title, 0, -10);
+
+            ctx.font = "400 15px Montserrat";
+            ctx.fillStyle = "#a2a8b5";
+            ctx.shadowBlur = 0;
+            ctx.fillText(item.desc, 0, 25);
+            ctx.restore();
+          });
+
+          ctx.restore();
+        }
+
+        // 4. SLIDE 4 (15s - 20s): Roteiros Turísticos
+        if (t >= 15.0 && t < 20.05) {
+          let opacity = 1.0;
+          if (slideTime > 4.5) opacity = Math.max(0, 1.0 - (slideTime - 4.5) / 0.5);
+
+          ctx.save();
+          ctx.globalAlpha = opacity;
+
+          ctx.font = "800 48px Montserrat";
+          ctx.fillStyle = "#ffffff";
+          ctx.textAlign = "center";
+          ctx.fillText("Realizamos Roteiros Turísticos Personalizados", centerX, centerY - 140);
+
+          ctx.font = "400 34px Montserrat";
+          ctx.fillStyle = "rgba(255,255,255,0.85)";
+          ctx.fillText("proporcionando conforto para conhecer os principais", centerX, centerY - 65);
+
+          // Wave effect on "CARTÕES-POSTAIS DO RIO"
+          ctx.font = "900 68px Montserrat";
+          ctx.fillStyle = "var(--gold)";
+          ctx.shadowColor = "var(--gold)";
+          ctx.shadowBlur = 15;
+
+          const phrase = "CARTÕES-POSTAIS DO RIO";
+          const letters = phrase.split("");
+          
+          let totalWidth = 0;
+          const letterWidths = letters.map(l => ctx.measureText(l).width);
+          const fullWidth = letterWidths.reduce((a, b) => a + b, 0);
+          let xOffset = centerX - (fullWidth / 2);
+
+          letters.forEach((char, idx) => {
+            const waveOffset = Math.sin(t * 10 + idx * 0.5) * 12;
+            ctx.fillText(char, xOffset + letterWidths[idx] / 2, centerY + 45 + waveOffset);
+            xOffset += letterWidths[idx];
+          });
+
+          ctx.font = "400 28px Montserrat";
+          ctx.fillStyle = "var(--cyan)";
+          ctx.shadowBlur = 0;
+          ctx.fillText("Cristo Redentor • Pão de Açúcar • Copacabana • Ipanema & mais", centerX, centerY + 160);
+
+          ctx.restore();
+        }
+
+        // 5. SLIDE 5 (20s - 25s): Alto Padrão & Qualidade (Split Animation)
+        if (t >= 20.0 && t < 25.05) {
+          let opacity = 1.0;
+          if (slideTime > 4.5) opacity = Math.max(0, 1.0 - (slideTime - 4.5) / 0.5);
+
+          const phrase = "EXPERIÊNCIA DE ALTO PADRÃO";
+          
+          // Offscreen buffers to do horizontal cutting/splitting of text
+          const offscreenCanvas = document.createElement("canvas");
+          offscreenCanvas.width = 1920;
+          offscreenCanvas.height = 300;
+          const oCtx = offscreenCanvas.getContext("2d");
+          
+          oCtx.font = "900 76px Montserrat";
+          oCtx.fillStyle = "#00FF7F"; // Spring Green
+          oCtx.shadowColor = "#00FF7F";
+          oCtx.shadowBlur = 15;
+          oCtx.textAlign = "center";
+          oCtx.textBaseline = "middle";
+          oCtx.fillText(phrase, 1920/2, 150);
+
+          // Split animation calculations
+          let splitOffset = 0;
+          if (slideTime < 2.5) {
+            const factor = slideTime / 2.5; // 0 to 1
+            splitOffset = Math.sin(factor * Math.PI) * 45;
+          }
+
+          ctx.save();
+          ctx.globalAlpha = opacity;
+          // Draw top half moving up
+          ctx.drawImage(offscreenCanvas, 0, 0, 1920, 150, 0, centerY - 110 - splitOffset, 1920, 150);
+          // Draw bottom half moving down
+          ctx.drawImage(offscreenCanvas, 0, 150, 1920, 150, 0, centerY - splitOffset, 1920, 150);
+          
+          // Flash on reunion
+          if (slideTime >= 2.4 && slideTime < 2.8) {
+            const flashPct = Math.max(0, 1.0 - (slideTime - 2.4) / 0.4);
+            ctx.fillStyle = `rgba(255, 255, 255, ${flashPct})`;
+            ctx.fillRect(0, 0, 1920, 1080);
+          }
+
+          // Subtitle fades in after split
+          if (slideTime >= 2.0) {
+            const subOpacity = Math.min((slideTime - 2.0) / 1.0, 1.0);
+            ctx.globalAlpha = subOpacity * opacity;
+            ctx.font = "400 36px Montserrat";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.fillText("Na Arco Verde, cada viagem é planejada com motoristas experientes.", centerX, centerY + 160);
+          }
+          ctx.restore();
+        }
+
+        // 6. SLIDE 6 (25s - 30s): Missão & Fechamento (Fades to Light Background)
+        if (t >= 25.0) {
+          const factor = Math.min((t - 25.0) / 5.0, 1.0);
+          
+          ctx.save();
+          // Fade in final text colors
+          ctx.font = "800 44px Montserrat";
+          ctx.fillStyle = interpolateColors("#ffffff", "#0a5e2f", factor); // Transitions to dark green
+          ctx.textAlign = "center";
+          ctx.fillText("MAIS DO QUE TRANSPORTAR PESSOAS,", centerX, centerY - 100);
+
+          ctx.font = "900 70px Montserrat";
+          ctx.fillStyle = interpolateColors("var(--gold)", "#FFB800", factor);
+          if (t < 29.0) {
+            ctx.shadowColor = "var(--gold)";
+            ctx.shadowBlur = 10;
+          }
+          ctx.fillText("CONECTAMOS VOCÊ AO SEU DESTINO", centerX, centerY + 10);
+
+          ctx.font = "800 34px Montserrat";
+          ctx.fillStyle = interpolateColors("#ffffff", "#1c1c1c", factor);
+          ctx.shadowBlur = 0;
+          ctx.fillText("Com Tranquilidade, Profissionalismo e Confiança.", centerX, centerY + 120);
+
+          // Small logo branding at bottom
+          ctx.font = "900 30px Montserrat";
+          ctx.fillStyle = interpolateColors("#00FF7F", "#0a5e2f", factor);
+          ctx.fillText("ARCO VERDE TÁXI EXECUTIVO", centerX, centerY + 280);
+
+          ctx.restore();
+        }
+      }
+
+      // Helper: Interpolate between two hex colors
+      function interpolateColors(c1, c2, pct) {
+        const hex = (x) => {
+          const s = x.toString(16);
+          return s.length === 1 ? '0' + s : s;
+        };
+        
+        // Parse hex colors
+        const parse = (c) => {
+          if (c.startsWith("#")) c = c.slice(1);
+          if (c.length === 3) c = c.split("").map(x => x+x).join("");
+          return {
+            r: parseInt(c.slice(0, 2), 16),
+            g: parseInt(c.slice(2, 4), 16),
+            b: parseInt(c.slice(4, 6), 16)
+          };
+        };
+
+        const color1 = parse(c1);
+        const color2 = parse(c2);
+
+        const r = Math.round(color1.r + (color2.r - color1.r) * pct);
+        const g = Math.round(color1.g + (color2.g - color1.g) * pct);
+        const b = Math.round(color1.b + (color2.b - color1.b) * pct);
+
+        return `#${hex(r)}${hex(g)}${hex(b)}`;
+      }
+
+      // Playback Controls
+      function startAnimation() {
+        initAudio();
+        
+        if (audioCtx.state === "suspended") {
+          audioCtx.resume();
+        }
+
+        isPlaying = true;
+        playBtn.textContent = "Pausar";
+        resetBtn.disabled = false;
+        
+        // Match start time with current AudioContext clock
+        startTime = audioCtx.currentTime - elapsedSeconds;
+        nextBeatTime = audioCtx.currentTime;
+        beatCounter = 0;
+
+        // Start synth scheduling
+        schedulerIntervalId = setInterval(scheduler, 50);
+
+        // Start render loop
+        animationFrameId = requestAnimationFrame(render);
+      }
+
+      function stopAnimation() {
+        isPlaying = false;
+        playBtn.textContent = "Continuar";
+        
+        if (schedulerIntervalId) {
+          clearInterval(schedulerIntervalId);
+          schedulerIntervalId = null;
+        }
+
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
+      }
+
+      function resetAnimation() {
+        stopAnimation();
+        elapsedSeconds = 0;
+        resetSFXStates();
+        
+        progressBar.style.width = "0%";
+        timeDisplay.textContent = "0.0s";
+        playBtn.textContent = "Iniciar";
+        resetBtn.disabled = true;
+
+        // Draw initial frame (black)
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, 1920, 1080);
+        ctx.font = "900 100px Montserrat";
+        ctx.fillStyle = "#1a7d4a";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        
+        if (activeMode === "teaser") {
+          ctx.fillText("ARCO VERDE", 1920/2, 1080/2);
+        } else {
+          ctx.fillText("ARCO VERDE", 1920/2, 1080/2 - 60);
+          ctx.font = "800 50px Montserrat";
+          ctx.fillStyle = "var(--gold)";
+          ctx.fillText("TÁXI EXECUTIVO", 1920/2, 1080/2 + 50);
+        }
+      }
+
+      // Recording & Video Export
+      function startRecording() {
+        initAudio();
+        
+        if (audioCtx.state === "suspended") {
+          audioCtx.resume();
+        }
+
+        // Reset animation state
+        elapsedSeconds = 0;
+        resetSFXStates();
+        isPlaying = true;
+        isRecording = true;
+        recordedChunks = [];
+
+        recOverlay.style.display = "flex";
+        playBtn.disabled = true;
+        resetBtn.disabled = true;
+        recordBtn.disabled = true;
+
+        // Capture 60fps Canvas stream + Web Audio destination node stream
+        const canvasStream = canvas.captureStream(60);
+        const audioStream = recordDest.stream;
+
+        // Combine video and audio tracks
+        const combinedStream = new MediaStream([
+          ...canvasStream.getVideoTracks(),
+          ...audioStream.getAudioTracks()
+        ]);
+
+        // Try different codecs, webm/vp9 works natively in Chrome/Firefox
+        let options = { mimeType: "video/webm;codecs=vp9,opus" };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options = { mimeType: "video/webm;codecs=vp8,opus" };
+        }
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options = { mimeType: "video/webm" };
+        }
+
+        recorder = new MediaRecorder(combinedStream, options);
+
+        recorder.ondataavailable = function(e) {
+          if (e.data && e.data.size > 0) {
+            recordedChunks.push(e.data);
+          }
+        };
+
+        recorder.onstop = function() {
+          const blob = new Blob(recordedChunks, { type: "video/webm" });
+          const url = URL.createObjectURL(blob);
+          
+          // Download video
+          const a = document.createElement("a");
+          a.style.display = "none";
+          a.href = url;
+          a.download = "arco-verde-animacao-tipografia.webm";
+          document.body.appendChild(a);
+          a.click();
+          
+          // Clean up
+          setTimeout(() => {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+          }, 100);
+
+          // Restore UI
+          isRecording = false;
+          recOverlay.style.display = "none";
+          playBtn.disabled = false;
+          resetBtn.disabled = false;
+          recordBtn.disabled = false;
+          resetAnimation();
+        };
+
+        // Start recording and launch animation
+        recorder.start();
+        startTime = audioCtx.currentTime;
+        nextBeatTime = audioCtx.currentTime;
+        beatCounter = 0;
+
+        schedulerIntervalId = setInterval(scheduler, 50);
+        animationFrameId = requestAnimationFrame(function recRender() {
+          elapsedSeconds = audioCtx.currentTime - startTime;
+          
+          if (elapsedSeconds > maxDuration + 0.05) {
+            // Stop recording
+            recorder.stop();
+            stopAnimation();
+            return;
+          }
+
+          updateUI(elapsedSeconds);
+          checkSFX(elapsedSeconds);
+          drawFrame(elapsedSeconds);
+
+          animationFrameId = requestAnimationFrame(recRender);
+        });
+      }
+
+      // Event listeners
+      playBtn.addEventListener("click", () => {
+        if (isPlaying) stopAnimation();
+        else startAnimation();
+      });
+
+      resetBtn.addEventListener("click", resetAnimation);
+      recordBtn.addEventListener("click", startRecording);
+
+      // Event listener for mode selector
+      animSelector.addEventListener("change", (e) => {
+        activeMode = e.target.value;
+        maxDuration = activeMode === "teaser" ? 10.0 : 30.0;
+        
+        // Update briefing panel info dynamically
+        if (activeMode === "teaser") {
+          briefingTitle.textContent = "📋 Sequência do Vídeo (10 segundos)";
+          briefingSteps.innerHTML = `
+            <div class="step-item">
+              <span class="step-time">0.0s - 3.0s</span>
+              <span class="step-text"><strong>ARCO VERDE</strong> - Explosão e rotação elástica 360° em neon verde</span>
+              <span class="step-sfx">BOOM + DROP</span>
+            </div>
+            <div class="step-item">
+              <span class="step-time">0.5s - 1.5s</span>
+              <span class="step-text"><strong>Táxi Executivo</strong> - Deslizamento horizontal com normalização de letras</span>
+              <span class="step-sfx">WHOOSH</span>
+            </div>
+            <div class="step-item">
+              <span class="step-time">3.0s - 5.0s</span>
+              <span class="step-text"><strong>SEGURANÇA • CONFORTO • EXCELÊNCIA</strong> - Bounce vertical elástico individual</span>
+              <span class="step-sfx">PINGs</span>
+            </div>
+            <div class="step-item">
+              <span class="step-time">5.0s - 6.5s</span>
+              <span class="step-text"><strong>15+ Anos de Confiança</strong> - Entrada com fade-in e ampliação suave</span>
+              <span class="step-sfx">FADE NOTE</span>
+            </div>
+            <div class="step-item">
+              <span class="step-time">6.0s - 7.0s</span>
+              <span class="step-text"><strong>Rio de Janeiro</strong> - Efeito de onda senoidal vertical nas letras</span>
+              <span class="step-sfx">BEAT NOTE</span>
+            </div>
+            <div class="step-item">
+              <span class="step-time">7.0s - 9.0s</span>
+              <span class="step-text"><strong>CONECTANDO PESSOAS AOS SEUS DESTINOS</strong> - Divisão horizontal de letras + Flash</span>
+              <span class="step-sfx">IMPACT</span>
+            </div>
+            <div class="step-item">
+              <span class="step-time">9.0s - 10.0s</span>
+              <span class="step-text"><strong>Com Tranquilidade, Profissionalismo e Confiança</strong> - Encerramento elegante</span>
+              <span class="step-sfx">CHIME</span>
+            </div>
+          `;
+        } else {
+          briefingTitle.textContent = "📋 Sequência do Vídeo (30 segundos)";
+          briefingSteps.innerHTML = `
+            <div class="step-item">
+              <span class="step-time">0.0s - 5.0s</span>
+              <span class="step-text"><strong>Fundada em 2009...</strong> - Revelação gradual de frases com foco em Mobilidade</span>
+              <span class="step-sfx">BOOM + WHOOSH</span>
+            </div>
+            <div class="step-item">
+              <span class="step-time">5.0s - 10.0s</span>
+              <span class="step-text"><strong>15+ Anos de História</strong> - Ampliação suave e zoom elástico em azul ciano</span>
+              <span class="step-sfx">PING</span>
+            </div>
+            <div class="step-item">
+              <span class="step-time">10.0s - 15.0s</span>
+              <span class="step-text"><strong>Corporativo & Voucher</strong> - Entrada vertical de cartões 3D para empresas/hotéis</span>
+              <span class="step-sfx">PING</span>
+            </div>
+            <div class="step-item">
+              <span class="step-time">15.0s - 20.0s</span>
+              <span class="step-text"><strong>Roteiros Turísticos</strong> - Efeito de onda senoidal vertical nas principais praias do Rio</span>
+              <span class="step-sfx">IMPACT</span>
+            </div>
+            <div class="step-item">
+              <span class="step-time">20.0s - 25.0s</span>
+              <span class="step-text"><strong>Alto Padrão e Motoristas</strong> - Divisão de tela horizontal e Flash de reunião</span>
+              <span class="step-sfx">PING</span>
+            </div>
+            <div class="step-item">
+              <span class="step-time">25.0s - 30.0s</span>
+              <span class="step-text"><strong>Conectar com Confiança</strong> - Transição suave para fundo claro e logo da marca</span>
+              <span class="step-sfx">CHIME</span>
+            </div>
+          `;
+        }
+        
+        resetAnimation();
+      });
+
+      // Draw initial state
+      resetAnimation();
+
+    })();
+  </script>
+</body>
+</html>
