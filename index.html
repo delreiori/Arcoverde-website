@@ -1243,7 +1243,7 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
   <script>
-    /* ── SOBRE NÓS: MODELO 3D CRISTAL TRANSPARENTE ULTRA-OTIMIZADO ── */
+    /* ── SOBRE NÓS: ANIMAÇÃO 3D EM ESTILO VIDRO CRISTALINO ── */
     (function initSobre3D() {
       const container = document.getElementById('sobre3dContainer');
       if (!container || typeof THREE === 'undefined') return;
@@ -1272,13 +1272,13 @@
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
       controls.autoRotate = true;
-      controls.autoRotateSpeed = 1.5;
+      controls.autoRotateSpeed = 1.8;
       controls.enableZoom = true;
       controls.minDistance = 2.0;
       controls.maxDistance = 7.0;
       controls.maxPolarAngle = Math.PI / 2 + 0.1;
 
-      // Iluminação Estúdio Premium para Cristal Transparente
+      // Iluminação Estúdio Premium para Vidro/Cristal
       const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
       scene.add(ambientLight);
 
@@ -1286,11 +1286,11 @@
       mainLight.position.set(5, 8, 5);
       scene.add(mainLight);
 
-      const fillLight = new THREE.DirectionalLight(0xffffff, 2.5);
+      const fillLight = new THREE.DirectionalLight(0xb9f6ca, 2.5);
       fillLight.position.set(-5, 5, -5);
       scene.add(fillLight);
 
-      const rimLight = new THREE.PointLight(0xffffff, 2.2, 10);
+      const rimLight = new THREE.PointLight(0x00e676, 3.0, 10);
       rimLight.position.set(0, 3, -3);
       scene.add(rimLight);
 
@@ -1298,27 +1298,40 @@
       bottomLight.position.set(0, -5, 0);
       scene.add(bottomLight);
 
-      // MATERIAL FÍSICO DE CRISTAL TRANSPARENTE PURÍSSIMO (SEM COR NENHUMA)
+      // Anéis Luminosos de Fundo para Refração Óptica no Vidro
+      const ringGeo1 = new THREE.TorusGeometry(2.2, 0.03, 16, 100);
+      const ringMat1 = new THREE.MeshBasicMaterial({ color: 0x00e676, transparent: true, opacity: 0.5 });
+      const bgRing1 = new THREE.Mesh(ringGeo1, ringMat1);
+      bgRing1.position.set(0, 0, -1.2);
+      scene.add(bgRing1);
+
+      const ringGeo2 = new THREE.TorusGeometry(1.6, 0.02, 16, 100);
+      const ringMat2 = new THREE.MeshBasicMaterial({ color: 0x69f0ae, transparent: true, opacity: 0.4 });
+      const bgRing2 = new THREE.Mesh(ringGeo2, ringMat2);
+      bgRing2.position.set(0, 0, -0.8);
+      scene.add(bgRing2);
+
+      // MATERIAL FÍSICO DE VIDRO CRISTALINO TRANSPARENTE
       const transparentGlassMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,             // 100% Branco Neutro (Sem tom/cor)
-        transmission: 0.90,          // Refração translúcida de alta qualidade
+        color: 0xffffff,             // 100% Neutro Puro
+        transmission: 0.92,          // Transmissão de luz de vidro óptico
         opacity: 0.95,
         transparent: true,
-        roughness: 0.08,             // Superfície de cristal de rocha espelhada
-        metalness: 0.1,
-        ior: 1.5,                    // Índice de refração do vidro/cristal (1.5)
-        thickness: 1.2,              // Volume de luz interna
+        roughness: 0.06,             // Superfície lisa polida de vidro
+        metalness: 0.08,
+        ior: 1.52,                   // Índice de Refração real do vidro (1.52)
+        thickness: 1.5,              // Refração volumétrica interna
         specularColor: 0xffffff,
         specularIntensity: 1.0,
-        clearcoat: 1.0,              // Verniz brilhante exterior
-        clearcoatRoughness: 0.05,
-        reflectivity: 0.9,
-        side: THREE.FrontSide,       // Previne z-fighting e piscamento de malha
+        clearcoat: 1.0,              // Camada líquida de verniz brilhante
+        clearcoatRoughness: 0.04,
+        reflectivity: 0.95,
+        side: THREE.FrontSide,       // Sem piscamento
         depthWrite: true,
         depthTest: true
       });
 
-      // Gerador Procedural de Veículo de Cristal (Carregamento instantâneo em 0ms)
+      // Gerador Procedural de Veículo de Vidro
       function createProceduralCrystalCar(material) {
         const carGroup = new THREE.Group();
 
@@ -1348,7 +1361,7 @@
         trunkMesh.rotation.z = 0.1;
         carGroup.add(trunkMesh);
 
-        // Rodas (4 rodas cristalinas)
+        // Rodas em Vidro Cristalino
         const wheelGeo = new THREE.CylinderGeometry(0.28, 0.28, 0.18, 24);
         wheelGeo.rotateX(Math.PI / 2);
 
@@ -1384,18 +1397,17 @@
         return carGroup;
       }
 
-      // 1. Modelo 3D Procedural Instantâneo (Efeito Cristal Imediato)
+      // 1. Modelo 3D Procedural Instantâneo de Vidro
       let activeModel = createProceduralCrystalCar(transparentGlassMaterial);
       scene.add(activeModel);
 
       const loaderEl = document.getElementById('sobre3dLoader');
 
-      // Se for execução local sem servidor (file://), remove a tela de carregamento imediatamente
       if (window.location.protocol === 'file:') {
         if (loaderEl) loaderEl.style.display = 'none';
       }
 
-      // 2. Carregamento ultra-rápido do arquivo GLB otimizado de 3.1MB (11x menor)
+      // 2. Carregamento do GLB detalhado otimizado (3.1MB)
       if (typeof THREE.GLTFLoader !== 'undefined') {
         const loader = new THREE.GLTFLoader();
         loader.load(
@@ -1421,7 +1433,6 @@
               }
             });
 
-            // Substituir o modelo procedural pelo modelo de malha detalhada GLB
             scene.remove(activeModel);
             activeModel = loadedModel;
             scene.add(activeModel);
@@ -1438,7 +1449,6 @@
             }
           },
           function (err) {
-            console.warn('Executando modelo 3D cristalino procedural (modo local file:// ou CORS)');
             if (loaderEl) loaderEl.style.display = 'none';
           }
         );
@@ -1456,9 +1466,30 @@
         renderer.setSize(w, h);
       });
 
-      // Loop de Animação
+      // Relógio Three.js para Animação Fluida
+      const clock = new THREE.Clock();
+
+      // Loop de Animação 3D
       function animate() {
         requestAnimationFrame(animate);
+        const elapsedTime = clock.getElapsedTime();
+
+        // Animação de Levitação Fluida (Efeito Vidro Flutuante)
+        if (activeModel) {
+          activeModel.position.y = Math.sin(elapsedTime * 1.6) * 0.09;
+          activeModel.rotation.z = Math.sin(elapsedTime * 1.1) * 0.02;
+        }
+
+        // Animação dos Anéis Luminosos no Fundo (Refração Óptica no Vidro)
+        if (bgRing1) {
+          bgRing1.rotation.x = elapsedTime * 0.3;
+          bgRing1.rotation.y = elapsedTime * 0.5;
+        }
+        if (bgRing2) {
+          bgRing2.rotation.y = -elapsedTime * 0.4;
+          bgRing2.rotation.z = elapsedTime * 0.25;
+        }
+
         controls.update();
         renderer.render(scene, camera);
       }
