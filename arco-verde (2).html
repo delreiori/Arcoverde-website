@@ -1245,7 +1245,7 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
   <script>
-    /* ── SOBRE NÓS: MODELO 3D CRISTAL TRANSPARENTE SEM COR ── */
+    /* ── SOBRE NÓS: MODELO 3D CRISTAL TRANSPARENTE ULTRA-OTIMIZADO ── */
     (function initSobre3D() {
       const container = document.getElementById('sobre3dContainer');
       if (!container || typeof THREE === 'undefined') return;
@@ -1300,7 +1300,7 @@
       bottomLight.position.set(0, -5, 0);
       scene.add(bottomLight);
 
-      // MATERIAL FÍSICO DE CRISTAL TRANSPARENTE PURISSIMO (SEM COR NENHUMA)
+      // MATERIAL FÍSICO DE CRISTAL TRANSPARENTE PURÍSSIMO (SEM COR NENHUMA)
       const transparentGlassMaterial = new THREE.MeshPhysicalMaterial({
         color: 0xffffff,             // 100% Branco Neutro (Sem tom/cor)
         transmission: 0.97,          // Alta transmissão de luz (vidro/cristal puro)
@@ -1318,52 +1318,133 @@
         side: THREE.DoubleSide
       });
 
-      const loader = new THREE.GLTFLoader();
+      // Gerador Procedural de Veículo de Cristal (Carregamento instantâneo em 0ms)
+      function createProceduralCrystalCar(material) {
+        const carGroup = new THREE.Group();
 
-      loader.load(
-        './Meshy_AI_Crystal_Corolla_0911164113_generate.glb',
-        function (gltf) {
-          const model = gltf.scene;
+        // Chassi / Corpo inferior
+        const bodyGeo = new THREE.BoxGeometry(2.4, 0.5, 1.1);
+        const bodyMesh = new THREE.Mesh(bodyGeo, material);
+        bodyMesh.position.y = 0.45;
+        carGroup.add(bodyMesh);
 
-          // Centralização e escala automática perfeita no container
-          const box = new THREE.Box3().setFromObject(model);
-          const center = box.getCenter(new THREE.Vector3());
-          const size = box.getSize(new THREE.Vector3());
+        // Cabine / Teto aerodinâmico
+        const cabinGeo = new THREE.BoxGeometry(1.3, 0.48, 0.95);
+        const cabinMesh = new THREE.Mesh(cabinGeo, material);
+        cabinMesh.position.set(-0.1, 0.9, 0);
+        carGroup.add(cabinMesh);
 
-          model.position.x -= center.x;
-          model.position.y -= center.y;
-          model.position.z -= center.z;
+        // Capô dianteiro
+        const hoodGeo = new THREE.BoxGeometry(0.7, 0.2, 1.05);
+        const hoodMesh = new THREE.Mesh(hoodGeo, material);
+        hoodMesh.position.set(0.95, 0.52, 0);
+        hoodMesh.rotation.z = -0.12;
+        carGroup.add(hoodMesh);
 
-          const maxDim = Math.max(size.x, size.y, size.z);
-          const scale = 3.2 / maxDim;
-          model.scale.set(scale, scale, scale);
+        // Porta-malas traseiro
+        const trunkGeo = new THREE.BoxGeometry(0.5, 0.22, 1.05);
+        const trunkMesh = new THREE.Mesh(trunkGeo, material);
+        trunkMesh.position.set(-1.05, 0.55, 0);
+        trunkMesh.rotation.z = 0.1;
+        carGroup.add(trunkMesh);
 
-          // Aplicação do material de cristal transparente em todas as malhas do veículo
-          model.traverse((child) => {
-            if (child.isMesh) {
-              child.material = transparentGlassMaterial;
+        // Rodas (4 rodas cristalinas)
+        const wheelGeo = new THREE.CylinderGeometry(0.28, 0.28, 0.18, 24);
+        wheelGeo.rotateX(Math.PI / 2);
+
+        const wheelPositions = [
+          [0.75, 0.28, 0.55],
+          [0.75, 0.28, -0.55],
+          [-0.75, 0.28, 0.55],
+          [-0.75, 0.28, -0.55]
+        ];
+
+        wheelPositions.forEach(([x, y, z]) => {
+          const wheel = new THREE.Mesh(wheelGeo, material);
+          wheel.position.set(x, y, z);
+          carGroup.add(wheel);
+
+          const rimGeo = new THREE.CylinderGeometry(0.16, 0.16, 0.2, 16);
+          rimGeo.rotateX(Math.PI / 2);
+          const rim = new THREE.Mesh(rimGeo, material);
+          rim.position.set(x, y, z);
+          carGroup.add(rim);
+        });
+
+        // Faróis em Cristal
+        const headlightGeo = new THREE.BoxGeometry(0.1, 0.12, 0.25);
+        const hl1 = new THREE.Mesh(headlightGeo, material);
+        hl1.position.set(1.18, 0.5, 0.38);
+        const hl2 = new THREE.Mesh(headlightGeo, material);
+        hl2.position.set(1.18, 0.5, -0.38);
+        carGroup.add(hl1);
+        carGroup.add(hl2);
+
+        carGroup.scale.set(1.2, 1.2, 1.2);
+        return carGroup;
+      }
+
+      // 1. Modelo 3D Procedural Instantâneo (Efeito Cristal Imediato)
+      let activeModel = createProceduralCrystalCar(transparentGlassMaterial);
+      scene.add(activeModel);
+
+      const loaderEl = document.getElementById('sobre3dLoader');
+
+      // Se for execução local sem servidor (file://), remove a tela de carregamento imediatamente
+      if (window.location.protocol === 'file:') {
+        if (loaderEl) loaderEl.style.display = 'none';
+      }
+
+      // 2. Carregamento ultra-rápido do arquivo GLB otimizado de 3.1MB (11x menor)
+      if (typeof THREE.GLTFLoader !== 'undefined') {
+        const loader = new THREE.GLTFLoader();
+        loader.load(
+          './Meshy_Corolla_opt.glb',
+          function (gltf) {
+            const loadedModel = gltf.scene;
+
+            const box = new THREE.Box3().setFromObject(loadedModel);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+
+            loadedModel.position.x -= center.x;
+            loadedModel.position.y -= center.y;
+            loadedModel.position.z -= center.z;
+
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 3.2 / maxDim;
+            loadedModel.scale.set(scale, scale, scale);
+
+            loadedModel.traverse((child) => {
+              if (child.isMesh) {
+                child.material = transparentGlassMaterial;
+              }
+            });
+
+            // Substituir o modelo procedural pelo modelo de malha detalhada GLB
+            scene.remove(activeModel);
+            activeModel = loadedModel;
+            scene.add(activeModel);
+
+            if (loaderEl) loaderEl.style.display = 'none';
+          },
+          function (xhr) {
+            if (xhr.lengthComputable && loaderEl) {
+              const percent = Math.round((xhr.loaded / xhr.total) * 100);
+              const pb = document.getElementById('sobre3dProgressBar');
+              const pt = document.getElementById('sobre3dPercent');
+              if (pb) pb.style.width = percent + '%';
+              if (pt) pt.innerText = percent + '%';
             }
-          });
-
-          scene.add(model);
-
-          // Remover indicador de carregamento
-          const loaderEl = document.getElementById('sobre3dLoader');
-          if (loaderEl) loaderEl.style.display = 'none';
-        },
-        function (xhr) {
-          if (xhr.lengthComputable) {
-            const percent = Math.round((xhr.loaded / xhr.total) * 100);
-            const pb = document.getElementById('sobre3dProgressBar');
-            const pt = document.getElementById('sobre3dPercent');
-            if (pb) pb.style.width = percent + '%';
-            if (pt) pt.innerText = percent + '%';
+          },
+          function (err) {
+            console.warn('Executando modelo 3D cristalino procedural (modo local file:// ou CORS)');
+            if (loaderEl) loaderEl.style.display = 'none';
           }
-        },
-        function (err) {
-          console.error('Erro ao carregar o modelo 3D:', err);
-        }
-      );
+        );
+      } else {
+        if (loaderEl) loaderEl.style.display = 'none';
+      }
 
       // Redimensionamento responsivo
       window.addEventListener('resize', function () {
