@@ -679,35 +679,41 @@
     /* ── SEÇÃO SOBRE NÓS: ANIMAÇÃO ZIGUE-ZAGUE DO CARRO E TEXTOS ALTERNADOS ── */
     #sobre-nos {
       position: relative;
-      padding: 4rem 1.5rem 6rem;
-      background: linear-gradient(180deg, rgba(2, 18, 8, 0.45) 0%, rgba(2, 18, 8, 0.3) 50%, rgba(2, 18, 8, 0.55) 100%),
+      padding: 5rem 1.5rem 6rem;
+      background: linear-gradient(180deg, rgba(2, 18, 8, 0.5) 0%, rgba(2, 18, 8, 0.35) 50%, rgba(2, 18, 8, 0.6) 100%),
                   url('images/marmore-verde.png') center/cover no-repeat fixed;
       border-top: 1px solid rgba(230, 147, 0, 0.35);
       border-bottom: 1px solid rgba(230, 147, 0, 0.35);
       color: #ffffff;
       overflow: hidden;
-      min-height: 220vh;
+      min-height: auto;
     }
     .sobre-story-wrapper {
       position: relative;
+      z-index: 5;
       max-width: 1200px;
       margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 3.5rem;
     }
 
-    /* Canvas 3D Fixo Sticky durante a jornada de scroll */
-    .sobre-3d-sticky-canvas {
-      position: sticky;
-      top: 15vh;
+    /* Canvas 3D de fundo relativo para permitir rolagem 100% livre e natural */
+    .sobre-3d-background-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      height: 70vh;
-      z-index: 2;
-      pointer-events: auto;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
     }
     #sobre3dContainer {
       width: 100%;
       height: 100%;
       position: relative;
       cursor: grab;
+      pointer-events: auto;
     }
     #sobre3dContainer:active {
       cursor: grabbing;
@@ -753,24 +759,15 @@
       transition: width 0.2s ease;
     }
 
-    /* Cards de Texto Alternando Esquerda / Direita no Scroll */
+    /* Cards de Texto Alternando Esquerda / Direita com visibilidade imediata */
     .sobre-story-block {
       position: relative;
       z-index: 5;
-      margin-top: -45vh;
-      margin-bottom: 50vh;
       display: flex;
-      opacity: 0.25;
-      transform: translateY(40px);
-      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-      pointer-events: none;
-    }
-    .sobre-story-block:first-of-type {
-      margin-top: -65vh;
-    }
-    .sobre-story-block.active {
+      width: 100%;
       opacity: 1;
-      transform: translateY(0);
+      transform: none;
+      pointer-events: auto;
     }
     .sobre-story-block.block-left {
       justify-content: flex-start;
@@ -782,15 +779,21 @@
     }
 
     .story-card {
-      max-width: 480px;
+      max-width: 500px;
+      width: 100%;
       padding: 2.2rem 2.4rem;
-      background: rgba(2, 18, 8, 0.78);
+      background: rgba(2, 18, 8, 0.82);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(0, 230, 118, 0.35);
       border-radius: 24px;
       box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 230, 118, 0.15);
       pointer-events: auto;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    .story-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0, 230, 118, 0.6);
     }
     .story-tag {
       display: inline-block;
@@ -806,7 +809,7 @@
     }
     .story-card h2 {
       font-family: "Outfit", sans-serif;
-      font-size: clamp(2rem, 3.5vw, 2.6rem);
+      font-size: clamp(1.9rem, 3vw, 2.5rem);
       font-weight: 900;
       color: #ffffff;
       margin-bottom: 0.9rem;
@@ -818,7 +821,7 @@
     }
     .story-card p {
       font-family: "Inter", sans-serif;
-      font-size: 1.05rem;
+      font-size: 1.02rem;
       line-height: 1.8;
       color: rgba(255, 255, 255, 0.92);
     }
@@ -831,7 +834,7 @@
       display: inline-flex;
       gap: 16px;
       padding: 8px 22px;
-      background: rgba(2, 18, 8, 0.7);
+      background: rgba(2, 18, 8, 0.75);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(0, 230, 118, 0.3);
       border-radius: 30px;
@@ -852,9 +855,10 @@
       .story-card {
         max-width: 100%;
       }
-      .sobre-3d-sticky-canvas {
-        height: 50vh;
-        top: 25vh;
+      .hint-3d-controls-sticky {
+        font-size: 0.72rem;
+        padding: 6px 14px;
+        gap: 8px;
       }
     }
 
@@ -1062,28 +1066,28 @@
 
   <!-- 6. SOBRE NÓS: ANIMAÇÃO ZIGUE-ZAGUE DO CARRO E TEXTOS ALTERNADOS -->
   <section id="sobre-nos">
-    <div class="sobre-story-wrapper">
-
-      <!-- CANVAS 3D STICKY FIXED EM OVERLAY NO SCROLL -->
-      <div class="sobre-3d-sticky-canvas">
-        <div id="sobre3dContainer">
-          <div id="sobre3dLoader">
-            <div class="spinner-3d"></div>
-            <p>Carregando experiência 3D...</p>
-            <div class="progress-bar-bg">
-              <div id="sobre3dProgressBar"></div>
-            </div>
-            <span id="sobre3dPercent">0%</span>
+    <!-- CANVAS 3D EM BACKGROUND DA SEÇÃO (ROLAGEM LIVRE SEM TRAVAMENTO) -->
+    <div class="sobre-3d-background-canvas">
+      <div id="sobre3dContainer">
+        <div id="sobre3dLoader">
+          <div class="spinner-3d"></div>
+          <p>Carregando experiência 3D...</p>
+          <div class="progress-bar-bg">
+            <div id="sobre3dProgressBar"></div>
           </div>
-        </div>
-        <div class="hint-3d-controls-sticky">
-          <span>🖱️ Arraste para girar 360°</span>
-          <span>🔍 Scroll para navegar em zigue-zague</span>
+          <span id="sobre3dPercent">0%</span>
         </div>
       </div>
+      <div class="hint-3d-controls-sticky">
+        <span>🖱️ Arraste para girar 360°</span>
+        <span>⚡ Carro 3D em Zigue-Zague</span>
+      </div>
+    </div>
+
+    <div class="sobre-story-wrapper">
 
       <!-- TEXTO 1: ESQUERDA -->
-      <div class="sobre-story-block block-left active" id="storyBlock1">
+      <div class="sobre-story-block block-left" id="storyBlock1">
         <div class="story-card">
           <span class="story-tag">🟢 Tradição & Excelência</span>
           <h2>Sobre <span>Nós</span></h2>
@@ -1510,29 +1514,18 @@
         if (loaderEl) loaderEl.style.display = 'none';
       }
 
-      // CÁLCULO DE PROGRESSO DE SCROLL DA SEÇÃO SOBRE NÓS
+      // CÁLCULO DE PROGRESSO DA POSIÇÃO DA SEÇÃO SOBRE NÓS NO VIEWPORT
       function getSobreScrollProgress() {
         const sec = document.getElementById('sobre-nos');
-        if (!sec) return 0;
+        if (!sec) return 0.5;
         const rect = sec.getBoundingClientRect();
         const windowH = window.innerHeight;
-        const totalH = rect.height - windowH;
-        if (totalH <= 0) return 0;
-        const progress = -rect.top / totalH;
+        const totalDist = rect.height + windowH;
+        if (totalDist <= 0) return 0.5;
+        const currentPos = windowH - rect.top;
+        const progress = currentPos / totalDist;
         return Math.max(0, Math.min(1, progress));
       }
-
-      // ALTERNÂNCIA DOS BLCOS DE TEXTO (ESQUERDA / DIREITA) NO SCROLL
-      window.addEventListener('scroll', function() {
-        const p = getSobreScrollProgress();
-        const b1 = document.getElementById('storyBlock1');
-        const b2 = document.getElementById('storyBlock2');
-        const b3 = document.getElementById('storyBlock3');
-
-        if (b1) b1.classList.toggle('active', p >= 0 && p < 0.35);
-        if (b2) b2.classList.toggle('active', p >= 0.35 && p < 0.7);
-        if (b3) b3.classList.toggle('active', p >= 0.7);
-      });
 
       // Redimensionamento responsivo
       window.addEventListener('resize', function () {
@@ -1547,24 +1540,25 @@
       // Relógio Three.js para Animação Fluida
       const clock = new THREE.Clock();
 
-      // Loop de Animação 3D com Zigue-Zague e Inclinação Dinâmica nas Curvas
+      // Loop de Animação 3D com Zigue-Zague Contínuo e Inclinação nas Curvas
       function animate() {
         requestAnimationFrame(animate);
         const elapsedTime = clock.getElapsedTime();
         const p = getSobreScrollProgress();
 
         if (activeModel) {
-          // 1. Zigue-Zague Horizontal (Esquerda <-> Direita) baseado no Scroll
-          const targetX = Math.sin(p * Math.PI * 2.5) * 2.2;
+          // 1. Zigue-Zague Horizontal Contínuo (Esquerda <-> Direita) entre os cards
+          const time = elapsedTime * 1.4;
+          const targetX = Math.sin(time) * 2.8;
           
-          // 2. Deslocamento Vertical em relação ao Scroll e Flutuação
-          const targetY = (0.3 - p) * 0.8 + Math.sin(elapsedTime * 1.5) * 0.08;
+          // 2. Deslocamento Vertical Acompanhando a Rolagem Natural (sem travar a tela)
+          const targetY = (0.5 - p) * 2.8 + Math.sin(time * 2.2) * 0.15;
           
           // 3. Inclinação Dinâmica nas Curvas do Zigue-Zague (Roll Z-axis)
-          const targetTiltZ = -Math.cos(p * Math.PI * 2.5) * 0.18;
+          const targetTiltZ = -Math.cos(time) * 0.18;
           
-          // 4. Rotação 360° Suave ao Avançar no Scroll
-          const targetRotationY = p * Math.PI * 2.8;
+          // 4. Rotação e Apontamento do Veículo no Sentido do Movimento (Yaw Y-axis)
+          const targetRotationY = Math.cos(time) * 0.4 + (p * 0.5);
 
           // Lerp para movimento extremamente suave
           activeModel.position.x += (targetX - activeModel.position.x) * 0.08;
