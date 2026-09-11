@@ -694,7 +694,7 @@
       color: #444; margin-bottom: 1.2rem;
     }
 
-    /* 3D Wrapper & Container Styles */
+    /* 3D Wrapper & Container Styles - Dark Emerald Showcase */
     .sobre-3d-wrapper {
       position: relative;
       width: 100%;
@@ -704,12 +704,10 @@
     .sobre-3d-card {
       width: 100%;
       height: 440px;
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(0, 168, 25, 0.2);
+      background: radial-gradient(circle at center, #0e3b1c 0%, #041a0b 100%);
+      border: 1px solid rgba(0, 230, 118, 0.3);
       border-radius: 24px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), 0 0 30px rgba(0, 168, 25, 0.05);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25), 0 0 35px rgba(0, 168, 25, 0.2);
       position: relative;
       overflow: hidden;
     }
@@ -722,30 +720,30 @@
       align-items: center;
       gap: 8px;
       padding: 6px 14px;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(4, 26, 11, 0.85);
       backdrop-filter: blur(8px);
-      border: 1px solid rgba(0, 168, 25, 0.2);
+      border: 1px solid rgba(0, 230, 118, 0.35);
       border-radius: 20px;
       font-family: 'Inter', sans-serif;
       font-size: 0.78rem;
       font-weight: 700;
-      color: var(--green-dark, #0a5e2f);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      color: #00e676;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
       pointer-events: none;
     }
     .pulse-dot {
       width: 8px;
       height: 8px;
-      background-color: #00a819;
+      background-color: #00e676;
       border-radius: 50%;
       display: inline-block;
-      box-shadow: 0 0 0 0 rgba(0, 168, 25, 0.7);
+      box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7);
       animation: pulse3d 2s infinite;
     }
     @keyframes pulse3d {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 168, 25, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(0, 168, 25, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 168, 25, 0); }
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(0, 230, 118, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
     }
     #sobre3dContainer {
       width: 100%;
@@ -759,7 +757,7 @@
     #sobre3dLoader {
       position: absolute;
       inset: 0;
-      background: rgba(252, 251, 250, 0.95);
+      background: rgba(4, 26, 11, 0.95);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -767,14 +765,14 @@
       z-index: 20;
       gap: 12px;
       font-family: 'Inter', sans-serif;
-      color: #333;
+      color: #ffffff;
       font-size: 0.88rem;
     }
     .spinner-3d {
       width: 36px;
       height: 36px;
-      border: 3px solid rgba(0, 168, 25, 0.15);
-      border-top-color: #00a819;
+      border: 3px solid rgba(0, 230, 118, 0.2);
+      border-top-color: #00e676;
       border-radius: 50%;
       animation: spin3d 0.8s linear infinite;
     }
@@ -784,14 +782,14 @@
     .progress-bar-bg {
       width: 160px;
       height: 6px;
-      background: rgba(0, 0, 0, 0.08);
+      background: rgba(255, 255, 255, 0.15);
       border-radius: 3px;
       overflow: hidden;
     }
     #sobre3dProgressBar {
       width: 0%;
       height: 100%;
-      background: linear-gradient(90deg, #0e7a3d, #00a819);
+      background: linear-gradient(90deg, #00e676, #69f0ae);
       transition: width 0.2s ease;
     }
     .hint-3d-controls {
@@ -803,15 +801,15 @@
       display: flex;
       gap: 12px;
       padding: 6px 14px;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(4, 26, 11, 0.85);
       backdrop-filter: blur(8px);
-      border: 1px solid rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 20px;
       font-family: 'Inter', sans-serif;
       font-size: 0.75rem;
-      color: #555;
+      color: #e0e0e0;
       white-space: nowrap;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
       pointer-events: none;
     }
 
@@ -1303,19 +1301,21 @@
       // MATERIAL FÍSICO DE CRISTAL TRANSPARENTE PURÍSSIMO (SEM COR NENHUMA)
       const transparentGlassMaterial = new THREE.MeshPhysicalMaterial({
         color: 0xffffff,             // 100% Branco Neutro (Sem tom/cor)
-        transmission: 0.97,          // Alta transmissão de luz (vidro/cristal puro)
-        opacity: 1.0,
+        transmission: 0.90,          // Refração translúcida de alta qualidade
+        opacity: 0.95,
         transparent: true,
-        roughness: 0.05,             // Superfície polida espelhada
-        metalness: 0.05,
-        ior: 1.5,                    // Índice de refração do cristal (glass)
-        thickness: 1.5,              // Profundidade do efeito de refração
+        roughness: 0.08,             // Superfície de cristal de rocha espelhada
+        metalness: 0.1,
+        ior: 1.5,                    // Índice de refração do vidro/cristal (1.5)
+        thickness: 1.2,              // Volume de luz interna
         specularColor: 0xffffff,
         specularIntensity: 1.0,
-        clearcoat: 1.0,              // Verniz brilhante
+        clearcoat: 1.0,              // Verniz brilhante exterior
         clearcoatRoughness: 0.05,
         reflectivity: 0.9,
-        side: THREE.DoubleSide
+        side: THREE.FrontSide,       // Previne z-fighting e piscamento de malha
+        depthWrite: true,
+        depthTest: true
       });
 
       // Gerador Procedural de Veículo de Cristal (Carregamento instantâneo em 0ms)
