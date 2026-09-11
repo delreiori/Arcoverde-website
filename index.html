@@ -1359,7 +1359,7 @@
 
       // Câmera Perspectiva
       const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-      camera.position.set(0, 0.8, 5.0);
+      camera.position.set(0, 0.5, 6.0);
 
       // Renderizador WebGL com fundo 100% transparente
       const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
@@ -1476,7 +1476,7 @@
         carGroup.add(hl1);
         carGroup.add(hl2);
 
-        carGroup.scale.set(0.72, 0.72, 0.72);
+        carGroup.scale.set(0.6, 0.6, 0.6);
         return carGroup;
       }
 
@@ -1507,8 +1507,8 @@
             loadedModel.position.z -= center.z;
 
             const maxDim = Math.max(size.x, size.y, size.z);
-            // Tamanho reduzido do modelo para proporção mais elegante entre os blocos de texto
-            const scale = 2.0 / maxDim;
+            // Tamanho perfeitamente enquadrado dentro dos limites do esquadro
+            const scale = 1.5 / maxDim;
             loadedModel.scale.set(scale, scale, scale);
 
             loadedModel.traverse((child) => {
@@ -1578,29 +1578,29 @@
       // Relógio Three.js para Animação Fluida
       const clock = new THREE.Clock();
 
-      // Loop de Animação 3D — Movimento Zigue-Zague Guiado 100% pelo Scroll do Usuário (Dentro do Esquadro)
+      // Loop de Animação 3D — Movimento Zigue-Zague Guiado 100% pelo Scroll do Usuário (Rigidamente Enquadrado)
       function animate() {
         requestAnimationFrame(animate);
         const p = getSobreScrollProgress();
 
         if (activeModel) {
           // Ângulo derivado estritamente da posição de rolagem do usuário (0 a 1)
-          const angle = p * Math.PI * 4.0;
+          const angle = p * Math.PI * 3.0;
 
-          // Amplitude de deslocamento restrita para manter o carro 100% enquadrado dentro da tela
-          const maxAmp = Math.min(1.4, (window.innerWidth / 1300) * 1.4);
+          // Amplitude horizontal estritamente limitada para NUNCA cortar o carro nas bordas laterais
+          const maxAmp = Math.min(0.75, (window.innerWidth / 1400) * 0.75);
 
-          // 1. Trajetória em Zigue-Zague Horizontal mantida estritamente dentro do esquadro da tela
+          // 1. Trajetória em Zigue-Zague Horizontal 100% contida no esquadro visual da tela
           const targetX = Math.sin(angle) * maxAmp;
           
           // 2. Deslocamento Vertical guiado pelo progresso do Scroll
-          const targetY = (0.5 - p) * 3.4;
+          const targetY = (0.5 - p) * 3.2;
           
           // 3. Inclinação Dinâmica nas Curvas (Roll Z-axis)
-          const targetTiltZ = -Math.cos(angle) * 0.18;
+          const targetTiltZ = -Math.cos(angle) * 0.15;
           
           // 4. Apontamento do Veículo no Sentido do Movimento (Yaw Y-axis)
-          const targetRotationY = Math.cos(angle) * 0.4 + (p * 0.4);
+          const targetRotationY = Math.cos(angle) * 0.35 + (p * 0.4);
 
           // Lerp suave para movimentação física realista enquanto o usuário rola a página
           activeModel.position.x += (targetX - activeModel.position.x) * 0.1;
