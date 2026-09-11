@@ -1359,7 +1359,7 @@
 
       // Câmera Perspectiva
       const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-      camera.position.set(0, 1.2, 4.5);
+      camera.position.set(0, 0.8, 5.0);
 
       // Renderizador WebGL com fundo 100% transparente
       const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
@@ -1578,7 +1578,7 @@
       // Relógio Three.js para Animação Fluida
       const clock = new THREE.Clock();
 
-      // Loop de Animação 3D — Movimento Zigue-Zague Guiado 100% pelo Scroll do Usuário
+      // Loop de Animação 3D — Movimento Zigue-Zague Guiado 100% pelo Scroll do Usuário (Dentro do Esquadro)
       function animate() {
         requestAnimationFrame(animate);
         const p = getSobreScrollProgress();
@@ -1587,17 +1587,20 @@
           // Ângulo derivado estritamente da posição de rolagem do usuário (0 a 1)
           const angle = p * Math.PI * 4.0;
 
-          // 1. Trajetória em Zigue-Zague Horizontal (Esquerda <-> Direita) acionada pelo Scroll
-          const targetX = Math.sin(angle) * 2.6;
+          // Amplitude de deslocamento restrita para manter o carro 100% enquadrado dentro da tela
+          const maxAmp = Math.min(1.4, (window.innerWidth / 1300) * 1.4);
+
+          // 1. Trajetória em Zigue-Zague Horizontal mantida estritamente dentro do esquadro da tela
+          const targetX = Math.sin(angle) * maxAmp;
           
-          // 2. Deslocamento Vertical guiado exclusivamente pelo progresso do Scroll (ampliado para maior espaçamento)
-          const targetY = (0.5 - p) * 3.8;
+          // 2. Deslocamento Vertical guiado pelo progresso do Scroll
+          const targetY = (0.5 - p) * 3.4;
           
-          // 3. Inclinação Dinâmica nas Curvas (Roll Z-axis) dependente do Scroll
-          const targetTiltZ = -Math.cos(angle) * 0.22;
+          // 3. Inclinação Dinâmica nas Curvas (Roll Z-axis)
+          const targetTiltZ = -Math.cos(angle) * 0.18;
           
-          // 4. Apontamento e Direcionamento do Carro no Sentido da Curva (Yaw Y-axis)
-          const targetRotationY = Math.cos(angle) * 0.45 + (p * 0.4);
+          // 4. Apontamento do Veículo no Sentido do Movimento (Yaw Y-axis)
+          const targetRotationY = Math.cos(angle) * 0.4 + (p * 0.4);
 
           // Lerp suave para movimentação física realista enquanto o usuário rola a página
           activeModel.position.x += (targetX - activeModel.position.x) * 0.1;
