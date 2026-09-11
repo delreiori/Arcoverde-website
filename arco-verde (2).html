@@ -779,51 +779,91 @@
     }
 
     .story-card {
-      max-width: 500px;
+      max-width: 520px;
       width: 100%;
-      padding: 2.2rem 2.4rem;
-      background: rgba(2, 18, 8, 0.82);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      padding: 2.4rem 2.6rem;
+      background: rgba(2, 18, 8, 0.84);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
       border: 1px solid rgba(0, 230, 118, 0.35);
       border-radius: 24px;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 230, 118, 0.15);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(0, 230, 118, 0.15);
       pointer-events: auto;
-      transition: transform 0.3s ease, border-color 0.3s ease;
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     }
     .story-card:hover {
       transform: translateY(-4px);
-      border-color: rgba(0, 230, 118, 0.6);
+      border-color: rgba(0, 230, 118, 0.65);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 0 0 45px rgba(0, 230, 118, 0.25);
     }
     .story-tag {
-      display: inline-block;
-      padding: 4px 14px;
-      background: rgba(0, 230, 118, 0.15);
-      border: 1px solid rgba(0, 230, 118, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      background: linear-gradient(135deg, rgba(0, 230, 118, 0.18) 0%, rgba(0, 230, 118, 0.05) 100%);
+      border: 1px solid rgba(0, 230, 118, 0.45);
       border-radius: 20px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.78rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem;
       font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       color: #00e676;
-      margin-bottom: 0.9rem;
+      margin-bottom: 1.1rem;
     }
     .story-card h2 {
       font-family: "Outfit", sans-serif;
-      font-size: clamp(1.9rem, 3vw, 2.5rem);
-      font-weight: 900;
+      font-size: clamp(2.1rem, 3.4vw, 2.7rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
       color: #ffffff;
-      margin-bottom: 0.9rem;
-      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+      margin-bottom: 1.1rem;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
     }
     .story-card h2 span {
       color: #00e676;
-      text-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
+      text-shadow: 0 0 25px rgba(0, 230, 118, 0.5);
     }
     .story-card p {
       font-family: "Inter", sans-serif;
-      font-size: 1.02rem;
-      line-height: 1.8;
+      font-size: 1.05rem;
+      font-weight: 400;
+      line-height: 1.85;
       color: rgba(255, 255, 255, 0.92);
+      letter-spacing: 0.01em;
+    }
+    .story-stats {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1.6rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid rgba(0, 230, 118, 0.2);
+    }
+    .block-right .story-stats {
+      justify-content: flex-end;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #00e676;
+      line-height: 1.1;
+      text-shadow: 0 0 15px rgba(0, 230, 118, 0.35);
+    }
+    .stat-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.72);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 2px;
     }
 
     .hint-3d-controls-sticky {
@@ -854,6 +894,9 @@
       }
       .story-card {
         max-width: 100%;
+      }
+      .block-right .story-stats {
+        justify-content: center;
       }
       .hint-3d-controls-sticky {
         font-size: 0.72rem;
@@ -1094,6 +1137,16 @@
           <p>
             Fundada em 2009, a Cooperativa Arco Verde Táxi Executivo é referência em mobilidade no Rio de Janeiro, oferecendo soluções de transporte que unem segurança, pontualidade, conforto e atendimento VIP.
           </p>
+          <div class="story-stats">
+            <div class="stat-item">
+              <strong class="stat-num">2009</strong>
+              <span class="stat-label">Ano de Fundação</span>
+            </div>
+            <div class="stat-item">
+              <strong class="stat-num">100%</strong>
+              <span class="stat-label">Frota Vistoriada</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1105,17 +1158,37 @@
           <p>
             Ao longo de mais de 15 anos de história, construímos relações sólidas de confiança com clientes particulares, grandes corporações, hotéis renomados e eventos de grande porte na Cidade Maravilhosa.
           </p>
+          <div class="story-stats">
+            <div class="stat-item">
+              <strong class="stat-num">15+</strong>
+              <span class="stat-label">Anos de Mercado</span>
+            </div>
+            <div class="stat-item">
+              <strong class="stat-num">VIP</strong>
+              <span class="stat-label">Padrão Corporativo</span>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- TEXTO 3: ESQUERDA -->
       <div class="sobre-story-block block-left" id="storyBlock3">
         <div class="story-card">
-          <span class="story-tag">⚡ Frota Executiva Vistoriada</span>
+          <span class="story-tag">⚡ Frota Executiva</span>
           <h2>Conforto & <span>Tecnologia</span></h2>
           <p>
             Nossa frota passa por rigorosas vistorias diárias. Nossos motoristas cooperados são treinados para garantir viagens silenciosas, seguras e com a máxima pontualidade do embarque ao destino final.
           </p>
+          <div class="story-stats">
+            <div class="stat-item">
+              <strong class="stat-num">24/7</strong>
+              <span class="stat-label">Suporte & Embarque</span>
+            </div>
+            <div class="stat-item">
+              <strong class="stat-num">4.9★</strong>
+              <span class="stat-label">Avaliação Clientes</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1540,31 +1613,32 @@
       // Relógio Three.js para Animação Fluida
       const clock = new THREE.Clock();
 
-      // Loop de Animação 3D com Zigue-Zague Contínuo e Inclinação nas Curvas
+      // Loop de Animação 3D — Movimento Zigue-Zague Guiado 100% pelo Scroll do Usuário
       function animate() {
         requestAnimationFrame(animate);
-        const elapsedTime = clock.getElapsedTime();
         const p = getSobreScrollProgress();
 
         if (activeModel) {
-          // 1. Zigue-Zague Horizontal Contínuo (Esquerda <-> Direita) entre os cards
-          const time = elapsedTime * 1.4;
-          const targetX = Math.sin(time) * 2.8;
-          
-          // 2. Deslocamento Vertical Acompanhando a Rolagem Natural (sem travar a tela)
-          const targetY = (0.5 - p) * 2.8 + Math.sin(time * 2.2) * 0.15;
-          
-          // 3. Inclinação Dinâmica nas Curvas do Zigue-Zague (Roll Z-axis)
-          const targetTiltZ = -Math.cos(time) * 0.18;
-          
-          // 4. Rotação e Apontamento do Veículo no Sentido do Movimento (Yaw Y-axis)
-          const targetRotationY = Math.cos(time) * 0.4 + (p * 0.5);
+          // Ângulo derivado estritamente da posição de rolagem do usuário (0 a 1)
+          const angle = p * Math.PI * 3.5;
 
-          // Lerp para movimento extremamente suave
-          activeModel.position.x += (targetX - activeModel.position.x) * 0.08;
-          activeModel.position.y += (targetY - activeModel.position.y) * 0.08;
-          activeModel.rotation.z += (targetTiltZ - activeModel.rotation.z) * 0.08;
-          activeModel.rotation.y += (targetRotationY - activeModel.rotation.y) * 0.08;
+          // 1. Trajetória em Zigue-Zague Horizontal (Esquerda <-> Direita) acionada pelo Scroll
+          const targetX = Math.sin(angle) * 2.8;
+          
+          // 2. Deslocamento Vertical guiado exclusivamente pelo progresso do Scroll
+          const targetY = (0.5 - p) * 3.2;
+          
+          // 3. Inclinação Dinâmica nas Curvas (Roll Z-axis) dependente do Scroll
+          const targetTiltZ = -Math.cos(angle) * 0.22;
+          
+          // 4. Apontamento e Direcionamento do Carro no Sentido da Curva (Yaw Y-axis)
+          const targetRotationY = Math.cos(angle) * 0.45 + (p * 0.4);
+
+          // Lerp suave para movimentação física realista enquanto o usuário rola a página
+          activeModel.position.x += (targetX - activeModel.position.x) * 0.1;
+          activeModel.position.y += (targetY - activeModel.position.y) * 0.1;
+          activeModel.rotation.z += (targetTiltZ - activeModel.rotation.z) * 0.1;
+          activeModel.rotation.y += (targetRotationY - activeModel.rotation.y) * 0.1;
         }
 
         controls.update();
