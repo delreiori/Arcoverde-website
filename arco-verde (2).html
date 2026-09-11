@@ -712,11 +712,8 @@
       width: 100%;
       height: 100%;
       position: relative;
-      cursor: grab;
-      pointer-events: auto;
-    }
-    #sobre3dContainer:active {
-      cursor: grabbing;
+      pointer-events: none;
+      cursor: default;
     }
     #sobre3dLoader {
       position: absolute;
@@ -866,26 +863,6 @@
       margin-top: 2px;
     }
 
-    .hint-3d-controls-sticky {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: inline-flex;
-      gap: 16px;
-      padding: 8px 22px;
-      background: rgba(2, 18, 8, 0.75);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(0, 230, 118, 0.3);
-      border-radius: 30px;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.8rem;
-      color: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-      pointer-events: none;
-      z-index: 10;
-    }
-
     @media (max-width: 880px) {
       .sobre-story-wrapper {
         gap: 8rem;
@@ -900,11 +877,6 @@
       }
       .block-right .story-stats {
         justify-content: center;
-      }
-      .hint-3d-controls-sticky {
-        font-size: 0.72rem;
-        padding: 6px 14px;
-        gap: 8px;
       }
     }
 
@@ -1123,10 +1095,6 @@
           </div>
           <span id="sobre3dPercent">0%</span>
         </div>
-      </div>
-      <div class="hint-3d-controls-sticky">
-        <span>🖱️ Arraste para girar 360°</span>
-        <span>⚡ Carro 3D em Zigue-Zague</span>
       </div>
     </div>
 
@@ -1402,16 +1370,9 @@
       renderer.outputEncoding = THREE.sRGBEncoding;
       container.appendChild(renderer.domElement);
 
-      // Controles Orbitais Interativos 360°
+      // Controles Orbitais (Rotação e arrasto manual por mouse/touch desativados)
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.05;
-      controls.autoRotate = true;
-      controls.autoRotateSpeed = 1.8;
-      controls.enableZoom = true;
-      controls.minDistance = 2.0;
-      controls.maxDistance = 7.0;
-      controls.maxPolarAngle = Math.PI / 2 + 0.1;
+      controls.enabled = false;
 
       // Iluminação Estúdio Premium para Vidro/Cristal
       const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
