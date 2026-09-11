@@ -679,7 +679,7 @@
     /* ── SEÇÃO SOBRE NÓS: ANIMAÇÃO ZIGUE-ZAGUE DO CARRO E TEXTOS ALTERNADOS ── */
     #sobre-nos {
       position: relative;
-      padding: 5rem 1.5rem 6rem;
+      padding: 7rem 1.5rem 10rem;
       background: linear-gradient(180deg, rgba(2, 18, 8, 0.5) 0%, rgba(2, 18, 8, 0.35) 50%, rgba(2, 18, 8, 0.6) 100%),
                   url('images/marmore-verde.png') center/cover no-repeat fixed;
       border-top: 1px solid rgba(230, 147, 0, 0.35);
@@ -695,7 +695,7 @@
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 3.5rem;
+      gap: 14rem;
     }
 
     /* Canvas 3D de fundo relativo para permitir rolagem 100% livre e natural */
@@ -887,6 +887,9 @@
     }
 
     @media (max-width: 880px) {
+      .sobre-story-wrapper {
+        gap: 8rem;
+      }
       .sobre-story-block.block-left,
       .sobre-story-block.block-right {
         justify-content: center;
@@ -1512,7 +1515,7 @@
         carGroup.add(hl1);
         carGroup.add(hl2);
 
-        carGroup.scale.set(1.2, 1.2, 1.2);
+        carGroup.scale.set(0.72, 0.72, 0.72);
         return carGroup;
       }
 
@@ -1543,7 +1546,8 @@
             loadedModel.position.z -= center.z;
 
             const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 3.2 / maxDim;
+            // Tamanho reduzido do modelo para proporção mais elegante entre os blocos de texto
+            const scale = 2.0 / maxDim;
             loadedModel.scale.set(scale, scale, scale);
 
             loadedModel.traverse((child) => {
@@ -1620,13 +1624,13 @@
 
         if (activeModel) {
           // Ângulo derivado estritamente da posição de rolagem do usuário (0 a 1)
-          const angle = p * Math.PI * 3.5;
+          const angle = p * Math.PI * 4.0;
 
           // 1. Trajetória em Zigue-Zague Horizontal (Esquerda <-> Direita) acionada pelo Scroll
-          const targetX = Math.sin(angle) * 2.8;
+          const targetX = Math.sin(angle) * 2.6;
           
-          // 2. Deslocamento Vertical guiado exclusivamente pelo progresso do Scroll
-          const targetY = (0.5 - p) * 3.2;
+          // 2. Deslocamento Vertical guiado exclusivamente pelo progresso do Scroll (ampliado para maior espaçamento)
+          const targetY = (0.5 - p) * 3.8;
           
           // 3. Inclinação Dinâmica nas Curvas (Roll Z-axis) dependente do Scroll
           const targetTiltZ = -Math.cos(angle) * 0.22;
