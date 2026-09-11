@@ -1369,11 +1369,11 @@
         if (loaderEl) loaderEl.style.display = 'none';
       }
 
-      // 2. Carregamento do GLB detalhado otimizado (3.1MB)
+      // 2. Carregamento do GLB Crystal_Corolla_opt.glb Otimizado (5.6MB)
       if (typeof THREE.GLTFLoader !== 'undefined') {
         const loader = new THREE.GLTFLoader();
         loader.load(
-          './Meshy_Corolla_opt.glb',
+          './Crystal_Corolla_opt.glb',
           function (gltf) {
             const loadedModel = gltf.scene;
 
@@ -1386,12 +1386,24 @@
             loadedModel.position.z -= center.z;
 
             const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 3.0 / maxDim;
+            const scale = 3.2 / maxDim;
             loadedModel.scale.set(scale, scale, scale);
 
             loadedModel.traverse((child) => {
               if (child.isMesh) {
-                child.material = transparentGlassMaterial;
+                if (child.material) {
+                  const matName = (child.material.name || '').toLowerCase();
+                  if (matName.includes('edge') || matName.includes('line')) {
+                    child.material = new THREE.MeshBasicMaterial({
+                      color: 0x00ff88,
+                      wireframe: false
+                    });
+                  } else {
+                    child.material = transparentGlassMaterial;
+                  }
+                } else {
+                  child.material = transparentGlassMaterial;
+                }
               }
             });
 
