@@ -1553,18 +1553,17 @@
         if (loaderEl) loaderEl.style.display = 'none';
       }
 
-      // CÁLCULO DE PROGRESSO DA POSIÇÃO DA SEÇÃO SOBRE NÓS (0 no início, 1 no fim)
+      // CÁLCULO DE PROGRESSO DA POSIÇÃO DA SEÇÃO SOBRE NÓS PINADA NA TELA (0 no início, 1 no fim)
       function getSobreScrollProgress() {
         const sec = document.getElementById('sobre-nos');
         if (!sec) return 0;
         const rect = sec.getBoundingClientRect();
         const windowH = window.innerHeight;
-        const startPoint = windowH;
-        const totalDist = rect.height;
-        if (totalDist <= 0) return 0;
-
-        const currentDist = startPoint - rect.top;
-        const progress = currentDist / totalDist;
+        const totalScrollable = rect.height - windowH;
+        if (totalScrollable <= 0) return 0;
+        // rect.top = 0 quando o topo da seção chega ao topo do viewport (Card 1)
+        // rect.top = -totalScrollable quando chega ao final da seção (Card 3)
+        const progress = -rect.top / totalScrollable;
         return Math.max(0, Math.min(1, progress));
       }
 
@@ -1581,17 +1580,17 @@
       // Relógio Three.js para Animação Fluida
       const clock = new THREE.Clock();
 
-      // Loop de Animação 3D — Movimento Zigue-Zague Guiado 100% pelo Scroll do Usuário
+      // Loop de Animação 3D — Movimento Zigue-Zague Guiado 100% pelo Scroll do Usuário (Sem Atraso)
       function animate() {
         requestAnimationFrame(animate);
         const p = getSobreScrollProgress();
 
         if (activeModel) {
           // 1. Trajetória horizontal em Zigue-Zague (Direita -> Esquerda -> Direita)
-          const targetX = Math.cos(p * Math.PI * 2.0) * 1.0 + 0.1;
+          const targetX = Math.cos(p * Math.PI * 2.0) * 1.05 + 0.1;
           
-          // 2. Deslocamento Vertical: desce suavemente acompanhando a rolagem sem esconder na nav bar (+0.7 a -0.7)
-          const targetY = 0.7 - (p * 1.4);
+          // 2. Deslocamento Vertical: desce de +0.55 a -0.55 perfeitamente sincronizado com o scroll do mouse
+          const targetY = 0.55 - (p * 1.1);
           
           // 3. Inclinação Dinâmica nas Curvas (Roll Z-axis)
           const targetTiltZ = Math.sin(p * Math.PI * 2.0) * 0.12;
@@ -1599,11 +1598,11 @@
           // 4. Apontamento do Veículo no Sentido do Movimento (Yaw Y-axis)
           const targetRotationY = 0.3 + Math.sin(p * Math.PI * 2.0) * 0.35;
 
-          // Lerp suave para movimentação física 1:1 acompanhando o scroll do mouse
-          activeModel.position.x += (targetX - activeModel.position.x) * 0.12;
-          activeModel.position.y += (targetY - activeModel.position.y) * 0.12;
-          activeModel.rotation.z += (targetTiltZ - activeModel.rotation.z) * 0.12;
-          activeModel.rotation.y += (targetRotationY - activeModel.rotation.y) * 0.12;
+          // Lerp ultra-rápido (0.35) para acompanhamento instantâneo 1:1 com a rodinha do mouse (Sem lag/atraso)
+          activeModel.position.x += (targetX - activeModel.position.x) * 0.35;
+          activeModel.position.y += (targetY - activeModel.position.y) * 0.35;
+          activeModel.rotation.z += (targetTiltZ - activeModel.rotation.z) * 0.35;
+          activeModel.rotation.y += (targetRotationY - activeModel.rotation.y) * 0.35;
         }
 
         controls.update();
