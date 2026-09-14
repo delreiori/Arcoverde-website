@@ -1553,15 +1553,19 @@
         if (loaderEl) loaderEl.style.display = 'none';
       }
 
-      // CÁLCULO DE PROGRESSO DA POSIÇÃO DA SEÇÃO SOBRE NÓS (0 no início, 1 no fim)
+      // CÁLCULO DE PROGRESSO DA POSIÇÃO DA SEÇÃO SOBRE NÓS (0 no início da entrada, 1 no fim)
       function getSobreScrollProgress() {
         const sec = document.getElementById('sobre-nos');
         if (!sec) return 0;
         const rect = sec.getBoundingClientRect();
         const windowH = window.innerHeight;
-        const totalScrollable = rect.height - windowH;
-        if (totalScrollable <= 0) return 0;
-        const progress = -rect.top / totalScrollable;
+        const totalRange = rect.height;
+        if (totalRange <= 0) return 0;
+
+        // Inicia assim que o topo da seção entra no rodapé da janela (rect.top == windowH)
+        // Conclui quando a base da seção atinge o rodapé da janela
+        const distanceScrolled = windowH - rect.top;
+        const progress = distanceScrolled / totalRange;
         return Math.max(0, Math.min(1, progress));
       }
 
@@ -1578,14 +1582,14 @@
       // Relógio Three.js para Animação Fluida
       const clock = new THREE.Clock();
 
-      // Loop de Animação 3D — O Carro Desce Continuamente em Zigue-Zague Conforme o Usuário Rola para Baixo
+      // Loop de Animação 3D — Descida Instantânea 1:1 em Conjunto com o Scroll do Mouse
       function animate() {
         requestAnimationFrame(animate);
         const p = getSobreScrollProgress();
 
         if (activeModel) {
-          // 1. Deslocamento Vertical Descendente: O carro começa no topo (0.8) e desce até a base (-0.8) conforme o scroll desce
-          const targetY = 0.8 - (p * 1.6);
+          // 1. Deslocamento Vertical Descendente: O carro desce de +0.85 a -0.85 em conjunto direto com a rodinha do mouse
+          const targetY = 0.85 - (p * 1.7);
 
           // 2. Trajetória Horizontal em Zigue-Zague (Direita -> Esquerda -> Direita)
           const rawWave = Math.cos(p * Math.PI * 2.0);
@@ -1598,11 +1602,11 @@
           // 4. Apontamento do Veículo no Sentido do Movimento (Yaw Y-axis)
           const targetRotationY = 0.3 + Math.sin(p * Math.PI * 2.0) * 0.35;
 
-          // Lerp suave e rápido 1:1 acompanhando o movimento do scroll do mouse
-          activeModel.position.x += (targetX - activeModel.position.x) * 0.3;
-          activeModel.position.y += (targetY - activeModel.position.y) * 0.3;
-          activeModel.rotation.z += (targetTiltZ - activeModel.rotation.z) * 0.3;
-          activeModel.rotation.y += (targetRotationY - activeModel.rotation.y) * 0.3;
+          // Lerp de alta velocidade (0.65) para alinhamento físico instantâneo com a rolagem do mouse
+          activeModel.position.x += (targetX - activeModel.position.x) * 0.65;
+          activeModel.position.y += (targetY - activeModel.position.y) * 0.65;
+          activeModel.rotation.z += (targetTiltZ - activeModel.rotation.z) * 0.65;
+          activeModel.rotation.y += (targetRotationY - activeModel.rotation.y) * 0.65;
         }
 
         controls.update();
