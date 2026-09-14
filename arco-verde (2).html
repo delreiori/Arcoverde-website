@@ -698,15 +698,16 @@
       gap: 14rem;
     }
 
-    /* Canvas 3D de fundo relativo para permitir rolagem 100% livre e natural */
+    /* Canvas 3D de fundo sticky para alinhamento 100% com a tela do usuário no scroll */
     .sobre-3d-background-canvas {
-      position: absolute;
+      position: sticky;
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
+      height: 100vh;
       z-index: 1;
       pointer-events: none;
+      margin-bottom: -100vh;
     }
     #sobre3dContainer {
       width: 100%;
@@ -1552,16 +1553,16 @@
         if (loaderEl) loaderEl.style.display = 'none';
       }
 
-      // CÁLCULO DE PROGRESSO DA POSIÇÃO DA SEÇÃO SOBRE NÓS NO VIEWPORT
+      // CÁLCULO DE PROGRESSO DA POSIÇÃO DA SEÇÃO SOBRE NÓS PINADA NA TELA (0 no início, 1 no fim)
       function getSobreScrollProgress() {
         const sec = document.getElementById('sobre-nos');
-        if (!sec) return 0.5;
+        if (!sec) return 0;
         const rect = sec.getBoundingClientRect();
         const windowH = window.innerHeight;
-        const totalDist = rect.height + windowH;
-        if (totalDist <= 0) return 0.5;
-        const currentPos = windowH - rect.top;
-        const progress = currentPos / totalDist;
+        const totalScrollable = rect.height - windowH;
+        if (totalScrollable <= 0) return 0;
+        // rect.top = 0 quando o topo da seção chega ao topo do viewport
+        const progress = -rect.top / totalScrollable;
         return Math.max(0, Math.min(1, progress));
       }
 
@@ -1578,23 +1579,23 @@
       // Relógio Three.js para Animação Fluida
       const clock = new THREE.Clock();
 
-      // Loop de Animação 3D — Movimento Zigue-Zague Guiado 100% pelo Scroll do Usuário (Rigidamente Enquadrado)
+      // Loop de Animação 3D — Movimento Zigue-Zague Guiado 100% pelo Scroll do Usuário (Rente à Tela)
       function animate() {
         requestAnimationFrame(animate);
         const p = getSobreScrollProgress();
 
         if (activeModel) {
-          // Ângulo derivado estritamente da posição de rolagem do usuário (0 a 1)
-          const angle = p * Math.PI * 3.0;
+          // Ângulo de oscilação horizontal em zigue-zague
+          const angle = p * Math.PI * 2.5;
 
-          // Amplitude horizontal estritamente limitada para NUNCA cortar o carro nas bordas laterais
-          const maxAmp = Math.min(0.75, (window.innerWidth / 1400) * 0.75);
+          // Amplitude horizontal contida no esquadro (para não cortar nas bordas)
+          const maxAmp = Math.min(0.85, (window.innerWidth / 1300) * 0.85);
 
           // 1. Trajetória em Zigue-Zague Horizontal 100% contida no esquadro visual da tela
           const targetX = Math.sin(angle) * maxAmp;
           
-          // 2. Deslocamento Vertical guiado pelo progresso do Scroll
-          const targetY = (0.5 - p) * 3.2;
+          // 2. Deslocamento Vertical: começa no topo da tela (1.3) e desce suavemente (até -1.3) acompanhando a rolagem
+          const targetY = 1.3 - (p * 2.6);
           
           // 3. Inclinação Dinâmica nas Curvas (Roll Z-axis)
           const targetTiltZ = -Math.cos(angle) * 0.15;
