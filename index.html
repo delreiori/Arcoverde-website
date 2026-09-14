@@ -1578,47 +1578,16 @@
       // Relógio Three.js para Animação Fluida
       const clock = new THREE.Clock();
 
-      // Loop de Animação 3D — Movimento Zigue-Zague Guiado 100% pelos Cards no DOM e Scroll
+      // Loop de Animação 3D — O Carro Desce Continuamente em Zigue-Zague Conforme o Usuário Rola para Baixo
       function animate() {
         requestAnimationFrame(animate);
-        
-        const b1 = document.getElementById('storyBlock1');
-        const b2 = document.getElementById('storyBlock2');
-        const b3 = document.getElementById('storyBlock3');
         const p = getSobreScrollProgress();
 
-        if (activeModel && b1 && b2 && b3) {
-          const windowH = window.innerHeight;
+        if (activeModel) {
+          // 1. Deslocamento Vertical Descendente: O carro começa no topo (0.8) e desce até a base (-0.8) conforme o scroll desce
+          const targetY = 0.8 - (p * 1.6);
 
-          // Posição central em pixels de cada bloco de texto na tela do usuário
-          const r1 = b1.getBoundingClientRect();
-          const r2 = b2.getBoundingClientRect();
-          const r3 = b3.getBoundingClientRect();
-
-          const y1 = r1.top + r1.height / 2;
-          const y2 = r2.top + r2.height / 2;
-          const y3 = r3.top + r3.height / 2;
-
-          // Interpolação Y contínua acompanhando o bloco de texto atualmente visível no viewport
-          let targetYPixel = y1;
-          if (p < 0.35) {
-            targetYPixel = y1;
-          } else if (p < 0.65) {
-            const factor = (p - 0.35) / 0.3;
-            targetYPixel = y1 + (y2 - y1) * factor;
-          } else {
-            const factor = (p - 0.65) / 0.35;
-            targetYPixel = y2 + (y3 - y2) * factor;
-          }
-
-          // Converter pixel Y em coordenada 3D Three.js com limites seguros na tela (+0.6 a -0.6)
-          const rawY = (1.0 - (targetYPixel / windowH) * 2.0) * 0.7;
-          const targetY = Math.max(-0.6, Math.min(0.6, rawY));
-
-          // 1. Trajetória X moldada (Mantém o carro afastado dos cards no espaço livre):
-          // Bloco 1 (Esq) -> Carro Direita (+1.15)
-          // Bloco 2 (Dir) -> Carro Esquerda (-0.95)
-          // Bloco 3 (Esq) -> Carro Direita (+1.15)
+          // 2. Trajetória Horizontal em Zigue-Zague (Direita -> Esquerda -> Direita)
           const rawWave = Math.cos(p * Math.PI * 2.0);
           const shapedWave = Math.sign(rawWave) * Math.pow(Math.abs(rawWave), 0.4);
           const targetX = shapedWave * 1.05 + 0.1;
@@ -1629,11 +1598,11 @@
           // 4. Apontamento do Veículo no Sentido do Movimento (Yaw Y-axis)
           const targetRotationY = 0.3 + Math.sin(p * Math.PI * 2.0) * 0.35;
 
-          // Lerp fluido e preciso sincronizado 1:1 com os cards do DOM
-          activeModel.position.x += (targetX - activeModel.position.x) * 0.25;
-          activeModel.position.y += (targetY - activeModel.position.y) * 0.25;
-          activeModel.rotation.z += (targetTiltZ - activeModel.rotation.z) * 0.25;
-          activeModel.rotation.y += (targetRotationY - activeModel.rotation.y) * 0.25;
+          // Lerp suave e rápido 1:1 acompanhando o movimento do scroll do mouse
+          activeModel.position.x += (targetX - activeModel.position.x) * 0.3;
+          activeModel.position.y += (targetY - activeModel.position.y) * 0.3;
+          activeModel.rotation.z += (targetTiltZ - activeModel.rotation.z) * 0.3;
+          activeModel.rotation.y += (targetRotationY - activeModel.rotation.y) * 0.3;
         }
 
         controls.update();
