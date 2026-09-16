@@ -685,7 +685,10 @@
       border-top: 1px solid rgba(230, 147, 0, 0.35);
       border-bottom: 1px solid rgba(230, 147, 0, 0.35);
       color: #ffffff;
-      overflow: hidden;
+      /* overflow: clip recorta o excesso SEM criar um container de rolagem —
+         com overflow: hidden o position: sticky do canvas 3D é anulado e o carro
+         sobe junto com a página em vez de acompanhar a descida dos textos */
+      overflow: clip;
       min-height: auto;
     }
     .sobre-story-wrapper {
@@ -1553,20 +1556,31 @@
         if (loaderEl) loaderEl.style.display = 'none';
       }
 
-      // CÁLCULO DE PROGRESSO DA POSIÇÃO DA SEÇÃO SOBRE NÓS (0 no início da entrada, 1 no fim)
+      // CÁLCULO DE PROGRESSO SINCRONIZADO COM O DESLOCAMENTO DOS TEXTOS
+      // O canvas 3D é sticky (top: 0), ou seja, ele só fica realmente parado na tela
+      // a partir do instante em que o topo da seção alcança o topo da janela. É apenas
+      // nesse intervalo que os cards de texto rolam 1:1 por cima do canvas, então é
+      // exatamente nele que o carro precisa descer para acompanhar o texto ao mesmo tempo.
       function getSobreScrollProgress() {
         const sec = document.getElementById('sobre-nos');
         if (!sec) return 0;
         const rect = sec.getBoundingClientRect();
         const windowH = window.innerHeight;
-        const totalRange = rect.height;
-        if (totalRange <= 0) return 0;
 
-        // Inicia assim que o topo da seção entra no rodapé da janela (rect.top == windowH)
-        // Conclui quando a base da seção atinge o rodapé da janela
-        const distanceScrolled = windowH - rect.top;
-        const progress = distanceScrolled / totalRange;
-        return Math.max(0, Math.min(1, progress));
+        // Deslocamento estático do canvas dentro da seção (o padding do topo): o sticky
+        // só gruda no topo da janela depois que a página rola essa distância.
+        // Usamos o padding e não offsetTop porque, em elementos sticky, offsetTop já
+        // devolve a posição grudada e zeraria o cálculo.
+        const offsetTop = parseFloat(getComputedStyle(sec).paddingTop) || 0;
+
+        // Distância de rolagem durante a qual o canvas permanece fixo na tela
+        const pinnedRange = rect.height - offsetTop - windowH;
+        if (pinnedRange <= 0) return 0;
+
+        // scrolled == 0 -> canvas acabou de fixar (início da descida)
+        // scrolled == pinnedRange -> base da seção no rodapé da janela (fim da descida)
+        const scrolled = (-rect.top) - offsetTop;
+        return Math.max(0, Math.min(1, scrolled / pinnedRange));
       }
 
       // Redimensionamento responsivo
@@ -1588,8 +1602,9 @@
         const p = getSobreScrollProgress();
 
         if (activeModel) {
-          // 1. Deslocamento Vertical Descendente: O carro desce de +0.85 a -0.85 em conjunto direto com a rodinha do mouse
-          const targetY = 0.85 - (p * 1.7);
+          // 1. Deslocamento Vertical Descendente: o carro percorre a tela de cima a baixo
+          // no mesmo ritmo em que os cards de texto sobem, quadro a quadro com o scroll
+          const targetY = 1.6 - (p * 2.5);
 
           // 2. Trajetória Horizontal em Zigue-Zague (Direita -> Esquerda -> Direita)
           const rawWave = Math.cos(p * Math.PI * 2.0);
