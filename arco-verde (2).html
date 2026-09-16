@@ -698,7 +698,9 @@
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 14rem;
+      /* Espaçamento maior entre os cards alonga o trecho de rolagem da seção, então
+         o carro percorre a mesma descida de forma mais lenta e gradual */
+      gap: 22rem;
     }
 
     /* Canvas 3D de fundo sticky para alinhamento 100% com a tela do usuário no scroll */
@@ -1368,7 +1370,9 @@
       // Renderizador WebGL com fundo 100% transparente
       const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
       renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      // Limite de 1.5 no pixel ratio: em telas retina o material de vidro custa caro
+      // e renderizar em 2x derruba os quadros por segundo da animação
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.3;
       renderer.outputEncoding = THREE.sRGBEncoding;
@@ -1583,8 +1587,18 @@
         return Math.max(0, Math.min(1, scrolled / pinnedRange));
       }
 
+      // O progresso é recalculado apenas quando a página rola ou muda de tamanho.
+      // Ler getBoundingClientRect() a cada quadro forçaria um novo cálculo de layout
+      // dentro do loop 3D e derrubaria a fluidez da animação.
+      let scrollProgress = getSobreScrollProgress();
+      function updateScrollProgress() {
+        scrollProgress = getSobreScrollProgress();
+      }
+      window.addEventListener('scroll', updateScrollProgress, { passive: true });
+
       // Redimensionamento responsivo
       window.addEventListener('resize', function () {
+        updateScrollProgress();
         if (!container) return;
         const w = container.clientWidth;
         const h = container.clientHeight;
@@ -1596,10 +1610,19 @@
       // Relógio Three.js para Animação Fluida
       const clock = new THREE.Clock();
 
-      // Loop de Animação 3D — Descida Instantânea 1:1 em Conjunto com o Scroll do Mouse
+      // Suavização do movimento: quanto menor, mais lento e macio o carro persegue
+      // a posição alvo definida pelo scroll (0.05 ≈ 0,3 s para assentar)
+      const SMOOTH_FACTOR = 0.05;
+
+      // Loop de Animação 3D — Descida Suave Acompanhando o Scroll
       function animate() {
         requestAnimationFrame(animate);
-        const p = getSobreScrollProgress();
+        const p = scrollProgress;
+
+        // Amortecimento independente da taxa de quadros: o carro se move na mesma
+        // velocidade em telas de 60 Hz, 120 Hz ou em máquinas mais lentas
+        const delta = Math.min(clock.getDelta(), 0.1);
+        const damping = 1 - Math.pow(1 - SMOOTH_FACTOR, delta * 60);
 
         if (activeModel) {
           // 1. Deslocamento Vertical Descendente: o carro percorre a tela de cima a baixo
@@ -1617,11 +1640,12 @@
           // 4. Apontamento do Veículo no Sentido do Movimento (Yaw Y-axis)
           const targetRotationY = 0.3 + Math.sin(p * Math.PI * 2.0) * 0.35;
 
-          // Lerp de alta velocidade (0.65) para alinhamento físico instantâneo com a rolagem do mouse
-          activeModel.position.x += (targetX - activeModel.position.x) * 0.65;
-          activeModel.position.y += (targetY - activeModel.position.y) * 0.65;
-          activeModel.rotation.z += (targetTiltZ - activeModel.rotation.z) * 0.65;
-          activeModel.rotation.y += (targetRotationY - activeModel.rotation.y) * 0.65;
+          // Interpolação amortecida: o carro desliza suavemente até o alvo em vez de
+          // saltar de posição, dando a sensação de um veículo pesado descendo devagar
+          activeModel.position.x += (targetX - activeModel.position.x) * damping;
+          activeModel.position.y += (targetY - activeModel.position.y) * damping;
+          activeModel.rotation.z += (targetTiltZ - activeModel.rotation.z) * damping;
+          activeModel.rotation.y += (targetRotationY - activeModel.rotation.y) * damping;
         }
 
         controls.update();
