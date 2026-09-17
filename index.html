@@ -222,9 +222,17 @@
       top: 0;
       width: 100%;
       height: 100vh;
-      margin-bottom: -100vh;
       z-index: 3;
       pointer-events: none;
+    }
+    /* A sobreposição vem de uma margem negativa na PRÓXIMA seção, e não de
+       margin-bottom no próprio canvas: com a margem negativa nele, a caixa de
+       margem zera e o sticky só solta quando o fim do palco alcança o topo da
+       janela — o celular ficaria boiando por mais uma tela inteira sobre a seção
+       seguinte. Com a altura real preservada, ele solta exatamente no fim da
+       seção "Acompanhe sua corrida". */
+    .app-phone-stage > .conheca-app {
+      margin-top: -100vh;
     }
     #appPhoneContainer {
       width: 100%;
@@ -758,7 +766,12 @@
       height: 100vh;
       z-index: 1;
       pointer-events: none;
-      margin-bottom: -100vh;
+    }
+    /* Mesma regra do palco do celular: a sobreposição vem da margem negativa no
+       bloco seguinte, para o sticky soltar no fim da seção e o carro não ficar
+       pairando por cima do rodapé */
+    .sobre-story-wrapper {
+      margin-top: -100vh;
     }
     #sobre3dContainer {
       width: 100%;
@@ -1780,10 +1793,15 @@
         // só gruda no topo da janela depois que a página rola essa distância.
         // Usamos o padding e não offsetTop porque, em elementos sticky, offsetTop já
         // devolve a posição grudada e zeraria o cálculo.
-        const offsetTop = parseFloat(getComputedStyle(sec).paddingTop) || 0;
+        const style = getComputedStyle(sec);
+        const offsetTop = parseFloat(style.paddingTop) || 0;
+        // O navegador prende o sticky até a caixa de CONTEÚDO da seção, ou seja, ele
+        // solta o canvas um padding-bottom antes do fim. A descida precisa terminar
+        // nesse mesmo ponto, senão o carro ainda estaria descendo enquanto já sai.
+        const offsetBottom = parseFloat(style.paddingBottom) || 0;
 
         // Distância de rolagem durante a qual o canvas permanece fixo na tela
-        const pinnedRange = rect.height - offsetTop - windowH;
+        const pinnedRange = rect.height - offsetTop - offsetBottom - windowH;
         if (pinnedRange <= 0) return 0;
 
         // scrolled == 0 -> canvas acabou de fixar (início da descida)
