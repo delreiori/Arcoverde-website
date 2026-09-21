@@ -780,7 +780,7 @@
     .sobre-story-wrapper {
       position: relative;
       z-index: 5;
-      max-width: 1200px;
+      max-width: 1480px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
@@ -873,47 +873,51 @@
     }
 
     .story-card {
-      max-width: 520px;
+      max-width: 460px;
       width: 100%;
-      padding: 2.4rem 2.6rem;
-      background: rgba(2, 18, 8, 0.84);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(0, 230, 118, 0.35);
-      border-radius: 24px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(0, 230, 118, 0.15);
+      padding: 2.8rem 3rem;
+      background: rgba(2, 18, 8, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
       pointer-events: auto;
-      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.3s ease, border-color 0.3s ease;
     }
     .story-card:hover {
       transform: translateY(-4px);
-      border-color: rgba(0, 230, 118, 0.65);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 0 0 45px rgba(0, 230, 118, 0.25);
+      border-color: rgba(0, 230, 118, 0.45);
     }
     .story-tag {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 16px;
-      background: linear-gradient(135deg, rgba(0, 230, 118, 0.18) 0%, rgba(0, 230, 118, 0.05) 100%);
-      border: 1px solid rgba(0, 230, 118, 0.45);
-      border-radius: 20px;
+      gap: 0.8rem;
       font-family: 'Outfit', sans-serif;
-      font-size: 0.8rem;
+      font-size: 0.72rem;
       font-weight: 700;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: #00e676;
-      margin-bottom: 1.1rem;
+      margin-bottom: 1.6rem;
     }
+    /* Fio curto antes do rótulo; no card da direita ele troca de lado */
+    .story-tag::before {
+      content: "";
+      width: 30px;
+      height: 2px;
+      background: currentColor;
+      opacity: 0.75;
+    }
+    .block-right .story-tag { flex-direction: row-reverse; }
     .story-card h2 {
       font-family: "Outfit", sans-serif;
-      font-size: clamp(2.1rem, 3.4vw, 2.7rem);
+      font-size: clamp(2.3rem, 3.6vw, 3rem);
       font-weight: 800;
-      letter-spacing: -0.02em;
-      line-height: 1.15;
+      letter-spacing: -0.035em;
+      line-height: 1.02;
       color: #ffffff;
-      margin-bottom: 1.1rem;
+      margin: 0 0 1.4rem;
       text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
     }
     .story-card h2 span {
@@ -922,44 +926,13 @@
     }
     .story-card p {
       font-family: "Inter", sans-serif;
-      font-size: 1.05rem;
+      font-size: 1.02rem;
       font-weight: 400;
-      line-height: 1.85;
-      color: rgba(255, 255, 255, 0.92);
-      letter-spacing: 0.01em;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.78);
+      letter-spacing: 0.005em;
+      margin: 0;
     }
-    .story-stats {
-      display: flex;
-      gap: 2rem;
-      margin-top: 1.6rem;
-      padding-top: 1.2rem;
-      border-top: 1px solid rgba(0, 230, 118, 0.2);
-    }
-    .block-right .story-stats {
-      justify-content: flex-end;
-    }
-    .stat-item {
-      display: flex;
-      flex-direction: column;
-    }
-    .stat-num {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: #00e676;
-      line-height: 1.1;
-      text-shadow: 0 0 15px rgba(0, 230, 118, 0.35);
-    }
-    .stat-label {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.72);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-top: 2px;
-    }
-
     @media (max-width: 880px) {
       .sobre-story-wrapper {
         gap: 8rem;
@@ -971,9 +944,6 @@
       }
       .story-card {
         max-width: 100%;
-      }
-      .block-right .story-stats {
-        justify-content: center;
       }
     }
 
@@ -1215,63 +1185,33 @@
       <!-- TEXTO 1: ESQUERDA -->
       <div class="sobre-story-block block-left" id="storyBlock1">
         <div class="story-card">
-          <span class="story-tag">🟢 Tradição & Excelência</span>
+          <span class="story-tag">Tradição &amp; Excelência</span>
           <h2>Sobre <span>Nós</span></h2>
           <p>
             Fundada em 2009, a Cooperativa Arco Verde Táxi Executivo é referência em mobilidade no Rio de Janeiro, oferecendo soluções de transporte que unem segurança, pontualidade, conforto e atendimento VIP.
           </p>
-          <div class="story-stats">
-            <div class="stat-item">
-              <strong class="stat-num">2009</strong>
-              <span class="stat-label">Ano de Fundação</span>
-            </div>
-            <div class="stat-item">
-              <strong class="stat-num">100%</strong>
-              <span class="stat-label">Frota Vistoriada</span>
-            </div>
-          </div>
         </div>
       </div>
 
       <!-- TEXTO 2: DIREITA -->
       <div class="sobre-story-block block-right" id="storyBlock2">
         <div class="story-card">
-          <span class="story-tag">🏆 15+ Anos no Rio</span>
+          <span class="story-tag">Quinze anos no Rio</span>
           <h2>Atendimento <span>VIP</span></h2>
           <p>
             Ao longo de mais de 15 anos de história, construímos relações sólidas de confiança com clientes particulares, grandes corporações, hotéis renomados e eventos de grande porte na Cidade Maravilhosa.
           </p>
-          <div class="story-stats">
-            <div class="stat-item">
-              <strong class="stat-num">15+</strong>
-              <span class="stat-label">Anos de Mercado</span>
-            </div>
-            <div class="stat-item">
-              <strong class="stat-num">VIP</strong>
-              <span class="stat-label">Padrão Corporativo</span>
-            </div>
-          </div>
         </div>
       </div>
 
       <!-- TEXTO 3: ESQUERDA -->
       <div class="sobre-story-block block-left" id="storyBlock3">
         <div class="story-card">
-          <span class="story-tag">⚡ Frota Executiva</span>
-          <h2>Conforto & <span>Tecnologia</span></h2>
+          <span class="story-tag">Frota Executiva</span>
+          <h2>Conforto &amp; <span>Tecnologia</span></h2>
           <p>
             Nossa frota passa por rigorosas vistorias diárias. Nossos motoristas cooperados são treinados para garantir viagens silenciosas, seguras e com a máxima pontualidade do embarque ao destino final.
           </p>
-          <div class="story-stats">
-            <div class="stat-item">
-              <strong class="stat-num">24/7</strong>
-              <span class="stat-label">Suporte & Embarque</span>
-            </div>
-            <div class="stat-item">
-              <strong class="stat-num">4.9★</strong>
-              <span class="stat-label">Avaliação Clientes</span>
-            </div>
-          </div>
         </div>
       </div>
 
