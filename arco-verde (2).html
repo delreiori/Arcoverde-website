@@ -451,6 +451,14 @@
       transform: translateX(0) scale(1) rotate(0deg);
     }
 
+    /* O ícone do boleto é quadrado, enquanto os outros são deitados: com o mesmo
+       encaixe ele saía bem menor. A arte fica na metade de cima do PNG, então
+       ampliar a partir do centro faz o desenho crescer subindo dentro do oval,
+       sem esbarrar no corte da borda inferior da seção. */
+    #pagamento-section .slide-img[data-slide="2"].active {
+      transform: translateX(0) scale(1.35) rotate(0deg);
+    }
+
     #pagamento-section .slide-img.exit {
       opacity: 0;
       transform: translateX(-140px) scale(0.85) rotate(-15deg);
