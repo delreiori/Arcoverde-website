@@ -1009,22 +1009,22 @@
     <!-- 2. CONHEÇA NOSSO APP -->
     <section class="conheca-app" id="conheca-app">
       <div class="spotlight"></div>
-      <h2>conheça</h2>
+      <h2 data-rise>conheça</h2>
       <div class="phone-slot" aria-hidden="true"></div>
-      <h2>nosso app</h2>
+      <h2 data-rise>nosso app</h2>
     </section>
 
     <!-- 3. ACOMPANHE SUA CORRIDA EM TEMPO REAL -->
     <section id="app-tracking">
       <div class="tracking-card">
-        <h3 class="tracking-title" data-fill-text>Acompanhe sua corrida em tempo real</h3>
+        <h3 class="tracking-title" data-rise data-fill-text>Acompanhe sua corrida em tempo real</h3>
         <div class="phone-slot" aria-hidden="true"></div>
         <div class="tracking-features">
-          <div class="tracking-feature">
+          <div class="tracking-feature" data-rise>
             <h4>Tecnologia a serviço da mobilidade</h4>
             <p>Um aplicativo moderno para facilitar sua experiência.</p>
           </div>
-          <div class="tracking-feature">
+          <div class="tracking-feature" data-rise>
             <h4>Tradição que continua</h4>
             <p>Uma história construída em Copacabana e que segue avançando com o Rio.</p>
           </div>
@@ -1190,7 +1190,7 @@
     <div class="sobre-story-wrapper">
 
       <!-- TEXTO 1: ESQUERDA -->
-      <div class="sobre-story-block block-left" id="storyBlock1">
+      <div class="sobre-story-block block-left" id="storyBlock1" data-rise>
         <div class="story-card">
           <span class="story-tag">Tradição &amp; Excelência</span>
           <h2 data-fill-text>Sobre <span>Nós</span></h2>
@@ -1201,7 +1201,7 @@
       </div>
 
       <!-- TEXTO 2: DIREITA -->
-      <div class="sobre-story-block block-right" id="storyBlock2">
+      <div class="sobre-story-block block-right" id="storyBlock2" data-rise>
         <div class="story-card">
           <span class="story-tag">Quinze anos no Rio</span>
           <h2 data-fill-text>Atendimento <span>VIP</span></h2>
@@ -1212,7 +1212,7 @@
       </div>
 
       <!-- TEXTO 3: ESQUERDA -->
-      <div class="sobre-story-block block-left" id="storyBlock3">
+      <div class="sobre-story-block block-left" id="storyBlock3" data-rise>
         <div class="story-card">
           <span class="story-tag">Frota Executiva</span>
           <h2 data-fill-text>Conforto &amp; <span>Tecnologia</span></h2>
@@ -1403,6 +1403,56 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <script>
+    /* ── ELEMENTOS SUBINDO PARA O LUGAR CONFORME A ROLAGEM ──
+       Cada bloco marcado com data-rise entra por baixo e sobe até assentar, preso
+       ao scroll. Irmãos marcados entram em cascata, um depois do outro. */
+    (function initRise() {
+      const marked = Array.prototype.slice.call(document.querySelectorAll('[data-rise]'));
+      if (!marked.length) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      const DISTANCE = 60;    // px que o elemento percorre de baixo até o lugar
+      const START = 1.0;      // começa com o topo do bloco no rodapé da janela
+      const END = 0.62;       // e assenta quando ele chega nesta altura
+      const STAGGER = 0.1;    // atraso de um irmão marcado para o seguinte
+
+      const items = marked.map(function (el) {
+        const siblings = Array.prototype.slice.call(el.parentNode.children)
+          .filter(function (c) { return c.hasAttribute('data-rise'); });
+        el.style.willChange = 'transform, opacity';
+        return { el: el, order: Math.max(0, siblings.indexOf(el)), last: null };
+      });
+
+      function paint() {
+        const windowH = window.innerHeight;
+        const start = windowH * START, end = windowH * END;
+        items.forEach(function (it) {
+          const rect = it.el.getBoundingClientRect();
+          if (rect.top > windowH + 150 && it.last === 0) return;   // ainda longe, já guardado
+          if (rect.bottom < -150 && it.last === 1) return;         // já passou, já assentado
+          const raw = (start - rect.top) / (start - end) - it.order * STAGGER;
+          const p = Math.max(0, Math.min(1, raw));
+          if (it.last === p) return;
+          it.last = p;
+          const eased = 1 - Math.pow(1 - p, 3);
+          it.el.style.transform = 'translateY(' + ((1 - eased) * DISTANCE).toFixed(1) + 'px)';
+          it.el.style.opacity = eased.toFixed(3);
+        });
+      }
+
+      let queued = false;
+      function onScroll() {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(function () { queued = false; paint(); });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      paint();
+    })();
+  </script>
 
   <script>
     /* ── TIPOGRAFIA QUE ACENDE CONFORME A ROLAGEM ──
