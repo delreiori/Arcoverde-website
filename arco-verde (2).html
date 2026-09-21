@@ -1550,22 +1550,224 @@
         color: 0x0e3d20, metalness: 0.85, roughness: 0.32
       })));
 
-      // Tela: começa escura e recebe o print do app quando a textura carrega
-      const screenMat = new THREE.MeshBasicMaterial({ color: 0x11161f });
-      const screen = new THREE.Mesh(
-        new THREE.PlaneGeometry(PHONE_W - 0.11, PHONE_H - 0.14),
-        screenMat
-      );
-      screen.position.z = PHONE_D / 2 + 0.036;
-      phone.add(screen);
+      // ── TELAS DO APARELHO ──
+      // A primeira é o print real do app; as seguintes são desenhadas em canvas, sem
+      // baixar imagem nova. Elas se trocam conforme a rolagem avança pelas seções.
+      const SCREEN_W = 540, SCREEN_H = 1170;       // mesma proporção da textura do app
+      const FONT = "'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif";
+      const screenGeo = new THREE.PlaneGeometry(PHONE_W - 0.11, PHONE_H - 0.14);
 
+      // Fundo opaco atrás das telas: durante a troca elas ficam translúcidas e sem
+      // isso o corpo do aparelho apareceria através delas
+      const screenBack = new THREE.Mesh(screenGeo, new THREE.MeshBasicMaterial({ color: 0x0a1410 }));
+      screenBack.position.z = PHONE_D / 2 + 0.034;
+      phone.add(screenBack);
+
+      const screens = [];
+      function addScreen(map, color) {
+        const mesh = new THREE.Mesh(screenGeo, new THREE.MeshBasicMaterial({
+          map: map || null, color: color === undefined ? 0xffffff : color,
+          transparent: true, opacity: screens.length === 0 ? 1 : 0, depthWrite: false
+        }));
+        mesh.position.z = PHONE_D / 2 + 0.036 + screens.length * 0.0015;
+        mesh.renderOrder = 1 + screens.length;
+        phone.add(mesh);
+        screens.push(mesh);
+        return mesh.material;
+      }
+
+      // Tela 1 — print real do app (escura enquanto a imagem não chega)
+      const appScreenMat = addScreen(null, 0x11161f);
       new THREE.TextureLoader().load('images/app-screen.jpg', function (texture) {
         texture.encoding = THREE.sRGBEncoding;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-        screenMat.map = texture;
-        screenMat.color.set(0xffffff);
-        screenMat.needsUpdate = true;
+        appScreenMat.map = texture;
+        appScreenMat.color.set(0xffffff);
+        appScreenMat.needsUpdate = true;
       });
+
+      function roundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+
+      function drawStatusBar(ctx) {
+        ctx.fillStyle = '#0a1410';
+        ctx.fillRect(0, 0, SCREEN_W, SCREEN_H);
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.font = '600 21px ' + FONT;
+        ctx.textAlign = 'left';
+        ctx.fillText('09:41', 36, 54);
+        for (let i = 0; i < 4; i++) {           // barrinhas de sinal
+          const h = 5 + i * 4;
+          ctx.fillRect(408 + i * 9, 50 - h, 5, h);
+        }
+        ctx.globalAlpha = 0.5;
+        roundRect(ctx, 452, 36, 40, 18, 5); ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      // Tela 2 — acompanhamento da corrida
+      function drawTrackingScreen(ctx) {
+        drawStatusBar(ctx);
+
+        ctx.fillStyle = '#0d1a14';
+        ctx.fillRect(0, 76, SCREEN_W, 706);
+        ctx.strokeStyle = '#16281e';                       // malha de ruas
+        ctx.lineWidth = 11;
+        [[-40, 300, 600, 170], [-40, 470, 600, 330], [-40, 650, 600, 520]].forEach(function (l) {
+          ctx.beginPath(); ctx.moveTo(l[0], l[1]); ctx.lineTo(l[2], l[3]); ctx.stroke();
+        });
+        ctx.lineWidth = 7;
+        [[120, 76, 190, 782], [330, 76, 250, 782], [470, 76, 420, 782]].forEach(function (l) {
+          ctx.beginPath(); ctx.moveTo(l[0], l[1]); ctx.lineTo(l[2], l[3]); ctx.stroke();
+        });
+
+        ctx.strokeStyle = '#00e676';                       // trajeto
+        ctx.lineWidth = 9;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(126, 690);
+        ctx.lineTo(196, 520);
+        ctx.lineTo(352, 430);
+        ctx.lineTo(392, 236);
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';                          // origem
+        ctx.beginPath(); ctx.arc(126, 690, 13, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#0a1410';
+        ctx.beginPath(); ctx.arc(126, 690, 6, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = '#00e676';                          // destino
+        ctx.beginPath(); ctx.arc(392, 236, 19, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#062d18';
+        ctx.beginPath(); ctx.arc(392, 236, 8, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = 'rgba(0,230,118,0.22)';             // carro no trajeto
+        ctx.beginPath(); ctx.arc(352, 430, 30, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        roundRect(ctx, 332, 418, 40, 24, 9); ctx.fill();
+
+        roundRect(ctx, 26, 806, SCREEN_W - 52, 322, 30);    // cartão inferior
+        ctx.fillStyle = '#111c16'; ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.09)'; ctx.lineWidth = 2; ctx.stroke();
+
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#00e676';
+        ctx.font = '700 19px ' + FONT;
+        ctx.fillText('MOTORISTA A CAMINHO', 60, 866);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '700 40px ' + FONT;
+        ctx.fillText('Chega em 4 min', 60, 922);
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.font = '400 23px ' + FONT;
+        ctx.fillText('Toyota Corolla  ·  Prata  ·  Executivo', 60, 966);
+
+        roundRect(ctx, 60, 1002, 420, 8, 4);                 // progresso do trajeto
+        ctx.fillStyle = 'rgba(255,255,255,0.14)'; ctx.fill();
+        roundRect(ctx, 60, 1002, 260, 8, 4);
+        ctx.fillStyle = '#00e676'; ctx.fill();
+
+        ctx.fillStyle = 'rgba(255,255,255,0.16)';            // motorista
+        ctx.beginPath(); ctx.arc(88, 1074, 28, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '600 25px ' + FONT;
+        ctx.fillText('Márcio Gonçalves', 132, 1070);
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.font = '400 21px ' + FONT;
+        ctx.fillText('Cooperado desde 2014', 132, 1098);
+      }
+
+      // Tela 3 — fim da viagem
+      function drawArrivalScreen(ctx) {
+        drawStatusBar(ctx);
+
+        ctx.fillStyle = 'rgba(0,230,118,0.12)';
+        ctx.beginPath(); ctx.arc(270, 430, 132, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#00e676';
+        ctx.beginPath(); ctx.arc(270, 430, 92, 0, Math.PI * 2); ctx.fill();
+
+        ctx.strokeStyle = '#062d18';                         // visto
+        ctx.lineWidth = 16;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(224, 432); ctx.lineTo(258, 468); ctx.lineTo(320, 396);
+        ctx.stroke();
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '800 44px ' + FONT;
+        ctx.fillText('Viagem concluída', 270, 640);
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.font = '400 23px ' + FONT;
+        ctx.fillText('Obrigado por viajar com a Arco Verde', 270, 684);
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)';          // estrelas para avaliar
+        ctx.lineWidth = 3;
+        for (let s = 0; s < 5; s++) {
+          const cx = 270 + (s - 2) * 62, cy = 790;
+          ctx.beginPath();
+          for (let k = 0; k < 10; k++) {
+            const raio = k % 2 === 0 ? 26 : 11;
+            const ang = -Math.PI / 2 + k * Math.PI / 5;
+            const px = cx + Math.cos(ang) * raio, py = cy + Math.sin(ang) * raio;
+            if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+          }
+          ctx.closePath(); ctx.stroke();
+        }
+
+        roundRect(ctx, 90, 900, 360, 76, 38);
+        ctx.fillStyle = '#00e676'; ctx.fill();
+        ctx.fillStyle = '#052a16';
+        ctx.font = '700 26px ' + FONT;
+        ctx.fillText('Avaliar motorista', 270, 948);
+      }
+
+      // Telas desenhadas em canvas, em dobro da resolução para não borrar
+      const painted = [drawTrackingScreen, drawArrivalScreen].map(function (paint) {
+        const canvas = document.createElement('canvas');
+        canvas.width = SCREEN_W * 2;
+        canvas.height = SCREEN_H * 2;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(2, 2);
+        paint(ctx);
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.encoding = THREE.sRGBEncoding;
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        addScreen(texture);
+        return { ctx: ctx, texture: texture, paint: paint };
+      });
+
+      // A fonte pode chegar depois do primeiro desenho; aí refazemos as telas
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () {
+          painted.forEach(function (s) {
+            s.ctx.clearRect(0, 0, SCREEN_W, SCREEN_H);
+            s.paint(s.ctx);
+            s.texture.needsUpdate = true;
+          });
+        });
+      }
+
+      // Troca de conteúdo: a tela seguinte surge por cima no meio do caminho entre
+      // uma parada e outra. A primeira fica sempre opaca por baixo, senão a mistura
+      // das transparências lavaria a imagem.
+      const SCREEN_FADE = 0.15;
+      function updateScreens(p) {
+        if (screens.length < 2) return;
+        const pos = p * (screens.length - 1);
+        for (let i = 1; i < screens.length; i++) {
+          const t = (pos - (i - 0.5)) / SCREEN_FADE + 0.5;
+          screens[i].material.opacity = Math.max(0, Math.min(1, t));
+        }
+      }
 
       // Botões laterais
       const buttonMat = new THREE.MeshStandardMaterial({ color: 0x0b2d18, metalness: 0.9, roughness: 0.28 });
@@ -1626,6 +1828,8 @@
 
         const damping = 1 - Math.pow(1 - SMOOTH_FACTOR, delta * 60);
         const sway = reduceMotion ? 0 : 1;
+
+        updateScreens(stageProgress);
 
         // Giro conduzido pela rolagem: o aparelho vira do lado esquerdo para o direito
         // conforme as seções passam, sem sair do lugar
