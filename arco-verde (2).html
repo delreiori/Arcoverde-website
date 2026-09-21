@@ -455,7 +455,8 @@
        encaixe ele saía bem menor. A arte fica na metade de cima do PNG, então
        ampliar a partir do centro faz o desenho crescer subindo dentro do oval,
        sem esbarrar no corte da borda inferior da seção. */
-    #pagamento-section .slide-img[data-slide="2"].active {
+    #pagamento-section .slide-img[data-slide="2"].active,
+    #pagamento-section .slide-img[data-slide="4"].active {
       transform: translateX(0) scale(1.35) rotate(0deg);
     }
 
@@ -1413,6 +1414,7 @@
     <p class="subtitle" data-slide="1">No Pix</p>
     <p class="subtitle" data-slide="2">No boleto</p>
     <p class="subtitle" data-slide="3">No Dinheiro</p>
+    <p class="subtitle" data-slide="4">No voucher</p>
 
     <!-- Green Oval -->
     <div class="green-oval"></div>
@@ -1423,6 +1425,7 @@
       <img class="slide-img"        data-slide="1" src="images/img-pix.png"      alt="Pix">
       <img class="slide-img"        data-slide="2" src="images/img-boleto.png"   alt="Boleto">
       <img class="slide-img"        data-slide="3" src="images/img-dinheiro.png" alt="Dinheiro">
+      <img class="slide-img"        data-slide="4" src="images/img-voucher.png"  alt="Voucher">
     </div>
 
     <!-- Navigation Dots -->
@@ -1431,6 +1434,7 @@
       <button class="dot"        data-slide="1"></button>
       <button class="dot"        data-slide="2"></button>
       <button class="dot"        data-slide="3"></button>
+      <button class="dot"        data-slide="4"></button>
     </div>
     </div>
   </section>
@@ -1842,7 +1846,6 @@
   <script>
     /* ── Carrossel Pagamento (Animação Automática) ── */
     (function() {
-      const TOTAL = 4;
       const INTERVAL = 3500;
       let current = 0;
       let timer;
@@ -1853,6 +1856,9 @@
       const subtitles = sec.querySelectorAll('.subtitle');
       const images    = sec.querySelectorAll('.slide-img');
       const dots      = sec.querySelectorAll('.dot');
+      // Contado a partir do HTML, e não fixo: assim incluir ou remover uma forma
+      // de pagamento não deixa o carrossel pulando um slide vazio
+      const TOTAL = subtitles.length;
 
       function goTo(index) {
         if (index === current) return;
