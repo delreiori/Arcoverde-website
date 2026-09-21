@@ -243,7 +243,11 @@
        inline-block: transform não tem efeito em elemento inline. */
     .palavra-abre {
       display: inline-block;
-      will-change: transform;
+      will-change: transform, -webkit-mask-image;
+      /* O gradiente dissolve a palavra a partir da borda que vai na frente.
+         A variável é atualizada pelo script conforme ela se afasta. */
+      -webkit-mask-image: var(--dissolve, none);
+      mask-image: var(--dissolve, none);
     }
 
     /* Espaço reservado no lugar dos mockups estáticos, ocupado pelo celular 3D */
@@ -2010,7 +2014,10 @@
       }
 
       const items = words.map(function (el) {
-        return { el: el, side: el.getAttribute('data-split') === 'left' ? -1 : 1, last: null };
+        const side = el.getAttribute('data-split') === 'left' ? -1 : 1;
+        // A dissolução corre da borda que vai na frente para a de trás: quem vai
+        // para a esquerda apaga a partir da esquerda, e vice-versa.
+        return { el: el, side: side, sentido: side < 0 ? 'to right' : 'to left', last: null };
       });
 
       function paint() {
@@ -2028,6 +2035,13 @@
           if (it.last === x) return;
           it.last = x;
           it.el.style.transform = 'translateX(' + x + 'px)';
+
+          // Faixa do gradiente atravessando a palavra: começa fora dela (nada
+          // apagado) e termina depois da outra ponta (palavra inteira dissolvida)
+          const corte = -10 + curva * 170;
+          it.el.style.setProperty('--dissolve',
+            'linear-gradient(' + it.sentido + ', transparent ' + (corte - 50).toFixed(1) +
+            '%, #000 ' + corte.toFixed(1) + '%)');
         });
       }
 
