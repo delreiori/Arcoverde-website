@@ -1096,6 +1096,89 @@
       .blog-title { max-width: none; }
     }
 
+    /* ── SEÇÃO DE RESERVA ONLINE (WEB BOOKER) ── */
+    #reservar {
+      position: relative;
+      z-index: 2;
+      background: var(--cream);
+      color: #08351c;
+      padding: clamp(4.5rem, 8vw, 7rem) clamp(1.5rem, 5vw, 4rem);
+    }
+    .reservar-inner { max-width: 1200px; margin: 0 auto; }
+    .reservar-header {
+      max-width: 720px;
+      margin-bottom: clamp(2rem, 4vw, 3rem);
+    }
+    .reservar-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 1.3rem;
+    }
+    .reservar-eyebrow::before {
+      content: "";
+      width: 30px;
+      height: 2px;
+      background: currentColor;
+    }
+    .reservar-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2.3rem, 5.4vw, 3.8rem);
+      font-weight: 900;
+      letter-spacing: -0.035em;
+      line-height: 1;
+      margin: 0 0 1.2rem;
+    }
+    .reservar-title > span:not(.fill-word) { color: var(--green); }
+    .reservar-lead {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: rgba(8, 53, 28, 0.72);
+      margin: 0;
+    }
+    .reservar-quadro {
+      border: 1px solid rgba(8, 53, 28, 0.18);
+      border-radius: 24px;
+      overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 20px 50px rgba(8, 53, 28, 0.1);
+    }
+    /* Barra sempre visível com a saída em nova aba: se o sistema de reservas
+       recusar ser exibido em iframe, o cliente ainda tem como reservar */
+    .reservar-barra {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 1.2rem;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.3rem;
+      background: #08351c;
+      color: rgba(255, 255, 255, 0.85);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+    }
+    .reservar-barra a {
+      color: #00e676;
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .reservar-barra a:hover { text-decoration: underline; }
+    .reservar-quadro iframe {
+      display: block;
+      width: 100%;
+      height: clamp(620px, 82vh, 900px);
+      border: 0;
+      background: #ffffff;
+    }
+
     /* ── SEÇÃO FINAL: CONTATO COM MAPA ── */
     #contato {
       position: relative;
@@ -1544,7 +1627,35 @@
     </div>
   </section>
 
-  <!-- 9. CONTATO -->
+  <!-- 9. RESERVA ONLINE (WEB BOOKER AUTOCAB) -->
+  <section id="reservar">
+    <div class="reservar-inner">
+
+      <div class="reservar-header">
+        <span class="reservar-eyebrow" data-rise>Reserva online</span>
+        <h2 class="reservar-title" data-rise data-fill-text>Peça seu táxi <span>agora</span></h2>
+        <p class="reservar-lead" data-rise data-fill-text>
+          Informe origem, destino e horário direto aqui. A reserva entra no mesmo sistema usado pela central da cooperativa.
+        </p>
+      </div>
+
+      <div class="reservar-quadro" data-rise>
+        <div class="reservar-barra">
+          <span>Sistema de reservas Arco Verde</span>
+          <a href="https://eb3.autocab.net/#/30055" target="_blank" rel="noopener">Abrir em nova aba →</a>
+        </div>
+        <iframe
+          title="Sistema de reserva de corridas da Arco Verde"
+          src="https://eb3.autocab.net/#/30055"
+          loading="lazy"
+          allow="geolocation"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 10. CONTATO -->
   <!-- ATENÇÃO: endereço, telefones e e-mail abaixo são MARCADORES. Substituir pelos
        dados reais da cooperativa, junto com as coordenadas do mapa (parâmetro q do
        iframe e query/destination dos links do Google Maps). -->
