@@ -308,6 +308,9 @@
       min-height: 100vh;
       display: flex;
       align-items: center;
+      /* clip (e não hidden) recorta a saída lateral dos textos sem criar
+         container de rolagem */
+      overflow: clip;
     }
     /* Composição em coluna: título, espaço central do celular 3D e os destaques
        embaixo. Assim o aparelho, que fica parado no centro da tela, nunca cobre
@@ -957,7 +960,7 @@
     }
     @media (max-width: 880px) {
       .sobre-story-wrapper {
-        gap: 8rem;
+        gap: 17rem;
       }
       .sobre-story-block.block-left,
       .sobre-story-block.block-right {
@@ -1378,9 +1381,9 @@
     <!-- 2. CONHEÇA NOSSO APP -->
     <section class="conheca-app" id="conheca-app">
       <div class="spotlight"></div>
-      <h2 data-rise>conheça</h2>
+      <h2 data-rise data-split="left">conheça</h2>
       <div class="phone-slot" aria-hidden="true"></div>
-      <h2 data-rise>nosso app</h2>
+      <h2 data-rise data-split="right">nosso app</h2>
     </section>
 
     <!-- 3. ACOMPANHE SUA CORRIDA EM TEMPO REAL -->
@@ -1935,7 +1938,12 @@
         const siblings = Array.prototype.slice.call(el.parentNode.children)
           .filter(function (c) { return c.hasAttribute('data-rise'); });
         el.style.willChange = 'transform, opacity';
-        return { el: el, order: Math.max(0, siblings.indexOf(el)), last: null };
+        // data-split manda o bloco sair para um dos lados depois de passar do meio
+        // da tela, em vez de simplesmente subir junto com a página
+        const split = el.getAttribute('data-split');
+        return { el: el, order: Math.max(0, siblings.indexOf(el)), last: null,
+                 side: split === 'left' ? -1 : (split === 'right' ? 1 : 0),
+                 host: el.closest('section') };
       });
 
       function paint() {
@@ -1955,11 +1963,22 @@
           // cedo em vez de saltar de uma vez nos últimos pixels de rolagem
           const from = Math.max(start, end + MIN_RANGE);
           const p = Math.max(0, Math.min(1, (from - rect.top) / (from - end) - it.order * STAGGER));
-          if (it.last === p) return;
+          if (!it.side && it.last === p) return;   // sem saída lateral, p basta como cache
           it.last = p;
           const eased = 1 - Math.pow(1 - p, 3);
-          it.el.style.transform = 'translateY(' + ((1 - eased) * DISTANCE).toFixed(1) + 'px)';
-          it.el.style.opacity = eased.toFixed(3);
+          let x = 0, fade = 1;
+          if (it.side && it.host) {
+            // A saída acompanha o avanço da própria seção, e não a posição do bloco
+            // na tela: as duas palavras ficam em alturas fixas e, pela posição, a de
+            // cima já nasceria acima do meio e sairia antes de ser lida.
+            const hr = it.host.getBoundingClientRect();
+            const saida = Math.max(0, Math.min(1, (-hr.top) / (hr.height * 0.55)));
+            const curva = saida * saida;            // começa devagar e acelera para fora
+            x = it.side * curva * window.innerWidth * 0.75;
+            fade = 1 - curva;
+          }
+          it.el.style.transform = 'translate(' + x.toFixed(1) + 'px, ' + ((1 - eased) * DISTANCE).toFixed(1) + 'px)';
+          it.el.style.opacity = (eased * fade).toFixed(3);
         });
       }
 
@@ -2639,6 +2658,7 @@
         carGroup.add(hl2);
 
         carGroup.scale.set(0.9, 0.9, 0.9);
+        carGroup.userData.baseScale = 0.9;
         return carGroup;
       }
 
@@ -2670,8 +2690,9 @@
 
             const maxDim = Math.max(size.x, size.y, size.z);
             // Tamanho aumentado do modelo para destacar na direita da tela
-            const scale = 2.4 / maxDim;
+            const scale = CAR_LENGTH / maxDim;
             loadedModel.scale.set(scale, scale, scale);
+            loadedModel.userData.baseScale = scale;
 
             loadedModel.traverse((child) => {
               if (child.isMesh) {
@@ -2694,6 +2715,7 @@
             scene.remove(activeModel);
             activeModel = loadedModel;
             scene.add(activeModel);
+            ajustarCarro();
 
             if (loaderEl) loaderEl.style.display = 'none';
           },
@@ -2756,6 +2778,25 @@
       window.addEventListener('scroll', updateScrollProgress, { passive: true });
 
       // Redimensionamento responsivo
+      // ── Encaixe do carro na largura da tela ──
+      // O modelo tem 2,4 unidades de comprimento. Num celular em pé a câmera enxerga
+      // menos de 2 unidades de largura, então sem este ajuste o carro fica maior que
+      // a tela e o zigue-zague joga metade dele para fora.
+      const CAR_LENGTH = 2.4;
+      let carFit = 1, carSwing = 1.05;
+      function ajustarCarro() {
+        const visH = 2 * camera.position.z * Math.tan(camera.fov * Math.PI / 360);
+        const visW = visH * camera.aspect;
+        carFit = Math.min(1, (visW * 0.62) / CAR_LENGTH);      // no máximo 62% da largura
+        const meiaLargura = (CAR_LENGTH * carFit) / 2;
+        carSwing = Math.min(1.05, Math.max(0.2, visW / 2 - meiaLargura - 0.12));
+        if (activeModel && activeModel.userData.baseScale) {
+          const e = activeModel.userData.baseScale * carFit;
+          activeModel.scale.set(e, e, e);
+        }
+      }
+      ajustarCarro();
+
       window.addEventListener('resize', function () {
         updateScrollProgress();
         if (!container) return;
@@ -2764,6 +2805,7 @@
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
+        ajustarCarro();
       });
 
       // Relógio Three.js para Animação Fluida
@@ -2791,7 +2833,7 @@
           // 2. Trajetória Horizontal em Zigue-Zague (Direita -> Esquerda -> Direita)
           const rawWave = Math.cos(p * Math.PI * 2.0);
           const shapedWave = Math.sign(rawWave) * Math.pow(Math.abs(rawWave), 0.4);
-          const targetX = shapedWave * 1.05 + 0.1;
+          const targetX = shapedWave * carSwing + 0.1 * carFit;
           
           // 3. Inclinação Dinâmica nas Curvas (Roll Z-axis)
           const targetTiltZ = Math.sin(p * Math.PI * 2.0) * 0.12;
