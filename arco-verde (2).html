@@ -1096,6 +1096,140 @@
       .blog-title { max-width: none; }
     }
 
+    /* ── SEÇÃO FINAL: CONTATO COM MAPA ── */
+    #contato {
+      position: relative;
+      z-index: 2;
+      background: #07321c;
+      color: #eaf7ee;
+      padding: clamp(5rem, 9vw, 7.5rem) clamp(1.5rem, 5vw, 4rem);
+    }
+    .contato-inner { max-width: 1200px; margin: 0 auto; }
+    .contato-header { max-width: 720px; margin-bottom: clamp(2.5rem, 5vw, 3.5rem); }
+    .contato-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #00e676;
+      margin-bottom: 1.3rem;
+    }
+    .contato-eyebrow::before {
+      content: "";
+      width: 30px;
+      height: 2px;
+      background: currentColor;
+    }
+    .contato-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2.3rem, 5.4vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.035em;
+      line-height: 1;
+      margin: 0 0 1.3rem;
+    }
+    .contato-title > span:not(.fill-word) { color: #00e676; }
+    .contato-lead {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: rgba(234, 247, 238, 0.72);
+      margin: 0;
+    }
+    .contato-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: clamp(2rem, 4vw, 3.5rem);
+      align-items: start;
+    }
+    .contato-item {
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 1.3rem 0 0;
+      margin-bottom: 1.5rem;
+    }
+    .contato-item .rotulo {
+      display: block;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #00e676;
+    }
+    .contato-item a,
+    .contato-item p {
+      display: block;
+      margin: 0.55rem 0 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 1.05rem;
+      line-height: 1.55;
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.25s ease;
+    }
+    .contato-item a:hover { color: #00e676; }
+    .contato-acoes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      margin-top: 2rem;
+    }
+    .contato-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.95rem 1.9rem;
+      border-radius: 999px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 0.92rem;
+      letter-spacing: 0.03em;
+      text-decoration: none;
+      border: 1px solid #00e676;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+    .contato-btn.primario { background: #00e676; color: #052a16; }
+    .contato-btn.primario:hover { background: #ffffff; border-color: #ffffff; }
+    .contato-btn.secundario { color: #00e676; }
+    .contato-btn.secundario:hover { background: #00e676; color: #052a16; }
+
+    /* Moldura do mapa: o fundo escuro evita um retângulo branco enquanto os
+       ladrilhos do OpenStreetMap ainda estão carregando */
+    .contato-mapa {
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: #0b2d18;
+    }
+    .contato-mapa iframe {
+      display: block;
+      width: 100%;
+      height: clamp(340px, 48vh, 460px);
+      border: 0;
+    }
+    .contato-mapa-rodape {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 1.2rem;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem 1.2rem;
+      background: rgba(255, 255, 255, 0.05);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      color: rgba(234, 247, 238, 0.65);
+    }
+    .contato-mapa-rodape a { color: #00e676; text-decoration: none; }
+    .contato-mapa-rodape a:hover { text-decoration: underline; }
+
+    @media (max-width: 880px) {
+      .contato-grid { grid-template-columns: 1fr; }
+    }
+
     footer {
       background: var(--green-dark); color: var(--cream);
       font-family: "Inter", sans-serif; padding: 2.5rem 6vw;
@@ -1119,6 +1253,7 @@
         <li><a href="#conheca-app">App</a></li>
         <li><a href="#pagamento-section">Pagamento</a></li>
         <li><a href="#sobre-nos">Sobre Nós</a></li>
+        <li><a href="#contato">Contato</a></li>
       </ul>
       <a href="https://wa.me/5521999998888" class="btn-reservar" target="_blank" rel="noopener">📱 Reservar</a>
       <button class="mobile-menu-toggle" id="mobileToggle" aria-label="Menu">
@@ -1130,6 +1265,7 @@
       <a href="#conheca-app">App</a>
       <a href="#pagamento-section">Pagamento</a>
       <a href="#sobre-nos">Sobre Nós</a>
+      <a href="#contato">Contato</a>
       <a href="https://wa.me/5521999998888" target="_blank">📱 Reservar no WhatsApp</a>
     </div>
   </nav>
@@ -1405,6 +1541,71 @@
 
       <a class="blog-cta" href="#" data-rise>Ver todos os posts <span aria-hidden="true">→</span></a>
 
+    </div>
+  </section>
+
+  <!-- 9. CONTATO -->
+  <!-- ATENÇÃO: endereço, telefones e e-mail abaixo são MARCADORES. Substituir pelos
+       dados reais da cooperativa, junto com as coordenadas do mapa (bbox e marker). -->
+  <section id="contato">
+    <div class="contato-inner">
+
+      <div class="contato-header">
+        <span class="contato-eyebrow" data-rise>Fale com a gente</span>
+        <h2 class="contato-title" data-rise data-fill-text>Estamos no <span>Rio</span>, o dia inteiro</h2>
+        <p class="contato-lead" data-rise data-fill-text>
+          Reserve uma corrida, peça um transfer executivo ou fale sobre contrato corporativo. Atendemos por telefone, WhatsApp e e-mail.
+        </p>
+      </div>
+
+      <div class="contato-grid">
+
+        <div>
+          <div class="contato-item" data-rise>
+            <span class="rotulo">Endereço</span>
+            <a href="https://www.openstreetmap.org/?mlat=-22.9711&amp;mlon=-43.1822#map=17/-22.9711/-43.1822" target="_blank" rel="noopener">
+              Av. Nossa Senhora de Copacabana, 000<br>Copacabana — Rio de Janeiro, RJ
+            </a>
+          </div>
+
+          <div class="contato-item" data-rise>
+            <span class="rotulo">Telefone</span>
+            <a href="tel:+552100000000">(21) 0000-0000</a>
+          </div>
+
+          <div class="contato-item" data-rise>
+            <span class="rotulo">WhatsApp</span>
+            <a href="https://wa.me/5521999998888" target="_blank" rel="noopener">(21) 99999-8888</a>
+          </div>
+
+          <div class="contato-item" data-rise>
+            <span class="rotulo">E-mail</span>
+            <a href="mailto:contato@arcoverdetaxi.com.br">contato@arcoverdetaxi.com.br</a>
+          </div>
+
+          <div class="contato-item" data-rise>
+            <span class="rotulo">Atendimento</span>
+            <p>Corridas e suporte 24 horas, todos os dias</p>
+          </div>
+
+          <div class="contato-acoes" data-rise>
+            <a class="contato-btn primario" href="https://wa.me/5521999998888" target="_blank" rel="noopener">Chamar no WhatsApp</a>
+            <a class="contato-btn secundario" href="tel:+552100000000">Ligar agora</a>
+          </div>
+        </div>
+
+        <div class="contato-mapa" data-rise>
+          <iframe
+            title="Mapa da localização da Arco Verde Táxi em Copacabana, Rio de Janeiro"
+            loading="lazy"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=-43.1872%2C-22.9741%2C-43.1772%2C-22.9681&amp;layer=mapnik&amp;marker=-22.9711%2C-43.1822"></iframe>
+          <div class="contato-mapa-rodape">
+            <span>Dados do mapa © colaboradores do <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a></span>
+            <a href="https://www.openstreetmap.org/?mlat=-22.9711&amp;mlon=-43.1822#map=17/-22.9711/-43.1822" target="_blank" rel="noopener">Ver mapa maior →</a>
+          </div>
+        </div>
+
+      </div>
     </div>
   </section>
 
