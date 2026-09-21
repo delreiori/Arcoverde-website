@@ -239,6 +239,13 @@
       height: 100%;
     }
 
+    /* As duas palavras se afastam para o celular 3D passar entre elas. Precisam ser
+       inline-block: transform não tem efeito em elemento inline. */
+    .palavra-abre {
+      display: inline-block;
+      will-change: transform;
+    }
+
     /* Espaço reservado no lugar dos mockups estáticos, ocupado pelo celular 3D */
     .phone-slot {
       width: min(380px, 70vw);
@@ -1381,9 +1388,9 @@
     <!-- 2. CONHEÇA NOSSO APP -->
     <section class="conheca-app" id="conheca-app">
       <div class="spotlight"></div>
-      <h2 data-rise data-split="left">conheça</h2>
+      <h2 data-rise>conheça</h2>
       <div class="phone-slot" aria-hidden="true"></div>
-      <h2 data-rise data-split="right">nosso app</h2>
+      <h2 data-rise><span class="palavra-abre" data-split="left">nosso</span> <span class="palavra-abre" data-split="right">app</span></h2>
     </section>
 
     <!-- 3. ACOMPANHE SUA CORRIDA EM TEMPO REAL -->
@@ -1938,12 +1945,7 @@
         const siblings = Array.prototype.slice.call(el.parentNode.children)
           .filter(function (c) { return c.hasAttribute('data-rise'); });
         el.style.willChange = 'transform, opacity';
-        // data-split manda o bloco sair para um dos lados depois de passar do meio
-        // da tela, em vez de simplesmente subir junto com a página
-        const split = el.getAttribute('data-split');
-        return { el: el, order: Math.max(0, siblings.indexOf(el)), last: null,
-                 side: split === 'left' ? -1 : (split === 'right' ? 1 : 0),
-                 host: el.closest('section') };
+        return { el: el, order: Math.max(0, siblings.indexOf(el)), last: null };
       });
 
       function paint() {
@@ -1963,22 +1965,69 @@
           // cedo em vez de saltar de uma vez nos últimos pixels de rolagem
           const from = Math.max(start, end + MIN_RANGE);
           const p = Math.max(0, Math.min(1, (from - rect.top) / (from - end) - it.order * STAGGER));
-          if (!it.side && it.last === p) return;   // sem saída lateral, p basta como cache
+          if (it.last === p) return;
           it.last = p;
           const eased = 1 - Math.pow(1 - p, 3);
-          let x = 0, fade = 1;
-          if (it.side && it.host) {
-            // A saída acompanha o avanço da própria seção, e não a posição do bloco
-            // na tela: as duas palavras ficam em alturas fixas e, pela posição, a de
-            // cima já nasceria acima do meio e sairia antes de ser lida.
-            const hr = it.host.getBoundingClientRect();
-            const saida = Math.max(0, Math.min(1, (-hr.top) / (hr.height * 0.55)));
-            const curva = saida * saida;            // começa devagar e acelera para fora
-            x = it.side * curva * window.innerWidth * 0.75;
-            fade = 1 - curva;
-          }
-          it.el.style.transform = 'translate(' + x.toFixed(1) + 'px, ' + ((1 - eased) * DISTANCE).toFixed(1) + 'px)';
-          it.el.style.opacity = (eased * fade).toFixed(3);
+          it.el.style.transform = 'translateY(' + ((1 - eased) * DISTANCE).toFixed(1) + 'px)';
+          it.el.style.opacity = eased.toFixed(3);
+        });
+      }
+
+      let queued = false;
+      function onScroll() {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(function () { queued = false; paint(); });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      paint();
+    })();
+  </script>
+
+  <script>
+    /* ── PALAVRAS QUE ABREM PARA O CELULAR 3D PASSAR ──
+       O aparelho fica parado no meio da tela. Conforme a linha de texto sobe em
+       direção a ele, as palavras marcadas se afastam para os lados e abrem caminho,
+       terminando de abrir antes de o celular encostar. */
+    (function initWordSplit() {
+      const words = Array.prototype.slice.call(document.querySelectorAll('[data-split]'));
+      if (!words.length) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      const START = 0.45;    // começa a abrir com a palavra a 45% da altura abaixo do celular
+      const END = -0.35;     // termina de abrir 35% depois de passar por ele
+      const NO_ENCONTRO = Math.pow(START / (START - END), 2);  // curva no instante do encontro
+
+      // O afastamento é derivado da largura do aparelho (mesma conta do script do
+      // celular 3D), e não de uma fração fixa da tela: assim a folga para ele passar
+      // existe tanto no desktop quanto no celular, onde o aparelho é bem menor.
+      function alcance() {
+        const fracao = window.innerWidth <= 768 ? 0.21 : 0.40;
+        const larguraCelular = window.innerHeight * fracao * (540 / 1170);
+        const precisaNoEncontro = larguraCelular / 2 + 45;     // metade do aparelho + folga
+        return Math.max(precisaNoEncontro / NO_ENCONTRO, window.innerWidth * 0.45);
+      }
+
+      const items = words.map(function (el) {
+        return { el: el, side: el.getAttribute('data-split') === 'left' ? -1 : 1, last: null };
+      });
+
+      function paint() {
+        const windowH = window.innerHeight;
+        const alvo = windowH / 2;            // o celular fica no centro vertical da tela
+        const inicio = windowH * START, fim = windowH * END;
+        const distanciaMax = alcance();
+        items.forEach(function (it) {
+          const rect = it.el.getBoundingClientRect();
+          if (rect.bottom < -200 || rect.top > windowH + 400) return;
+          const distancia = (rect.top + rect.height / 2) - alvo;   // positivo = ainda abaixo
+          const t = Math.max(0, Math.min(1, (inicio - distancia) / (inicio - fim)));
+          const curva = t * t;                                     // abre devagar e acelera
+          const x = (it.side * curva * distanciaMax).toFixed(1);
+          if (it.last === x) return;
+          it.last = x;
+          it.el.style.transform = 'translateX(' + x + 'px)';
         });
       }
 
