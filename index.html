@@ -933,7 +933,7 @@
       margin: 0 0 1.4rem;
       text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9);
     }
-    .story-card h2 span {
+    .story-card h2 > span:not(.fill-word) {
       color: #00e676;
       text-shadow: 0 0 25px rgba(0, 230, 118, 0.5);
     }
@@ -961,6 +961,141 @@
     }
 
     /* RODAPÉ */
+    /* ── ÚLTIMA SEÇÃO: BLOG ── */
+    #blog {
+      position: relative;
+      z-index: 2;
+      background: #f7d117;
+      color: #08351c;
+      padding: clamp(5rem, 9vw, 8rem) clamp(1.5rem, 5vw, 4rem);
+      overflow: hidden;
+    }
+    .blog-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .blog-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: 1.4rem;
+    }
+    .blog-eyebrow::before {
+      content: "";
+      width: 30px;
+      height: 2px;
+      background: currentColor;
+    }
+    .blog-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2.6rem, 6.5vw, 5.2rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 0.98;
+      margin: 0 0 1.6rem;
+      max-width: 15ch;
+    }
+    .blog-title > span:not(.fill-word) { color: #ffffff; }
+    .blog-lead {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(1rem, 1.4vw, 1.12rem);
+      line-height: 1.75;
+      max-width: 54ch;
+      color: rgba(8, 53, 28, 0.78);
+      margin: 0;
+    }
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.6rem;
+      margin-top: clamp(3rem, 6vw, 4.5rem);
+    }
+    .blog-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      padding: 2rem 1.8rem;
+      border: 1px solid rgba(8, 53, 28, 0.28);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.24);
+      text-decoration: none;
+      color: inherit;
+      /* Só cor muda no hover: o efeito de subida aplica transform em linha nestes
+         cartões e um translate aqui seria sobrescrito */
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+    .blog-card:hover {
+      background: #08351c;
+      color: #f7d117;
+      border-color: #08351c;
+    }
+    .blog-tag {
+      align-self: flex-start;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      opacity: 0.75;
+    }
+    .blog-card h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.32rem;
+      font-weight: 800;
+      line-height: 1.22;
+      letter-spacing: -0.02em;
+      margin: 0.4rem 0 0;
+    }
+    .blog-card p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.97rem;
+      line-height: 1.65;
+      margin: 0;
+      opacity: 0.78;
+    }
+    .blog-meta {
+      margin-top: auto;
+      padding-top: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      opacity: 0.7;
+    }
+    .blog-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-top: clamp(2.5rem, 5vw, 3.5rem);
+      padding: 1.05rem 2.4rem;
+      border-radius: 999px;
+      background: #08351c;
+      color: #f7d117;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+    .blog-cta:hover { background: #ffffff; color: #08351c; }
+
+    @media (max-width: 880px) {
+      .blog-grid { grid-template-columns: 1fr; }
+      .blog-title { max-width: none; }
+    }
+
     footer {
       background: var(--green-dark); color: var(--cream);
       font-family: "Inter", sans-serif; padding: 2.5rem 6vw;
@@ -1229,6 +1364,46 @@
           </p>
         </div>
       </div>
+
+    </div>
+  </section>
+
+  <!-- 8. BLOG -->
+  <section id="blog">
+    <div class="blog-inner">
+
+      <span class="blog-eyebrow" data-rise>Blog Arco Verde</span>
+      <h2 class="blog-title" data-rise data-fill-text>Histórias que <span>movem</span> o Rio</h2>
+      <p class="blog-lead" data-rise data-fill-text>
+        Bastidores da cooperativa, novidades do aplicativo e o que muda na mobilidade da cidade — contado por quem roda pelo Rio de Janeiro todos os dias.
+      </p>
+
+      <div class="blog-grid">
+
+        <a class="blog-card" href="#" data-rise>
+          <span class="blog-tag">Tecnologia</span>
+          <h3>O que muda na sua corrida quando o táxi tem rastreamento em tempo real</h3>
+          <p>Do embarque ao destino, como o acompanhamento pelo aplicativo deixa a viagem mais previsível para passageiro e motorista.</p>
+          <span class="blog-meta"><span>5 min de leitura</span><span>→</span></span>
+        </a>
+
+        <a class="blog-card" href="#" data-rise>
+          <span class="blog-tag">História</span>
+          <h3>De Copacabana para a cidade inteira: 15 anos de cooperativa</h3>
+          <p>A trajetória da Arco Verde desde 2009, contada a partir dos pontos, dos cooperados e dos clientes que cresceram junto.</p>
+          <span class="blog-meta"><span>7 min de leitura</span><span>→</span></span>
+        </a>
+
+        <a class="blog-card" href="#" data-rise>
+          <span class="blog-tag">Corporativo</span>
+          <h3>Transfer executivo: o que as empresas esperam de um táxi VIP</h3>
+          <p>Pontualidade, frota vistoriada e atendimento padronizado: os critérios que pesam na hora de fechar um contrato corporativo.</p>
+          <span class="blog-meta"><span>6 min de leitura</span><span>→</span></span>
+        </a>
+
+      </div>
+
+      <a class="blog-cta" href="#" data-rise>Ver todos os posts <span aria-hidden="true">→</span></a>
 
     </div>
   </section>
