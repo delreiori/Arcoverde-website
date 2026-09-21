@@ -362,6 +362,12 @@
       font-family: 'Outfit', sans-serif;
     }
 
+    /* Contêiner que agrupa as peças absolutas da seção para elas subirem juntas */
+    #pagamento-section .pagamento-inner {
+      position: absolute;
+      inset: 0;
+    }
+
     /* ── Title (stays fixed, fades in) ── */
     #pagamento-section .title {
       position: absolute;
@@ -1036,6 +1042,7 @@
 
   <!-- 4. CARROSSEL DE PAGAMENTO (ANIMAÇÃO AUTOMÁTICA) -->
   <section id="pagamento-section">
+    <div class="pagamento-inner" data-rise>
     <!-- Fixed Title -->
     <h2 class="title">Pague como quiser</h2>
 
@@ -1063,13 +1070,14 @@
       <button class="dot"        data-slide="2"></button>
       <button class="dot"        data-slide="3"></button>
     </div>
+    </div>
   </section>
 
 
 
   <!-- 5. POR QUE ESCOLHER A ARCOVERDE — Carrossel -->
   <section id="por-que-arcoverde">
-    <div class="pq-carousel-wrap" id="pqCarouselWrap">
+    <div class="pq-carousel-wrap" id="pqCarouselWrap" data-rise>
       <div class="pq-carousel-track" id="pqTrack">
 
         <!-- SLIDE 1: Por que escolher -->
@@ -1227,8 +1235,8 @@
 
   <!-- RODAPÉ -->
   <footer>
-    <div class="brand">🟢 Arco Verde</div>
-    <small>© 2026 Arco Verde Táxi — Rio de Janeiro, RJ</small>
+    <div class="brand" data-rise>🟢 Arco Verde</div>
+    <small data-rise>© 2026 Arco Verde Táxi — Rio de Janeiro, RJ</small>
   </footer>
 
   <!-- JAVASCRIPT: MENU MOBILE & SCROLLSPY & CARROSSEL -->
@@ -1413,10 +1421,11 @@
       if (!marked.length) return;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-      const DISTANCE = 60;    // px que o elemento percorre de baixo até o lugar
+      const DISTANCE = 90;    // px que o elemento percorre de baixo até o lugar
       const START = 1.0;      // começa com o topo do bloco no rodapé da janela
       const END = 0.62;       // e assenta quando ele chega nesta altura
       const STAGGER = 0.1;    // atraso de um irmão marcado para o seguinte
+      const MIN_RANGE = 240;  // curso mínimo de rolagem, para blocos no fim da página
 
       const items = marked.map(function (el) {
         const siblings = Array.prototype.slice.call(el.parentNode.children)
@@ -1427,13 +1436,21 @@
 
       function paint() {
         const windowH = window.innerHeight;
-        const start = windowH * START, end = windowH * END;
+        const start = windowH * START;
+        // Até onde a página ainda pode rolar: um bloco no fim do documento nunca sobe
+        // até a altura de chegada, e sem isso ele ficaria preso meio transparente
+        const maxScroll = Math.max(0, document.documentElement.scrollHeight - windowH);
         items.forEach(function (it) {
           const rect = it.el.getBoundingClientRect();
           if (rect.top > windowH + 150 && it.last === 0) return;   // ainda longe, já guardado
           if (rect.bottom < -150 && it.last === 1) return;         // já passou, já assentado
-          const raw = (start - rect.top) / (start - end) - it.order * STAGGER;
-          const p = Math.max(0, Math.min(1, raw));
+
+          const finalTop = rect.top + window.pageYOffset - maxScroll;  // menor topo alcançável
+          const end = Math.max(windowH * END, finalTop);
+          // Se sobrar pouco curso (bloco no fim da página), o movimento começa mais
+          // cedo em vez de saltar de uma vez nos últimos pixels de rolagem
+          const from = Math.max(start, end + MIN_RANGE);
+          const p = Math.max(0, Math.min(1, (from - rect.top) / (from - end) - it.order * STAGGER));
           if (it.last === p) return;
           it.last = p;
           const eased = 1 - Math.pow(1 - p, 3);
