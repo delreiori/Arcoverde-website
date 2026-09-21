@@ -1546,7 +1546,8 @@
 
   <!-- 9. CONTATO -->
   <!-- ATENÇÃO: endereço, telefones e e-mail abaixo são MARCADORES. Substituir pelos
-       dados reais da cooperativa, junto com as coordenadas do mapa (bbox e marker). -->
+       dados reais da cooperativa, junto com as coordenadas do mapa (parâmetro q do
+       iframe e query/destination dos links do Google Maps). -->
   <section id="contato">
     <div class="contato-inner">
 
@@ -1563,7 +1564,7 @@
         <div>
           <div class="contato-item" data-rise>
             <span class="rotulo">Endereço</span>
-            <a href="https://www.openstreetmap.org/?mlat=-22.9711&amp;mlon=-43.1822#map=17/-22.9711/-43.1822" target="_blank" rel="noopener">
+            <a href="https://www.google.com/maps/search/?api=1&amp;query=-22.9711,-43.1822" target="_blank" rel="noopener">
               Av. Nossa Senhora de Copacabana, 000<br>Copacabana — Rio de Janeiro, RJ
             </a>
           </div>
@@ -1598,10 +1599,12 @@
           <iframe
             title="Mapa da localização da Arco Verde Táxi em Copacabana, Rio de Janeiro"
             loading="lazy"
-            src="https://www.openstreetmap.org/export/embed.html?bbox=-43.1872%2C-22.9741%2C-43.1772%2C-22.9681&amp;layer=mapnik&amp;marker=-22.9711%2C-43.1822"></iframe>
+            allowfullscreen
+            referrerpolicy="no-referrer-when-downgrade"
+            src="https://maps.google.com/maps?q=-22.9711,-43.1822&amp;z=16&amp;hl=pt-BR&amp;output=embed"></iframe>
           <div class="contato-mapa-rodape">
-            <span>Dados do mapa © colaboradores do <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a></span>
-            <a href="https://www.openstreetmap.org/?mlat=-22.9711&amp;mlon=-43.1822#map=17/-22.9711/-43.1822" target="_blank" rel="noopener">Ver mapa maior →</a>
+            <a href="https://www.google.com/maps/dir/?api=1&amp;destination=-22.9711,-43.1822" target="_blank" rel="noopener">Como chegar →</a>
+            <a href="https://www.google.com/maps/search/?api=1&amp;query=-22.9711,-43.1822" target="_blank" rel="noopener">Ver no Google Maps →</a>
           </div>
         </div>
 
