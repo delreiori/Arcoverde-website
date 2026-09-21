@@ -727,6 +727,13 @@
     }
 
 
+    /* ── TIPOGRAFIA QUE ACENDE CONFORME A ROLAGEM ──
+       Cada palavra vai de apagada a acesa quando a rolagem passa por ela. O estado
+       apagado é aplicado pelo script, então sem JS o texto aparece normal. */
+    .fill-word {
+      transition: opacity 0.12s linear;
+    }
+
     /* ── ABERTURA DA SEÇÃO DO CARRO: O "A" ABRINDO NA PALAVRA ARCOVERDE ──
        A seção é um trilho de rolagem alto com um palco sticky: a palavra se monta
        conforme a página rola e descansa formada antes de entregar a vez ao carro 3D.
@@ -1010,7 +1017,7 @@
     <!-- 3. ACOMPANHE SUA CORRIDA EM TEMPO REAL -->
     <section id="app-tracking">
       <div class="tracking-card">
-        <h3 class="tracking-title">Acompanhe sua corrida em tempo real</h3>
+        <h3 class="tracking-title" data-fill-text>Acompanhe sua corrida em tempo real</h3>
         <div class="phone-slot" aria-hidden="true"></div>
         <div class="tracking-features">
           <div class="tracking-feature">
@@ -1186,8 +1193,8 @@
       <div class="sobre-story-block block-left" id="storyBlock1">
         <div class="story-card">
           <span class="story-tag">Tradição &amp; Excelência</span>
-          <h2>Sobre <span>Nós</span></h2>
-          <p>
+          <h2 data-fill-text>Sobre <span>Nós</span></h2>
+          <p data-fill-text>
             Fundada em 2009, a Cooperativa Arco Verde Táxi Executivo é referência em mobilidade no Rio de Janeiro, oferecendo soluções de transporte que unem segurança, pontualidade, conforto e atendimento VIP.
           </p>
         </div>
@@ -1197,8 +1204,8 @@
       <div class="sobre-story-block block-right" id="storyBlock2">
         <div class="story-card">
           <span class="story-tag">Quinze anos no Rio</span>
-          <h2>Atendimento <span>VIP</span></h2>
-          <p>
+          <h2 data-fill-text>Atendimento <span>VIP</span></h2>
+          <p data-fill-text>
             Ao longo de mais de 15 anos de história, construímos relações sólidas de confiança com clientes particulares, grandes corporações, hotéis renomados e eventos de grande porte na Cidade Maravilhosa.
           </p>
         </div>
@@ -1208,8 +1215,8 @@
       <div class="sobre-story-block block-left" id="storyBlock3">
         <div class="story-card">
           <span class="story-tag">Frota Executiva</span>
-          <h2>Conforto &amp; <span>Tecnologia</span></h2>
-          <p>
+          <h2 data-fill-text>Conforto &amp; <span>Tecnologia</span></h2>
+          <p data-fill-text>
             Nossa frota passa por rigorosas vistorias diárias. Nossos motoristas cooperados são treinados para garantir viagens silenciosas, seguras e com a máxima pontualidade do embarque ao destino final.
           </p>
         </div>
@@ -1396,6 +1403,84 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <script>
+    /* ── TIPOGRAFIA QUE ACENDE CONFORME A ROLAGEM ──
+       As palavras de cada bloco marcado com data-fill-text saem de apagadas para
+       acesas à medida que a rolagem passa por elas, uma depois da outra. */
+    (function initTextFill() {
+      const targets = Array.prototype.slice.call(document.querySelectorAll('[data-fill-text]'));
+      if (!targets.length) return;
+
+      const DIM = 0.22;     // opacidade da palavra que a rolagem ainda não alcançou
+      const SOFT = 5;       // quantas palavras ficam em transição ao mesmo tempo
+      const START = 0.9;    // acende a partir daqui (fração da altura da janela)
+      const END = 0.42;     // e termina de acender quando o bloco chega aqui
+
+      // Envolve cada palavra em um span, preservando os espaços e os destaques
+      // já existentes dentro do texto (como o <span> verde dos títulos)
+      function wrapWords(node) {
+        Array.prototype.slice.call(node.childNodes).forEach(function (child) {
+          if (child.nodeType === 3) {
+            if (!child.nodeValue.trim()) return;
+            const frag = document.createDocumentFragment();
+            child.nodeValue.split(/(\s+)/).forEach(function (piece) {
+              if (!piece) return;
+              if (/^\s+$/.test(piece)) {
+                frag.appendChild(document.createTextNode(piece));
+                return;
+              }
+              const span = document.createElement('span');
+              span.className = 'fill-word';
+              span.textContent = piece;
+              frag.appendChild(span);
+            });
+            node.replaceChild(frag, child);
+          } else if (child.nodeType === 1) {
+            wrapWords(child);
+          }
+        });
+      }
+
+      const blocks = targets.map(function (el) {
+        wrapWords(el);
+        const words = Array.prototype.slice.call(el.querySelectorAll('.fill-word'));
+        return { el: el, words: words, last: new Array(words.length) };
+      });
+
+      // Com movimento reduzido o texto fica aceso, sem nada para acompanhar
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      function paint() {
+        const windowH = window.innerHeight;
+        const start = windowH * START, end = windowH * END;
+        blocks.forEach(function (b) {
+          const rect = b.el.getBoundingClientRect();
+          if (rect.bottom < -200 || rect.top > windowH + 200) return;   // fora da tela
+          const p = Math.max(0, Math.min(1, (start - rect.top) / (start - end)));
+          const cursor = p * (b.words.length + SOFT);
+          for (let i = 0; i < b.words.length; i++) {
+            const t = Math.max(0, Math.min(1, (cursor - i) / SOFT));
+            const value = (DIM + (1 - DIM) * t).toFixed(3);
+            if (b.last[i] !== value) {       // só toca no que mudou
+              b.words[i].style.opacity = value;
+              b.last[i] = value;
+            }
+          }
+        });
+      }
+
+      let queued = false;
+      function onScroll() {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(function () { queued = false; paint(); });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      paint();
+    })();
+  </script>
 
   <script>
     /* ── ABERTURA DA SEÇÃO DO CARRO: O "A" ABRINDO NA PALAVRA ARCOVERDE ──
