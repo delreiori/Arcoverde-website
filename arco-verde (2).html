@@ -134,99 +134,138 @@
       .mobile-menu-toggle { display: flex; }
     }
 
-    /* ── SEÇÃO HERO (Fixa sem encolhimento/rebarbas) ── */
-    /* Trilho alto: o palco fica preso enquanto a câmera "entra" no carro */
+    /* ── SEÇÃO HERO ──
+       Fundo amarelo com grade esmaecida, um arco de luz subindo do rodapé e o
+       nome da cooperativa em verde. Tudo em CSS: nada de imagem para carregar
+       antes de a primeira tela aparecer. */
     .hero {
       position: relative;
       z-index: 1;
       width: 100%;
-      height: 240vh;
-      background: linear-gradient(180deg, #bf8116 0%, #c28617 45%, #dbad3c 100%);
-    }
-    .hero-palco {
-      position: sticky;
-      top: 0;
-      height: 100vh;
+      min-height: calc(100vh - 40px);
       overflow: hidden;
-    }
-    /* ── HERO EM CAMADAS (PARALAXE ATÉ A SEÇÃO SEGUINTE) ──
-       O título saiu da foto e virou texto de verdade, que é o que permite as duas
-       camadas correrem em velocidades diferentes e criar profundidade. */
-    .hero-parallax {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-    }
-    /* O zoom parte do para-brisa, e não do centro da imagem: é por ali que a
-       câmera entra no carro */
-    .hero-foto { transform-origin: 44% 46%; }
-    .hero-titulo { transform-origin: 50% 40%; }
-    .hero-camada {
-      position: absolute;
-      inset: 0;
-      will-change: transform;
-    }
-    .hero-foto {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-      object-position: center center;
-      /* Sobra de escala para o deslocamento não descobrir as bordas da foto */
-      transform: scale(1.25);
-    }
-    .hero-titulo {
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding-top: 9vh;
-      margin: 0;
-      font-family: 'Outfit', sans-serif;
-      font-size: clamp(3rem, 11.5vw, 10rem);
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      line-height: 1;
-      color: #0d6031;
-      pointer-events: none;
-    }
-    /* Véu que assume no fim do mergulho: entrega a vez à seção verde e, de
-       quebra, cobre a perda de nitidez do zoom final */
-    /* Duas camadas fecham o mergulho: a cabine escura engole o quadro e, só no
-       fim, o verde entra e emenda com a seção seguinte */
-    .hero-veu {
-      background: radial-gradient(circle at 44% 46%, #000 0%, #000 60%, #0a0a0a 100%);
-      opacity: 0;
-      pointer-events: none;
-    }
-    .hero-verde {
-      background: #00a819;
-      opacity: 0;
-      pointer-events: none;
-    }
-    @media (max-width: 768px) {
-      .hero-titulo { padding-top: 12vh; }
-    }
-    .hero-cta-bar {
-      position: absolute;
-      bottom: 7%;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      width: 90%;
+      padding: clamp(8rem, 17vh, 11rem) 1.5rem 0;
       text-align: center;
+      border-bottom-left-radius: 1.5rem;
+      border-bottom-right-radius: 1.5rem;
+      background: linear-gradient(180deg, #ffd400 0%, #ffd400 50%, #f0b800 88%);
+    }
+    /* Grade: a máscara radial faz as linhas sumirem conforme descem, em vez de
+       cortarem secas no meio da tela */
+    .hero-grade {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      height: 600px;
+      opacity: 0.8;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right, rgba(140, 96, 0, 0.18) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(140, 96, 0, 0.18) 1px, transparent 1px);
+      background-size: 6rem 5rem;
+      -webkit-mask-image: radial-gradient(ellipse 80% 50% at 50% 0%, #000 70%, transparent 110%);
+      mask-image: radial-gradient(ellipse 80% 50% at 50% 0%, #000 70%, transparent 110%);
+    }
+    /* Arco de luz: um círculo gigante de centro claro, encostado na base */
+    .hero-arco {
+      position: absolute;
+      left: 50%;
+      top: calc(100% - 90px);
+      width: 700px;
+      height: 500px;
+      transform: translateX(-50%);
+      border-radius: 100%;
+      z-index: 0;
+      pointer-events: none;
+      background: radial-gradient(closest-side, #fff4bd 82%, #e0a200);
+      animation: hero-sobe 1s ease-out both;
+    }
+    .hero-conteudo {
+      position: relative;
+      z-index: 2;
+      max-width: 60rem;
+      margin: 0 auto;
+    }
+    .hero-selo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: fit-content;
+      margin: 0 auto;
+      padding: 0.5rem 1.25rem;
+      border: 2px solid rgba(90, 62, 0, 0.18);
+      border-radius: 1.5rem;
+      background: linear-gradient(to top right, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.08), transparent);
+      color: #6b4a00;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.875rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-decoration: none;
+      animation: hero-aparece 0.8s ease-out both;
+    }
+    .hero-selo svg {
+      width: 1rem;
+      height: 1rem;
+      transition: transform 0.3s ease;
+    }
+    .hero-selo:hover svg { transform: translateX(4px); }
+    .hero-titulo {
+      margin: 0;
+      padding: 1.5rem 0 0.5rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(3rem, 11.5vw, 9rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.045em;
+      background: linear-gradient(to bottom right, #0b5a2d 30%, #17a04d);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: hero-aparece 0.9s 0.1s ease-out both;
+    }
+    .hero-sub {
+      max-width: 36rem;
+      margin: 0 auto 3rem;
+      color: #6b4a00;
+      font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+      line-height: 1.5;
+      letter-spacing: -0.01em;
+      text-wrap: balance;
+      animation: hero-aparece 0.9s 0.2s ease-out both;
     }
     .hero-cta {
       display: inline-flex; align-items: center; justify-content: center; gap: 10px;
       background: var(--green); color: #fff;
       font-family: "Outfit", sans-serif; font-weight: 800;
       font-size: clamp(1rem, 1.6vw, 1.25rem);
-      padding: 1.2rem 2.8rem; border-radius: 999px;
+      padding: 1.1rem 2.8rem; border-radius: 999px;
       text-decoration: none;
-      box-shadow: 0 12px 32px rgba(14,122,61,0.5);
+      box-shadow: 0 12px 32px rgba(14,122,61,0.35);
       transition: all 0.25s ease;
       letter-spacing: -0.01em;
+      animation: hero-aparece 0.9s 0.3s ease-out both;
     }
-    .hero-cta:hover { background: var(--green-dark); transform: translateY(-3px); box-shadow: 0 18px 40px rgba(14,122,61,0.6); }
+    .hero-cta:hover { background: var(--green-dark); transform: translateY(-3px); box-shadow: 0 18px 40px rgba(14,122,61,0.45); }
+
+    @keyframes hero-aparece {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes hero-sobe {
+      from { opacity: 0; transform: translateX(-50%) translateY(40px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-selo, .hero-titulo, .hero-sub, .hero-cta, .hero-arco { animation: none; }
+    }
+    @media (min-width: 768px) {
+      .hero-arco { width: 1100px; }
+    }
+    @media (min-width: 1024px) {
+      .hero-arco { top: calc(100% - 150px); width: 140%; height: 750px; }
+    }
 
     /* ── SEÇÃO CONHEÇA NOSSO APP (Cortina que sobe sobre o Hero) ── */
     .conheca-app {
@@ -1482,15 +1521,26 @@
 
   <!-- 1. HERO -->
   <section class="hero" id="heroSection">
-    <div class="hero-palco">
-    <div class="hero-parallax" id="heroParallax">
-      <img class="hero-camada hero-foto" data-hero-camada="foto"
-           src="images/hero-camada-foto.jpg"
-           alt="Arco Verde Táxi — Toyota Corolla Rio de Janeiro">
-      <h1 class="hero-camada hero-titulo" data-hero-camada="titulo">Arcoverde</h1>
-      <div class="hero-camada hero-veu" data-hero-camada="veu" aria-hidden="true"></div>
-      <div class="hero-camada hero-verde" data-hero-camada="verde" aria-hidden="true"></div>
-    </div>
+    <div class="hero-grade" aria-hidden="true"></div>
+    <div class="hero-arco" aria-hidden="true"></div>
+
+    <div class="hero-conteudo">
+      <a class="hero-selo" href="#reservar">
+        Táxi executivo no Rio de Janeiro
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+
+      <h1 class="hero-titulo">ARCOVERDE</h1>
+
+      <p class="hero-sub">
+        Corridas com motorista credenciado, tarifa fechada e acompanhamento em tempo real.
+        Do aeroporto à reunião, sem surpresa no fim do trajeto.
+      </p>
+
+      <div>
+        <a class="hero-cta" href="#reservar">Reservar corrida</a>
+      </div>
     </div>
   </section>
 
@@ -2216,68 +2266,6 @@
     })();
   </script>
 
-  <script>
-    /* ── PARALAXE DO HERO ATÉ A SEGUNDA SEÇÃO ──
-       Foto, título e véu correm em velocidades diferentes enquanto a página vai do
-       primeiro hero para o segundo. Preso ao scroll, sem biblioteca: o site já tem
-       seus próprios módulos de rolagem e um motor de scroll suave (tipo Lenis)
-       assumiria a rolagem da página inteira e brigaria com todos eles. */
-    (function initHeroParallax() {
-      const hero = document.getElementById('heroSection');
-      const palco = document.getElementById('heroParallax');
-      if (!hero || !palco) return;
-
-      const foto = palco.querySelector('[data-hero-camada="foto"]');
-      const titulo = palco.querySelector('[data-hero-camada="titulo"]');
-      const veu = palco.querySelector('[data-hero-camada="veu"]');
-      const verde = palco.querySelector('[data-hero-camada="verde"]');
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-      // Mergulho: a foto cresce a partir do para-brisa até a câmera "entrar" no
-      // carro. O título fica atrás na cena, então cresce bem menos — é a diferença
-      // entre os dois que dá a sensação de avançar para dentro.
-      // No celular a foto é recortada mais fechada, então o mesmo zoom chega ao
-      // limite de nitidez antes: lá o mergulho é mais curto e a cabine escurece antes
-      function movel() { return window.innerWidth <= 768; }
-      const ZOOM_TITULO = 1.9;
-      let ultimo = null;
-
-      function paint() {
-        const rect = hero.getBoundingClientRect();
-        const windowH = window.innerHeight;
-        const curso = rect.height - windowH;
-        if (curso <= 0) return;
-        const p = Math.max(0, Math.min(1, (-rect.top) / curso));
-        if (p === ultimo) return;
-        ultimo = p;
-
-        // Avanço acelerado: devagar no começo, rápido ao entrar no carro
-        const d = Math.max(0, Math.min(1, (p - 0.04) / 0.86));
-        const dive = d * d;
-
-        const zoomFoto = movel() ? 5.5 : 9;
-        foto.style.transform = 'scale(' + (1.25 + dive * (zoomFoto - 1.25)).toFixed(3) + ')';
-        titulo.style.transform = 'scale(' + (1 + dive * (ZOOM_TITULO - 1)).toFixed(3) +
-          ') translate3d(0, ' + (-dive * windowH * 0.45).toFixed(1) + 'px, 0)';
-        titulo.style.opacity = Math.max(0, 1 - dive * 2.4).toFixed(3);
-
-        // A cabine escurece o quadro e o verde entrega a vez à seção seguinte
-        const inicioVeu = movel() ? 0.66 : 0.76;
-        veu.style.opacity = Math.max(0, Math.min(1, (p - inicioVeu) / 0.14)).toFixed(3);
-        verde.style.opacity = Math.max(0, Math.min(1, (p - inicioVeu - 0.12) / 0.1)).toFixed(3);
-      }
-
-      let agendado = false;
-      function onScroll() {
-        if (agendado) return;
-        agendado = true;
-        requestAnimationFrame(function () { agendado = false; paint(); });
-      }
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', function () { ultimo = null; paint(); });
-      paint();
-    })();
-  </script>
 
   <script>
     /* ── PALAVRAS QUE ABREM PARA O CELULAR 3D PASSAR ──
