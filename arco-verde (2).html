@@ -150,7 +150,7 @@
       overflow: hidden;
       padding: 6rem 1.5rem 4rem;
       text-align: center;
-      background: #ffd400;
+      background: #063b1e;
     }
     .hero-caminhos {
       position: absolute;
@@ -161,7 +161,7 @@
       width: 100%;
       height: 100%;
       display: block;
-      color: #0d6031;
+      color: #ffd400;
     }
     .hero-caminhos path {
       fill: none;
@@ -203,7 +203,7 @@
     /* Cada letra sobe no lugar, uma logo depois da outra */
     .hero-letra {
       display: inline-block;
-      background: linear-gradient(to right, #0b5a2d, #17a04d);
+      background: linear-gradient(to right, #ffd400, #ffeca0);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -218,7 +218,7 @@
     .hero-sub {
       max-width: 34rem;
       margin: 0 auto 2.5rem;
-      color: #6b4a00;
+      color: rgba(255, 236, 160, 0.85);
       font-size: clamp(1rem, 1.3vw, 1.15rem);
       line-height: 1.5;
       letter-spacing: -0.01em;
@@ -232,23 +232,23 @@
       position: relative;
       padding: 1px;
       border-radius: 1.2rem;
-      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.14), rgba(255, 255, 255, 0.5));
-      box-shadow: 0 10px 30px rgba(90, 62, 0, 0.18);
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.35), rgba(0, 0, 0, 0.25));
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
       transition: box-shadow 0.3s ease;
       animation: hero-entra 1.2s 0.8s ease-out both;
     }
-    .hero-moldura:hover { box-shadow: 0 18px 44px rgba(90, 62, 0, 0.26); }
+    .hero-moldura:hover { box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45); }
     .hero-cta {
       display: inline-flex;
       align-items: center;
       gap: 0.75rem;
       padding: 1.1rem 2rem;
-      border: 1px solid rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: 1.15rem;
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 212, 0, 0.95);
       -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
-      color: #0b5a2d;
+      color: #063b1e;
       font-family: 'Outfit', sans-serif;
       font-size: 1.125rem;
       font-weight: 700;
@@ -257,7 +257,7 @@
       transition: all 0.3s ease;
     }
     .hero-moldura:hover .hero-cta {
-      background: #fff;
+      background: #ffd400;
       transform: translateY(-2px);
     }
     .hero-cta .seta {
