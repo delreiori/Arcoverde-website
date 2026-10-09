@@ -583,13 +583,11 @@
       transform: translateX(0) scale(1) rotate(0deg);
     }
 
-    /* O ícone do boleto é quadrado, enquanto os outros são deitados: com o mesmo
-       encaixe ele saía bem menor. A arte fica na metade de cima do PNG, então
-       ampliar a partir do centro faz o desenho crescer subindo dentro do oval,
-       sem esbarrar no corte da borda inferior da seção. */
-    #pagamento-section .slide-img[data-slide="2"].active,
-    #pagamento-section .slide-img[data-slide="4"].active {
-      transform: translateX(0) scale(1.35) rotate(0deg);
+    /* O ícone do voucher é quadrado, enquanto os outros são deitados: encaixado
+       por altura ele já ocupa o oval, então não leva a ampliação extra. A regra
+       é pela imagem, e não pelo número do slide, que muda quando a lista muda. */
+    #pagamento-section .slide-img[src*="voucher"].active {
+      transform: translateX(0) translateY(-18%) scale(0.78) rotate(0deg);
     }
 
     #pagamento-section .slide-img.exit {
@@ -1688,9 +1686,8 @@
     <!-- Animated Subtitles -->
     <p class="subtitle active" data-slide="0">No cartão</p>
     <p class="subtitle" data-slide="1">No Pix</p>
-    <p class="subtitle" data-slide="2">No boleto</p>
-    <p class="subtitle" data-slide="3">No Dinheiro</p>
-    <p class="subtitle" data-slide="4">No voucher</p>
+    <p class="subtitle" data-slide="2">No Dinheiro</p>
+    <p class="subtitle" data-slide="3">No voucher</p>
 
     <!-- Green Oval -->
     <div class="green-oval"></div>
@@ -1699,9 +1696,8 @@
     <div class="slide-images">
       <img class="slide-img active" data-slide="0" src="images/img-cartao.png"   alt="Cartão">
       <img class="slide-img"        data-slide="1" src="images/img-pix.png"      alt="Pix">
-      <img class="slide-img"        data-slide="2" src="images/img-boleto.png"   alt="Boleto">
-      <img class="slide-img"        data-slide="3" src="images/img-dinheiro.png" alt="Dinheiro">
-      <img class="slide-img"        data-slide="4" src="images/img-voucher.png"  alt="Voucher">
+      <img class="slide-img"        data-slide="2" src="images/img-dinheiro.png" alt="Dinheiro">
+      <img class="slide-img"        data-slide="3" src="images/img-voucher.png"  alt="Voucher">
     </div>
 
     <!-- Navigation Dots -->
@@ -1710,7 +1706,6 @@
       <button class="dot"        data-slide="1"></button>
       <button class="dot"        data-slide="2"></button>
       <button class="dot"        data-slide="3"></button>
-      <button class="dot"        data-slide="4"></button>
     </div>
     </div>
   </section>
