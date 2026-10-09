@@ -1239,6 +1239,217 @@
       background: #ffffff;
     }
 
+
+    /* ── SEÇÃO CINEMÁTICA: CARTÃO QUE SOBE, ABRE E DEVOLVE A TELA ──
+       Trilho alto com palco sticky; cada fase da animação é fatia do avanço da
+       rolagem, calculada no script. */
+    #cinema {
+      position: relative;
+      height: 520vh;
+      background: #04140a;
+      color: #eaf7ee;
+    }
+    .cinema-palco {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1500px;
+    }
+    /* Grão de filme e malha: dão textura de cinema ao fundo chapado */
+    .cinema-grao {
+      position: absolute; inset: 0; z-index: 50; pointer-events: none;
+      opacity: 0.05; mix-blend-mode: overlay;
+      background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="r"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23r)"/></svg>');
+    }
+    .cinema-malha {
+      position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background-size: 60px 60px;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+      -webkit-mask-image: radial-gradient(ellipse at center, #000 0%, transparent 70%);
+      mask-image: radial-gradient(ellipse at center, #000 0%, transparent 70%);
+    }
+    .cinema-frase, .cinema-final {
+      position: absolute; z-index: 10; width: 100%;
+      padding: 0 1.5rem; text-align: center;
+      will-change: transform, filter, opacity;
+    }
+    .cinema-frase h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2.4rem, 6.5vw, 6rem);
+      font-weight: 900; letter-spacing: -0.04em; line-height: 1.02;
+      margin: 0;
+    }
+    .cinema-frase h2:first-child { color: #ffffff; text-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+    .cinema-frase h2:last-child {
+      background: linear-gradient(180deg, #00e676 0%, rgba(0,230,118,0.45) 100%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transform: translateZ(0);
+    }
+    .cinema-final { opacity: 0; }
+    .cinema-final h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2rem, 5vw, 4.4rem);
+      font-weight: 900; letter-spacing: -0.035em; line-height: 1;
+      margin: 0 0 1.2rem; color: #ffffff;
+    }
+    .cinema-final p {
+      font-family: 'Inter', sans-serif; font-size: 1.05rem; line-height: 1.7;
+      color: rgba(234,247,238,0.7); max-width: 46ch; margin: 0 auto 2.4rem;
+    }
+    .cinema-botoes { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+    .cinema-botao {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      padding: 1rem 2.2rem; border-radius: 999px; text-decoration: none;
+      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.95rem;
+      letter-spacing: 0.03em; border: 1px solid #00e676;
+      transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+    }
+    .cinema-botao.cheio { background: #00e676; color: #052a16; }
+    .cinema-botao.cheio:hover { background: #ffffff; border-color: #ffffff; transform: translateY(-2px); }
+    .cinema-botao.vazado { color: #00e676; }
+    .cinema-botao.vazado:hover { background: #00e676; color: #052a16; transform: translateY(-2px); }
+
+    /* O cartão: sobe de baixo, ocupa a tela inteira e depois recua */
+    .cinema-cartao {
+      position: absolute; z-index: 20;
+      width: 86vw; height: 86vh; border-radius: 40px;
+      background: linear-gradient(145deg, #0e5c33 0%, #04170c 100%);
+      box-shadow: 0 40px 100px -20px rgba(0,0,0,0.9), 0 20px 40px -20px rgba(0,0,0,0.8),
+                  inset 0 1px 2px rgba(255,255,255,0.18), inset 0 -2px 4px rgba(0,0,0,0.8);
+      border: 1px solid rgba(255,255,255,0.05);
+      overflow: hidden; will-change: transform, width, height;
+    }
+    /* Brilho que segue o mouse, dando volume ao cartão */
+    .cinema-brilho {
+      position: absolute; inset: 0; z-index: 5; pointer-events: none; border-radius: inherit;
+      background: radial-gradient(800px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.07) 0%, transparent 40%);
+      mix-blend-mode: screen;
+    }
+    .cinema-conteudo {
+      position: relative; z-index: 10; height: 100%;
+      max-width: 1280px; margin: 0 auto; padding: 2rem 1.5rem;
+      display: flex; flex-direction: column; justify-content: space-evenly; align-items: center;
+    }
+    /* No desktop vira grade de três colunas: chamada à esquerda, aparelho no meio
+       e a marca à direita, como no material de referência */
+    @media (min-width: 1024px) {
+      .cinema-conteudo {
+        display: grid; grid-template-columns: 1fr auto 1fr;
+        align-items: center; gap: 2.5rem; padding: 2rem 3rem;
+      }
+    }
+    .cinema-marca {
+      font-family: 'Outfit', sans-serif; font-weight: 900; text-transform: uppercase;
+      font-size: clamp(2.6rem, 7vw, 7rem); letter-spacing: -0.045em; line-height: 0.9;
+      margin: 0; background: linear-gradient(180deg, #ffffff 0%, #9fd9b5 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      transform: translateZ(0); filter: drop-shadow(0 12px 24px rgba(0,0,0,0.8));
+      will-change: transform, opacity;
+    }
+    .cinema-chamada { text-align: center; max-width: 42ch; will-change: transform, opacity; }
+    .cinema-chamada h3 {
+      font-family: 'Outfit', sans-serif; font-size: clamp(1.3rem, 2.4vw, 2rem);
+      font-weight: 800; letter-spacing: -0.02em; margin: 0 0 0.7rem; color: #ffffff;
+    }
+    .cinema-chamada p {
+      font-family: 'Inter', sans-serif; font-size: 0.98rem; line-height: 1.65;
+      color: rgba(214,243,224,0.72); margin: 0;
+    }
+    @media (max-width: 880px) { .cinema-chamada p { display: none; } }
+
+    /* Aparelho e selos */
+    .cinema-palco-celular {
+      position: relative; perspective: 1000px; will-change: transform, opacity;
+      /* Margem lateral para os selos flutuarem fora do aparelho, e não sobre ele */
+      padding: 0 clamp(1.5rem, 6vw, 5rem);
+    }
+    .cinema-celular {
+      position: relative; width: 240px; height: 490px; border-radius: 2.6rem;
+      background: #111; transform-style: preserve-3d; will-change: transform;
+      box-shadow: inset 0 0 0 2px #52525b, inset 0 0 0 6px #000,
+                  0 40px 80px -15px rgba(0,0,0,0.9), 0 15px 25px -5px rgba(0,0,0,0.7);
+    }
+    @media (max-width: 880px) { .cinema-celular { width: 180px; height: 368px; } }
+    .cinema-tela {
+      position: absolute; inset: 6px; border-radius: 2.2rem; overflow: hidden;
+      background: #050f09; color: #fff; box-shadow: inset 0 0 15px rgba(0,0,0,1);
+      display: flex; flex-direction: column; padding: 2rem 1rem 1rem;
+    }
+    .cinema-ilha {
+      position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+      width: 86px; height: 24px; border-radius: 999px; background: #000; z-index: 5;
+    }
+    .cinema-anel { position: relative; width: 132px; height: 132px; margin: 0.4rem auto 1rem; }
+    .cinema-anel svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .cinema-anel .trilho { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 11; }
+    .cinema-anel .marca {
+      fill: none; stroke: #00e676; stroke-width: 11; stroke-linecap: round;
+      transform: rotate(-90deg); transform-origin: center;
+      stroke-dasharray: 352; stroke-dashoffset: 352;
+    }
+    .cinema-anel-centro {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .cinema-contador { font-family: 'Outfit', sans-serif; font-size: 2.1rem; font-weight: 800; line-height: 1; }
+    .cinema-anel-centro span:last-child {
+      position: absolute; bottom: -14px; white-space: nowrap;
+      font-family: 'Inter', sans-serif; font-size: 0.52rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: rgba(0,230,118,0.7);
+    }
+    .cinema-linha {
+      display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem;
+      border-radius: 14px; margin-bottom: 0.5rem; will-change: transform, opacity;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .cinema-linha i {
+      width: 26px; height: 26px; border-radius: 9px; flex: none;
+      background: rgba(0,230,118,0.16); border: 1px solid rgba(0,230,118,0.25);
+    }
+    .cinema-linha b { display: block; height: 6px; width: 60%; border-radius: 99px; background: rgba(255,255,255,0.65); margin-bottom: 5px; }
+    .cinema-linha em { display: block; height: 5px; width: 38%; border-radius: 99px; background: rgba(255,255,255,0.25); }
+    .cinema-selo {
+      position: absolute; z-index: 30; display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.8rem 1rem; border-radius: 16px; will-change: transform, opacity;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 25px 50px -12px rgba(0,0,0,0.8),
+                  inset 0 1px 1px rgba(255,255,255,0.2);
+    }
+    .cinema-selo .sigla {
+      width: 34px; height: 34px; border-radius: 999px; flex: none;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.78rem; color: #00e676;
+      background: rgba(0,230,118,0.14); border: 1px solid rgba(0,230,118,0.3);
+    }
+    .cinema-selo strong { display: block; font-family: 'Outfit', sans-serif; font-size: 0.82rem; color: #fff; }
+    .cinema-selo small { font-family: 'Inter', sans-serif; font-size: 0.7rem; color: rgba(214,243,224,0.55); }
+    .cinema-selo.alto { top: 6%; left: 0; }
+    .cinema-selo.baixo { bottom: 14%; right: 0; }
+
+    /* Posições das colunas do desktop, declaradas depois das regras base para
+       não serem sobrescritas por ordem de arquivo */
+    @media (min-width: 1024px) {
+      .cinema-conteudo > .cinema-chamada { order: 1; justify-self: start; text-align: left; }
+      .cinema-conteudo > .cinema-palco-celular { order: 2; }
+      .cinema-conteudo > .cinema-marca { order: 3; justify-self: end; text-align: right; font-size: clamp(3rem, 5.2vw, 5.4rem); }
+      .cinema-selo.alto { left: -10px; }
+      .cinema-selo.baixo { right: -10px; }
+    }
+    @media (max-width: 880px) {
+      .cinema-selo { padding: 0.55rem 0.7rem; gap: 0.5rem; }
+      .cinema-selo.alto { left: -8px; }
+      .cinema-selo.baixo { right: -8px; }
+    }
+
     /* ── SEÇÃO FINAL: CONTATO COM MAPA ── */
     #contato {
       position: relative;
@@ -1498,7 +1709,73 @@
 
 
 
-  <!-- 5. POR QUE ESCOLHER A ARCOVERDE — Carrossel -->
+  <!-- 5. SEÇÃO CINEMÁTICA (entre "Pague como quiser" e "Por que escolher") -->
+  <section id="cinema">
+    <div class="cinema-palco" id="cinemaPalco">
+      <div class="cinema-malha" aria-hidden="true"></div>
+
+      <div class="cinema-frase" data-cinema="frase">
+        <h2>Mais que uma corrida,</h2>
+        <h2>uma tradição no Rio.</h2>
+      </div>
+
+      <div class="cinema-final" data-cinema="final">
+        <h2>Chame seu táxi agora</h2>
+        <p>Reserve pelo aplicativo, pelo site ou pela central. A cooperativa atende o Rio de Janeiro 24 horas por dia.</p>
+        <div class="cinema-botoes">
+          <a class="cinema-botao cheio" href="#reservar">Reservar online</a>
+          <a class="cinema-botao vazado" href="#contato">Falar com a central</a>
+        </div>
+      </div>
+
+      <div class="cinema-cartao" data-cinema="cartao">
+        <div class="cinema-brilho" data-cinema="brilho" aria-hidden="true"></div>
+
+        <div class="cinema-conteudo">
+          <h2 class="cinema-marca" data-cinema="marca">Arco Verde</h2>
+
+          <div class="cinema-palco-celular" data-cinema="celular">
+            <div class="cinema-celular" data-cinema="aparelho">
+              <div class="cinema-ilha" aria-hidden="true"></div>
+              <div class="cinema-tela">
+                <div class="cinema-anel">
+                  <svg viewBox="0 0 132 132" aria-hidden="true">
+                    <circle class="trilho" cx="66" cy="66" r="56"></circle>
+                    <circle class="marca" data-cinema="anel" cx="66" cy="66" r="56"></circle>
+                  </svg>
+                  <div class="cinema-anel-centro">
+                    <span class="cinema-contador" data-cinema="contador">0</span>
+                    <span>min até o embarque</span>
+                  </div>
+                </div>
+                <div class="cinema-linha" data-cinema="linha"><i></i><div style="flex:1"><b></b><em></em></div></div>
+                <div class="cinema-linha" data-cinema="linha"><i></i><div style="flex:1"><b></b><em></em></div></div>
+                <div class="cinema-linha" data-cinema="linha"><i></i><div style="flex:1"><b></b><em></em></div></div>
+              </div>
+            </div>
+
+            <div class="cinema-selo alto" data-cinema="selo">
+              <span class="sigla">24h</span>
+              <div><strong>Central sempre aberta</strong><small>Todos os dias do ano</small></div>
+            </div>
+            <div class="cinema-selo baixo" data-cinema="selo">
+              <span class="sigla">OK</span>
+              <div><strong>Frota vistoriada</strong><small>Checagem diária</small></div>
+            </div>
+          </div>
+
+          <div class="cinema-chamada" data-cinema="chamada">
+            <h3>Tecnologia com gente de verdade</h3>
+            <p>O aplicativo coloca motorista cooperado, central e passageiro na mesma tela: corrida acompanhada em tempo real, frota vistoriada diariamente e atendimento 24 horas.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cinema-grao" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- 6. POR QUE ESCOLHER A ARCOVERDE — Carrossel -->
   <section id="por-que-arcoverde">
     <div class="pq-carousel-wrap" id="pqCarouselWrap" data-rise>
       <div class="pq-carousel-track" id="pqTrack">
@@ -2028,6 +2305,156 @@
       }
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onScroll);
+      paint();
+    })();
+  </script>
+
+  <script>
+    /* ── SEÇÃO CINEMÁTICA ──
+       Reprodução da linha do tempo em JavaScript puro: cada etapa é uma fatia do
+       avanço da rolagem dentro do trilho da seção. Sem GSAP/ScrollTrigger porque o
+       pino aqui é um simples position: sticky e o site já tem seus próprios
+       módulos de rolagem — trazer um segundo motor só para esta seção significaria
+       dois sistemas disputando o mesmo evento de scroll. */
+    (function initCinema() {
+      const sec = document.getElementById('cinema');
+      const palco = document.getElementById('cinemaPalco');
+      if (!sec || !palco) return;
+
+      const pega = n => palco.querySelector('[data-cinema="' + n + '"]');
+      const pegaTodos = n => Array.prototype.slice.call(palco.querySelectorAll('[data-cinema="' + n + '"]'));
+      const frase = pega('frase'), final = pega('final'), cartao = pega('cartao');
+      const brilho = pega('brilho'), marca = pega('marca'), celular = pega('celular');
+      const aparelho = pega('aparelho'), anel = pega('anel'), contador = pega('contador');
+      const chamada = pega('chamada');
+      const linhas = pegaTodos('linha'), selos = pegaTodos('selo');
+
+      const MINUTOS = 4;              // mesmo tempo mostrado na tela do app
+      const VOLTA_ANEL = 352;         // perímetro do anel de progresso
+
+      // Fatia de 0 a 1 dentro de um intervalo do avanço geral
+      const fatia = (p, a, b) => Math.max(0, Math.min(1, (p - a) / (b - a)));
+      const suave = t => t * t * (3 - 2 * t);
+      const saindo = t => 1 - Math.pow(1 - t, 3);
+      const lerp = (a, b, t) => a + (b - a) * t;
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        // Sem animação: a seção mostra o cartão montado, sem trilho de rolagem
+        sec.style.height = '100vh';
+        frase.style.display = 'none';
+        anel.style.strokeDashoffset = (VOLTA_ANEL * 0.18).toFixed(0);
+        contador.textContent = MINUTOS;
+        return;
+      }
+
+      let ultimo = null, mouseX = 0.5, mouseY = 0.5, inclinaX = 0, inclinaY = 0;
+
+      function paint() {
+        const rect = sec.getBoundingClientRect();
+        const windowH = window.innerHeight;
+        const curso = rect.height - windowH;
+        if (curso <= 0) return;
+        const p = Math.max(0, Math.min(1, (-rect.top) / curso));
+        if (p === ultimo) return;
+        ultimo = p;
+
+        // 1. A frase de abertura cresce, desfoca e sai de cena
+        const saiFrase = suave(fatia(p, 0, 0.16));
+        frase.style.transform = 'scale(' + lerp(1, 1.15, saiFrase).toFixed(3) + ')';
+        frase.style.filter = 'blur(' + (saiFrase * 20).toFixed(1) + 'px)';
+        frase.style.opacity = lerp(1, 0.15, saiFrase).toFixed(3);
+
+        // 2. O cartão sobe de baixo, 3. abre até ocupar a tela e
+        // 12. no fim recua e sai por cima
+        const sobe = saindo(fatia(p, 0.02, 0.2));
+        const abre = suave(fatia(p, 0.2, 0.32));
+        const recua = suave(fatia(p, 0.78, 0.9));
+        const vaiEmbora = fatia(p, 0.9, 1);
+        const larg = lerp(lerp(86, 100, abre), 86, recua);
+        const alt = lerp(lerp(86, 100, abre), 86, recua);
+        const raio = lerp(lerp(40, 0, abre), 40, recua);
+        cartao.style.width = larg.toFixed(1) + 'vw';
+        cartao.style.height = alt.toFixed(1) + 'vh';
+        cartao.style.borderRadius = raio.toFixed(0) + 'px';
+        const y = lerp(windowH * 1.1, 0, sobe) - vaiEmbora * (windowH + 300);
+        cartao.style.transform = 'translate3d(0, ' + y.toFixed(1) + 'px, 0)';
+
+        // 4. Marca, 5. aparelho, 6. linhas, 7. anel e contador, 8. selos, 9. chamada
+        const entra = (a, b) => saindo(fatia(p, a, b));
+        const some = suave(fatia(p, 0.72, 0.84));     // 11. tudo recolhe antes do fim
+        const vis = v => (v * (1 - some)).toFixed(3);
+
+        const eM = entra(0.3, 0.42);
+        marca.style.opacity = vis(eM);
+        marca.style.transform = 'translate3d(' + lerp(60, 0, eM).toFixed(1) + 'px, 0, 0)';
+
+        const eC = entra(0.32, 0.48);
+        celular.style.opacity = vis(eC);
+        celular.style.transform = 'translate3d(0, ' + lerp(300, -some * 40, eC).toFixed(1) + 'px, ' +
+          lerp(-500, 0, eC).toFixed(0) + 'px) rotateX(' + lerp(50, 0, eC).toFixed(1) +
+          'deg) rotateY(' + lerp(-30, 0, eC).toFixed(1) + 'deg) scale(' + lerp(0.6, 1 - some * 0.1, eC).toFixed(3) + ')';
+
+        linhas.forEach(function (el, i) {
+          const e = entra(0.4 + i * 0.03, 0.54 + i * 0.03);
+          el.style.opacity = vis(e);
+          el.style.transform = 'translateY(' + lerp(40, 0, e).toFixed(1) + 'px)';
+        });
+
+        const eA = suave(fatia(p, 0.42, 0.58));
+        anel.style.strokeDashoffset = lerp(VOLTA_ANEL, VOLTA_ANEL * 0.18, eA).toFixed(0);
+        contador.textContent = Math.round(lerp(0, MINUTOS, eA));
+
+        selos.forEach(function (el, i) {
+          const e = entra(0.46 + i * 0.05, 0.6 + i * 0.05);
+          el.style.opacity = vis(e);
+          el.style.transform = 'translateY(' + lerp(90, 0, e).toFixed(1) + 'px) scale(' + lerp(0.7, 1, e).toFixed(3) + ')';
+        });
+
+        const eT = entra(0.48, 0.62);
+        chamada.style.opacity = vis(eT);
+        chamada.style.transform = 'translate3d(' + lerp(-50, 0, eT).toFixed(1) + 'px, 0, 0)';
+
+        // 10. A chamada final aparece por trás enquanto o cartão recua
+        const eF = suave(fatia(p, 0.78, 0.9));
+        final.style.opacity = eF.toFixed(3);
+        final.style.transform = 'scale(' + lerp(0.8, 1, eF).toFixed(3) + ')';
+        final.style.filter = 'blur(' + lerp(30, 0, eF).toFixed(1) + 'px)';
+        final.style.pointerEvents = eF > 0.9 ? 'auto' : 'none';
+      }
+
+      // Brilho e inclinação acompanhando o mouse, com atraso para não ficar seco
+      palco.addEventListener('mousemove', function (e) {
+        const r = cartao.getBoundingClientRect();
+        brilho.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        brilho.style.setProperty('--my', (e.clientY - r.top) + 'px');
+        mouseX = e.clientX / window.innerWidth;
+        mouseY = e.clientY / window.innerHeight;
+      });
+
+      let visivel = false;
+      function conferirVisivel() {
+        const r = sec.getBoundingClientRect();
+        visivel = r.bottom > 0 && r.top < window.innerHeight;
+      }
+      conferirVisivel();
+
+      (function loop() {
+        requestAnimationFrame(loop);
+        if (!visivel) return;
+        inclinaX += ((mouseX - 0.5) * 24 - inclinaX) * 0.08;
+        inclinaY += ((mouseY - 0.5) * -24 - inclinaY) * 0.08;
+        aparelho.style.transform = 'rotateY(' + inclinaX.toFixed(2) + 'deg) rotateX(' + inclinaY.toFixed(2) + 'deg)';
+      })();
+
+      let agendado = false;
+      function onScroll() {
+        conferirVisivel();
+        if (agendado) return;
+        agendado = true;
+        requestAnimationFrame(function () { agendado = false; paint(); });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', function () { ultimo = null; paint(); });
       paint();
     })();
   </script>
