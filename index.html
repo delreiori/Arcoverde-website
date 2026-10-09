@@ -135,12 +135,17 @@
     }
 
     /* ── SEÇÃO HERO (Fixa sem encolhimento/rebarbas) ── */
+    /* Trilho alto: o palco fica preso enquanto a câmera "entra" no carro */
     .hero {
-      background: #f7d117;
-      position: sticky;
-      top: 0;
+      position: relative;
       z-index: 1;
       width: 100%;
+      height: 240vh;
+      background: linear-gradient(180deg, #bf8116 0%, #c28617 45%, #dbad3c 100%);
+    }
+    .hero-palco {
+      position: sticky;
+      top: 0;
       height: 100vh;
       overflow: hidden;
     }
@@ -152,6 +157,10 @@
       inset: 0;
       overflow: hidden;
     }
+    /* O zoom parte do para-brisa, e não do centro da imagem: é por ali que a
+       câmera entra no carro */
+    .hero-foto { transform-origin: 44% 46%; }
+    .hero-titulo { transform-origin: 50% 40%; }
     .hero-camada {
       position: absolute;
       inset: 0;
@@ -180,8 +189,17 @@
       color: #0d6031;
       pointer-events: none;
     }
+    /* Véu que assume no fim do mergulho: entrega a vez à seção verde e, de
+       quebra, cobre a perda de nitidez do zoom final */
+    /* Duas camadas fecham o mergulho: a cabine escura engole o quadro e, só no
+       fim, o verde entra e emenda com a seção seguinte */
     .hero-veu {
-      background: linear-gradient(180deg, rgba(0, 168, 25, 0) 45%, rgba(0, 168, 25, 0.9) 100%);
+      background: radial-gradient(circle at 44% 46%, #000 0%, #000 60%, #0a0a0a 100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .hero-verde {
+      background: #00a819;
       opacity: 0;
       pointer-events: none;
     }
@@ -1464,12 +1482,15 @@
 
   <!-- 1. HERO -->
   <section class="hero" id="heroSection">
+    <div class="hero-palco">
     <div class="hero-parallax" id="heroParallax">
       <img class="hero-camada hero-foto" data-hero-camada="foto"
            src="images/hero-camada-foto.jpg"
            alt="Arco Verde Táxi — Toyota Corolla Rio de Janeiro">
       <h1 class="hero-camada hero-titulo" data-hero-camada="titulo">Arcoverde</h1>
       <div class="hero-camada hero-veu" data-hero-camada="veu" aria-hidden="true"></div>
+      <div class="hero-camada hero-verde" data-hero-camada="verde" aria-hidden="true"></div>
+    </div>
     </div>
   </section>
 
@@ -2209,28 +2230,41 @@
       const foto = palco.querySelector('[data-hero-camada="foto"]');
       const titulo = palco.querySelector('[data-hero-camada="titulo"]');
       const veu = palco.querySelector('[data-hero-camada="veu"]');
+      const verde = palco.querySelector('[data-hero-camada="verde"]');
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-      // Quanto a foto e o título descem ao longo da passagem, em frações da janela.
-      // A diferença entre os dois é o que dá a sensação de profundidade.
-      const CURSO_FOTO = 0.17;
-      const CURSO_TITULO = 0.055;
+      // Mergulho: a foto cresce a partir do para-brisa até a câmera "entrar" no
+      // carro. O título fica atrás na cena, então cresce bem menos — é a diferença
+      // entre os dois que dá a sensação de avançar para dentro.
+      // No celular a foto é recortada mais fechada, então o mesmo zoom chega ao
+      // limite de nitidez antes: lá o mergulho é mais curto e a cabine escurece antes
+      function movel() { return window.innerWidth <= 768; }
+      const ZOOM_TITULO = 1.9;
       let ultimo = null;
 
       function paint() {
+        const rect = hero.getBoundingClientRect();
         const windowH = window.innerHeight;
-        // A seção é sticky e ocupa a primeira tela: o avanço é o quanto a página já
-        // rolou dentro dessa primeira janela
-        const p = Math.max(0, Math.min(1, window.pageYOffset / windowH));
+        const curso = rect.height - windowH;
+        if (curso <= 0) return;
+        const p = Math.max(0, Math.min(1, (-rect.top) / curso));
         if (p === ultimo) return;
         ultimo = p;
-        const suave = p * p * (3 - 2 * p);          // acelera e desacelera nas pontas
 
-        foto.style.transform = 'translate3d(0, ' + (suave * CURSO_FOTO * windowH).toFixed(1) +
-          'px, 0) scale(' + (1.25 + suave * 0.05).toFixed(3) + ')';
-        titulo.style.transform = 'translate3d(0, ' + (suave * CURSO_TITULO * windowH).toFixed(1) + 'px, 0)';
-        // O véu entra na segunda metade e emenda com o verde da seção seguinte
-        veu.style.opacity = Math.max(0, (p - 0.45) / 0.55).toFixed(3);
+        // Avanço acelerado: devagar no começo, rápido ao entrar no carro
+        const d = Math.max(0, Math.min(1, (p - 0.04) / 0.86));
+        const dive = d * d;
+
+        const zoomFoto = movel() ? 5.5 : 9;
+        foto.style.transform = 'scale(' + (1.25 + dive * (zoomFoto - 1.25)).toFixed(3) + ')';
+        titulo.style.transform = 'scale(' + (1 + dive * (ZOOM_TITULO - 1)).toFixed(3) +
+          ') translate3d(0, ' + (-dive * windowH * 0.45).toFixed(1) + 'px, 0)';
+        titulo.style.opacity = Math.max(0, 1 - dive * 2.4).toFixed(3);
+
+        // A cabine escurece o quadro e o verde entrega a vez à seção seguinte
+        const inicioVeu = movel() ? 0.66 : 0.76;
+        veu.style.opacity = Math.max(0, Math.min(1, (p - inicioVeu) / 0.14)).toFixed(3);
+        verde.style.opacity = Math.max(0, Math.min(1, (p - inicioVeu - 0.12) / 0.1)).toFixed(3);
       }
 
       let agendado = false;
