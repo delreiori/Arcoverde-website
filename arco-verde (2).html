@@ -2756,15 +2756,22 @@
         return mesh.material;
       }
 
-      // Tela 1 — print real do app (escura enquanto a imagem não chega)
-      const appScreenMat = addScreen(null, 0x11161f);
-      new THREE.TextureLoader().load('images/app-screen.jpg', function (texture) {
-        texture.encoding = THREE.sRGBEncoding;
-        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-        appScreenMat.map = texture;
-        appScreenMat.color.set(0xffffff);
-        appScreenMat.needsUpdate = true;
-      });
+      // Telas que são print do app: fundo escuro enquanto a imagem não chega
+      function addImageScreen(src) {
+        const mat = addScreen(null, 0x11161f);
+        new THREE.TextureLoader().load(src, function (texture) {
+          texture.encoding = THREE.sRGBEncoding;
+          texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+          mat.map = texture;
+          mat.color.set(0xffffff);
+          mat.needsUpdate = true;
+        });
+      }
+
+      // Tela 1 — chamada da corrida
+      addImageScreen('images/app-screen.jpg');
+      // Tela 2 — motorista a caminho, no mapa
+      addImageScreen('images/app-corrida.jpg');
 
       function roundRect(ctx, x, y, w, h, r) {
         ctx.beginPath();
@@ -2790,78 +2797,6 @@
         ctx.globalAlpha = 0.5;
         roundRect(ctx, 452, 36, 40, 18, 5); ctx.fill();
         ctx.globalAlpha = 1;
-      }
-
-      // Tela 2 — acompanhamento da corrida
-      function drawTrackingScreen(ctx) {
-        drawStatusBar(ctx);
-
-        ctx.fillStyle = '#0d1a14';
-        ctx.fillRect(0, 76, SCREEN_W, 706);
-        ctx.strokeStyle = '#16281e';                       // malha de ruas
-        ctx.lineWidth = 11;
-        [[-40, 300, 600, 170], [-40, 470, 600, 330], [-40, 650, 600, 520]].forEach(function (l) {
-          ctx.beginPath(); ctx.moveTo(l[0], l[1]); ctx.lineTo(l[2], l[3]); ctx.stroke();
-        });
-        ctx.lineWidth = 7;
-        [[120, 76, 190, 782], [330, 76, 250, 782], [470, 76, 420, 782]].forEach(function (l) {
-          ctx.beginPath(); ctx.moveTo(l[0], l[1]); ctx.lineTo(l[2], l[3]); ctx.stroke();
-        });
-
-        ctx.strokeStyle = '#00e676';                       // trajeto
-        ctx.lineWidth = 9;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.beginPath();
-        ctx.moveTo(126, 690);
-        ctx.lineTo(196, 520);
-        ctx.lineTo(352, 430);
-        ctx.lineTo(392, 236);
-        ctx.stroke();
-
-        ctx.fillStyle = '#ffffff';                          // origem
-        ctx.beginPath(); ctx.arc(126, 690, 13, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#0a1410';
-        ctx.beginPath(); ctx.arc(126, 690, 6, 0, Math.PI * 2); ctx.fill();
-
-        ctx.fillStyle = '#00e676';                          // destino
-        ctx.beginPath(); ctx.arc(392, 236, 19, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#062d18';
-        ctx.beginPath(); ctx.arc(392, 236, 8, 0, Math.PI * 2); ctx.fill();
-
-        ctx.fillStyle = 'rgba(0,230,118,0.22)';             // carro no trajeto
-        ctx.beginPath(); ctx.arc(352, 430, 30, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        roundRect(ctx, 332, 418, 40, 24, 9); ctx.fill();
-
-        roundRect(ctx, 26, 806, SCREEN_W - 52, 322, 30);    // cartão inferior
-        ctx.fillStyle = '#111c16'; ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,0.09)'; ctx.lineWidth = 2; ctx.stroke();
-
-        ctx.textAlign = 'left';
-        ctx.fillStyle = '#00e676';
-        ctx.font = '700 19px ' + FONT;
-        ctx.fillText('MOTORISTA A CAMINHO', 60, 866);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '700 40px ' + FONT;
-        ctx.fillText('Chega em 4 min', 60, 922);
-        ctx.fillStyle = 'rgba(255,255,255,0.55)';
-        ctx.font = '400 23px ' + FONT;
-        ctx.fillText('Toyota Corolla  ·  Prata  ·  Executivo', 60, 966);
-
-        roundRect(ctx, 60, 1002, 420, 8, 4);                 // progresso do trajeto
-        ctx.fillStyle = 'rgba(255,255,255,0.14)'; ctx.fill();
-        roundRect(ctx, 60, 1002, 260, 8, 4);
-        ctx.fillStyle = '#00e676'; ctx.fill();
-
-        ctx.fillStyle = 'rgba(255,255,255,0.16)';            // motorista
-        ctx.beginPath(); ctx.arc(88, 1074, 28, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '600 25px ' + FONT;
-        ctx.fillText('Márcio Gonçalves', 132, 1070);
-        ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        ctx.font = '400 21px ' + FONT;
-        ctx.fillText('Cooperado desde 2014', 132, 1098);
       }
 
       // Tela 3 — fim da viagem
@@ -2911,7 +2846,7 @@
       }
 
       // Telas desenhadas em canvas, em dobro da resolução para não borrar
-      const painted = [drawTrackingScreen, drawArrivalScreen].map(function (paint) {
+      const painted = [drawArrivalScreen].map(function (paint) {
         const canvas = document.createElement('canvas');
         canvas.width = SCREEN_W * 2;
         canvas.height = SCREEN_H * 2;
