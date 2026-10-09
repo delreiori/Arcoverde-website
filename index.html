@@ -144,12 +144,49 @@
       height: 100vh;
       overflow: hidden;
     }
-    .hero img {
+    /* ── HERO EM CAMADAS (PARALAXE ATÉ A SEÇÃO SEGUINTE) ──
+       O título saiu da foto e virou texto de verdade, que é o que permite as duas
+       camadas correrem em velocidades diferentes e criar profundidade. */
+    .hero-parallax {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .hero-camada {
+      position: absolute;
+      inset: 0;
+      will-change: transform;
+    }
+    .hero-foto {
       width: 100%;
       height: 100%;
       display: block;
       object-fit: cover;
       object-position: center center;
+      /* Sobra de escala para o deslocamento não descobrir as bordas da foto */
+      transform: scale(1.25);
+    }
+    .hero-titulo {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 9vh;
+      margin: 0;
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(3rem, 11.5vw, 10rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: #0d6031;
+      pointer-events: none;
+    }
+    .hero-veu {
+      background: linear-gradient(180deg, rgba(0, 168, 25, 0) 45%, rgba(0, 168, 25, 0.9) 100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+    @media (max-width: 768px) {
+      .hero-titulo { padding-top: 12vh; }
     }
     .hero-cta-bar {
       position: absolute;
@@ -1378,7 +1415,13 @@
 
   <!-- 1. HERO -->
   <section class="hero" id="heroSection">
-    <img src="images/hero_arcoverde.png" alt="Arco Verde Táxi — Toyota Corolla Rio de Janeiro">
+    <div class="hero-parallax" id="heroParallax">
+      <img class="hero-camada hero-foto" data-hero-camada="foto"
+           src="images/hero-camada-foto.jpg"
+           alt="Arco Verde Táxi — Toyota Corolla Rio de Janeiro">
+      <h1 class="hero-camada hero-titulo" data-hero-camada="titulo">Arcoverde</h1>
+      <div class="hero-camada hero-veu" data-hero-camada="veu" aria-hidden="true"></div>
+    </div>
   </section>
 
   <!-- PALCO DO CELULAR 3D: envolve as duas seções do app. O canvas sticky mantém o
@@ -1985,6 +2028,56 @@
       }
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onScroll);
+      paint();
+    })();
+  </script>
+
+  <script>
+    /* ── PARALAXE DO HERO ATÉ A SEGUNDA SEÇÃO ──
+       Foto, título e véu correm em velocidades diferentes enquanto a página vai do
+       primeiro hero para o segundo. Preso ao scroll, sem biblioteca: o site já tem
+       seus próprios módulos de rolagem e um motor de scroll suave (tipo Lenis)
+       assumiria a rolagem da página inteira e brigaria com todos eles. */
+    (function initHeroParallax() {
+      const hero = document.getElementById('heroSection');
+      const palco = document.getElementById('heroParallax');
+      if (!hero || !palco) return;
+
+      const foto = palco.querySelector('[data-hero-camada="foto"]');
+      const titulo = palco.querySelector('[data-hero-camada="titulo"]');
+      const veu = palco.querySelector('[data-hero-camada="veu"]');
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      // Quanto a foto e o título descem ao longo da passagem, em frações da janela.
+      // A diferença entre os dois é o que dá a sensação de profundidade.
+      const CURSO_FOTO = 0.17;
+      const CURSO_TITULO = 0.055;
+      let ultimo = null;
+
+      function paint() {
+        const windowH = window.innerHeight;
+        // A seção é sticky e ocupa a primeira tela: o avanço é o quanto a página já
+        // rolou dentro dessa primeira janela
+        const p = Math.max(0, Math.min(1, window.pageYOffset / windowH));
+        if (p === ultimo) return;
+        ultimo = p;
+        const suave = p * p * (3 - 2 * p);          // acelera e desacelera nas pontas
+
+        foto.style.transform = 'translate3d(0, ' + (suave * CURSO_FOTO * windowH).toFixed(1) +
+          'px, 0) scale(' + (1.25 + suave * 0.05).toFixed(3) + ')';
+        titulo.style.transform = 'translate3d(0, ' + (suave * CURSO_TITULO * windowH).toFixed(1) + 'px, 0)';
+        // O véu entra na segunda metade e emenda com o verde da seção seguinte
+        veu.style.opacity = Math.max(0, (p - 0.45) / 0.55).toFixed(3);
+      }
+
+      let agendado = false;
+      function onScroll() {
+        if (agendado) return;
+        agendado = true;
+        requestAnimationFrame(function () { agendado = false; paint(); });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', function () { ultimo = null; paint(); });
       paint();
     })();
   </script>
