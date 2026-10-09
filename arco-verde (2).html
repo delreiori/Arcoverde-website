@@ -291,6 +291,85 @@
       .hero-letra { opacity: 1; }
     }
 
+    /* ── VITRINE: O NOME COMO JANELA ──
+       As letras não são pintadas: é o contrário. Um retângulo escuro cobre a
+       tela inteira e um <mask> abre buracos com o formato do texto, deixando a
+       imagem de trás aparecer só por dentro das letras. Fazer o recorte dentro
+       do próprio SVG (e não com mask-image no CSS) é o que permite trocar a
+       imagem por um <video> sem mexer em mais nada. */
+    #vitrine {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 300vh;
+      background: #071d10;
+    }
+    .vitrine-palco {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #071d10;
+    }
+    /* O zoom inteiro sai de dentro do "O": é por aquele buraco que a página passa */
+    .vitrine-zoom {
+      position: absolute;
+      inset: 0;
+      transform-origin: 50% 50%;
+      will-change: transform;
+    }
+    .vitrine-midia {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      /* A imagem passa devagar por trás das letras, como o trânsito da referência */
+      animation: vitrine-passa 18s ease-in-out infinite alternate;
+    }
+    @keyframes vitrine-passa {
+      from { transform: scale(1.18) translateX(-3%); }
+      to   { transform: scale(1.18) translateX(3%); }
+    }
+    .vitrine-recorte {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    /* Aviso de rolagem, some assim que o mergulho começa */
+    .vitrine-dica {
+      position: absolute;
+      left: 50%;
+      bottom: 6vh;
+      transform: translateX(-50%);
+      z-index: 3;
+      color: rgba(255, 236, 160, 0.75);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+    /* Entrega a vez à seção de pagamento, que tem fundo branco */
+    .vitrine-veu {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      background: #fff;
+      opacity: 0;
+      pointer-events: none;
+    }
+    /* Uma das duas versões do nome fica no ar por vez */
+    .vitrine-duas-linhas { display: none; }
+    @media (max-width: 768px) {
+      .vitrine-linha-unica { display: none; }
+      .vitrine-duas-linhas { display: block; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .vitrine-midia { animation: none; }
+    }
+
     /* ── SEÇÃO CONHEÇA NOSSO APP (Cortina que sobe sobre o Hero) ── */
     .conheca-app {
       width: 100%;
@@ -1676,6 +1755,131 @@
     </section>
 
   </div>
+
+  <!-- 3.5 VITRINE: o nome vira janela e a página entra por dentro das letras -->
+  <section id="vitrine">
+    <div class="vitrine-palco">
+      <div class="vitrine-zoom" id="vitrineZoom">
+        <!-- Trocar images/vitrine-fundo.jpg troca o que aparece dentro das letras.
+             Para vídeo, este <img> vira <video class="vitrine-midia" autoplay muted
+             loop playsinline>: o recorte é feito dentro do SVG, não muda nada. -->
+        <img class="vitrine-midia" src="images/vitrine-fundo.jpg"
+             alt="O Rio de Janeiro visto por dentro das letras do nome Arcoverde">
+        <svg class="vitrine-recorte" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet"
+             aria-hidden="true">
+          <defs>
+            <mask id="vitrineLetras">
+              <!-- Branco deixa passar, preto bloqueia: o texto preto abre os buracos -->
+              <rect x="-6400" y="-3600" width="14400" height="8100" fill="#fff"/>
+              <!-- textLength trava a largura: a palavra cabe no quadro mesmo se a
+                   fonte do Google não carregar e o navegador usar outra.
+                   Na tela deitada a palavra vai inteira; na de pé ela se parte em
+                   duas linhas, senão as letras ficariam baixas e finas demais. -->
+              <text class="vitrine-linha-unica" x="800" y="450" text-anchor="middle"
+                    dominant-baseline="central" textLength="1480" lengthAdjust="spacingAndGlyphs"
+                    font-family="Outfit, sans-serif" font-weight="800" font-size="320"
+                    fill="#000">ARCOVERDE</text>
+              <g class="vitrine-duas-linhas">
+                <text x="800" y="300" text-anchor="middle" dominant-baseline="central"
+                      textLength="1420" lengthAdjust="spacingAndGlyphs"
+                      font-family="Outfit, sans-serif" font-weight="800" font-size="360"
+                      fill="#000">ARCO</text>
+                <text x="800" y="640" text-anchor="middle" dominant-baseline="central"
+                      textLength="1420" lengthAdjust="spacingAndGlyphs"
+                      font-family="Outfit, sans-serif" font-weight="800" font-size="360"
+                      fill="#000">VERDE</text>
+              </g>
+            </mask>
+          </defs>
+          <rect x="-6400" y="-3600" width="14400" height="8100" fill="#071d10"
+                mask="url(#vitrineLetras)"/>
+        </svg>
+      </div>
+      <p class="vitrine-dica" id="vitrineDica">role para entrar</p>
+      <div class="vitrine-veu" id="vitrineVeu" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <script>
+    /* ── A PÁGINA ENTRA POR DENTRO DAS LETRAS ──
+       O palco fica preso e o conjunto inteiro (imagem + recorte) cresce a partir
+       do vão de uma letra. O retângulo escuro sai de cena pelas bordas e, no fim,
+       o que resta na tela é só o que estava atrás do nome. */
+    (function initVitrine() {
+      const sec = document.getElementById('vitrine');
+      const zoom = document.getElementById('vitrineZoom');
+      if (!sec || !zoom) return;
+      const veu = document.getElementById('vitrineVeu');
+      const dica = document.getElementById('vitrineDica');
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      // Ampliar demais mostra o grão da foto: o véu entra antes disso
+      const ZOOM_FIM = 13;
+      const LETRA_DE_ENTRADA = 7;      // o "D" de ARCOVERDE
+      let ultimo = null;
+
+      // A porta tem de cair em cima do traço da letra, e não no vazio: a mira vai
+      // na haste vertical do "D", que é cheia. No miolo do "O", por exemplo, quem
+      // está é o retângulo escuro, e o mergulho terminaria no nada. A posição
+      // depende da fonte que o navegador acabou usando, então é medida no SVG
+      // já montado, e não chutada no CSS.
+      function miraNaLetra() {
+        // Conteúdo de <mask> não é desenhado, então não tem retângulo de layout
+        // para consultar: quem responde qual das duas versões está no ar é o
+        // display calculado, subindo até a máscara.
+        function noAr(el) {
+          for (let n = el; n && n.tagName !== 'mask'; n = n.parentNode) {
+            if (getComputedStyle(n).display === 'none') return false;
+          }
+          return true;
+        }
+        const texto = Array.prototype.find.call(
+          document.querySelectorAll('#vitrine mask text'), noAr);
+        const svg = texto && texto.ownerSVGElement;
+        if (!svg || !svg.getScreenCTM) return;
+        try {
+          const i = Math.min(LETRA_DE_ENTRADA, texto.textContent.length - 1);
+          const caixa = texto.getExtentOfChar(i);
+          const ctm = svg.getScreenCTM();
+          const pt = svg.createSVGPoint();
+          pt.x = caixa.x + caixa.width * 0.12;    // a haste, encostada na borda esquerda
+          pt.y = caixa.y + caixa.height / 2;
+          const tela = pt.matrixTransform(ctm);
+          const palco = zoom.getBoundingClientRect();
+          zoom.style.transformOrigin =
+            (tela.x - palco.left).toFixed(1) + 'px ' + (tela.y - palco.top).toFixed(1) + 'px';
+        } catch (e) { /* fonte ainda carregando: fica no centro até a próxima medida */ }
+      }
+
+      function paint() {
+        const rect = sec.getBoundingClientRect();
+        const curso = rect.height - window.innerHeight;
+        if (curso <= 0) return;
+        const p = Math.max(0, Math.min(1, (-rect.top) / curso));
+        if (p === ultimo) return;
+        ultimo = p;
+
+        // Avanço acelerado: o nome fica legível no começo e o mergulho engata depois
+        const d = Math.max(0, Math.min(1, (p - 0.08) / 0.74));
+        const mergulho = d * d;
+
+        zoom.style.transform = 'scale(' + (1 + mergulho * (ZOOM_FIM - 1)).toFixed(3) + ')';
+        dica.style.opacity = Math.max(0, 1 - p * 6).toFixed(3);
+        veu.style.opacity = Math.max(0, Math.min(1, (p - 0.76) / 0.16)).toFixed(3);
+      }
+
+      let agendado = false;
+      window.addEventListener('scroll', function () {
+        if (agendado) return;
+        agendado = true;
+        requestAnimationFrame(function () { agendado = false; paint(); });
+      }, { passive: true });
+      window.addEventListener('resize', function () { ultimo = null; miraNaLetra(); paint(); });
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(miraNaLetra);
+      miraNaLetra();
+      paint();
+    })();
+  </script>
 
   <!-- 4. CARROSSEL DE PAGAMENTO (ANIMAÇÃO AUTOMÁTICA) -->
   <section id="pagamento-section">
