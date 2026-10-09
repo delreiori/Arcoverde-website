@@ -605,192 +605,6 @@
     }
 
 
-    /* ── CARROSSEL POR QUE ── */
-    .pq-carousel-wrap {
-      position: relative;
-      overflow: hidden;
-      width: 100%;
-    }
-    .pq-carousel-track {
-      display: flex;
-      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .arcoverde-section {
-      position: relative;
-      min-width: 100%;
-      max-width: 100%;
-      height: 720px;
-      overflow: hidden;
-      font-family: 'DM Sans', 'Inter', sans-serif;
-    }
-    /* Slide 1 fundo */
-    .arcoverde-section.slide-1 { background-color: #F7F8F5; }
-    /* Slide 2 fundo */
-    .arcoverde-section.slide-2 { background-color: #F0F5F1; }
-    /* Dot Grid */
-    .dot-grid {
-      position: absolute;
-      bottom: 50px;
-      left: 24px;
-      display: grid;
-      grid-template-columns: repeat(12, 3px);
-      grid-template-rows: repeat(4, 3px);
-      gap: 8px;
-      z-index: 0;
-    }
-    .dot-grid span {
-      width: 3px; height: 3px; border-radius: 50%;
-      background-color: #3E443F; opacity: 0.15;
-    }
-    /* Título principal */
-    .pq-main-title {
-      position: absolute;
-      top: 101px; left: 32px;
-      font-family: 'Outfit', sans-serif;
-      font-weight: 800;
-      font-size: clamp(28px, 3.4vw, 44px);
-      line-height: 110%;
-      letter-spacing: -1.5px;
-      color: #003E0B;
-      z-index: 3;
-    }
-    /* Título slide 2 — top-left maior e com subtítulo */
-    .pq-main-title .pq-slide-sub {
-      display: block;
-      font-family: 'DM Sans', 'Inter', sans-serif;
-      font-size: clamp(12px, 1.1vw, 15px);
-      font-weight: 400;
-      letter-spacing: 0;
-      color: #3E443F;
-      margin-top: 14px;
-      line-height: 1.5;
-      max-width: 240px;
-    }
-    /* Círculos */
-    .pq-circle-container {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: clamp(340px, 40vw, 520px);
-      height: clamp(340px, 40vw, 520px);
-      z-index: 1;
-    }
-    .pq-circle-outer {
-      position: absolute; inset: 0;
-      border-radius: 50%;
-      border: 2px solid rgba(0,115,15,0.4);
-    }
-    .pq-circle-dashed {
-      position: absolute;
-      top: 13%; left: 13%;
-      width: 74%; height: 74%;
-      border-radius: 50%;
-      border: 1.5px dashed rgba(0,115,15,0.4);
-    }
-    /* Imagem do carro */
-    .pq-car-image {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 92%;
-      height: 92%;
-      overflow: hidden;
-      z-index: 2;
-    }
-    .pq-car-image img {
-      width: 100%; height: 100%;
-      object-fit: contain;
-      mix-blend-mode: multiply;
-    }
-    /* Texto direita inferior */
-    .pq-text-content {
-      position: absolute;
-      top: 55%;
-      right: 4%;
-      width: clamp(180px, 26vw, 340px);
-      z-index: 3;
-    }
-    .pq-line-thick {
-      width: 48px; height: 3px;
-      background-color: #00730F;
-      margin-bottom: 28px;
-    }
-    .pq-line-thin {
-      width: 48px; height: 1px;
-      background-color: rgba(0,115,15,0.4);
-      margin-bottom: 12px;
-    }
-    .pq-line-short {
-      width: 24px; height: 1px;
-      background-color: rgba(0,115,15,0.4);
-      margin-bottom: 12px;
-    }
-    .pq-subtitle-block { margin-bottom: 28px; }
-    .pq-subtitle-text {
-      font-size: clamp(14px, 1.4vw, 18px);
-      line-height: 140%; color: #3E443F;
-    }
-    .pq-subtitle-text strong { font-weight: 700; color: #00730F; }
-    .pq-description-text {
-      font-size: clamp(12px, 1.2vw, 15px);
-      line-height: 150%; color: #3E443F;
-    }
-    .pq-description-text strong { font-weight: 700; color: #00730F; }
-    /* Nav carrossel */
-    .pq-nav {
-      position: absolute;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      z-index: 10;
-    }
-    .pq-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: rgba(0,62,11,0.2);
-      border: none; cursor: pointer;
-      padding: 0;
-      transition: all 0.3s;
-    }
-    .pq-dot.active {
-      background: #003E0B;
-      width: 24px;
-      border-radius: 999px;
-    }
-    .pq-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.8);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(0,115,15,0.2);
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      transition: all 0.2s;
-      z-index: 10;
-    }
-    .pq-arrow:hover { background: #fff; box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
-    .pq-arrow-left { left: 20px; }
-    .pq-arrow-right { right: 20px; }
-    .pq-arrow svg { width: 18px; height: 18px; stroke: #003E0B; }
-    @media (max-width: 900px) {
-      .arcoverde-section { min-height: unset; padding-bottom: 80px; }
-      .pq-main-title { position: relative; top: unset; left: unset;
-        padding: 48px 24px 0; display: block; }
-      .pq-circle-container { position: relative; top: unset; left: unset;
-        margin: 32px auto; width: 300px; height: 300px; }
-      .pq-text-content { position: relative; top: unset; left: unset;
-        width: 90%; margin: 0 auto; padding: 0 24px 48px; }
-      .dot-grid { display: none; }
-    }
 
 
     /* ── TIPOGRAFIA QUE ACENDE CONFORME A ROLAGEM ──
@@ -1353,7 +1167,17 @@
       transform: translateZ(0); filter: drop-shadow(0 12px 24px rgba(0,0,0,0.8));
       will-change: transform, opacity;
     }
-    .cinema-chamada { text-align: center; max-width: 42ch; will-change: transform, opacity; }
+    /* Os dois textos ocupam a mesma célula: o segundo entra por cima do primeiro */
+    .cinema-chamadas { position: relative; width: 100%; max-width: 42ch; }
+    .cinema-chamada {
+      text-align: center; will-change: transform, opacity;
+    }
+    .cinema-chamada[data-cinema="chamada2"] { position: absolute; inset: 0; }
+    .cinema-chamada .destaque {
+      font-family: 'Outfit', sans-serif; font-size: 1.02rem; font-weight: 700;
+      color: #00e676; margin: 0 0 0.6rem;
+    }
+    .cinema-chamada strong { color: #ffffff; font-weight: 700; }
     .cinema-chamada h3 {
       font-family: 'Outfit', sans-serif; font-size: clamp(1.3rem, 2.4vw, 2rem);
       font-weight: 800; letter-spacing: -0.02em; margin: 0 0 0.7rem; color: #ffffff;
@@ -1362,7 +1186,14 @@
       font-family: 'Inter', sans-serif; font-size: 0.98rem; line-height: 1.65;
       color: rgba(214,243,224,0.72); margin: 0;
     }
-    @media (max-width: 880px) { .cinema-chamada p { display: none; } }
+    /* No celular o texto não pode sumir: ele é a informação que veio da seção
+       "Por que escolher". O aparelho encolhe para abrir espaço. */
+    @media (max-width: 880px) {
+      .cinema-chamada h3 { font-size: 1.15rem; margin-bottom: 0.5rem; }
+      .cinema-chamada .destaque { font-size: 0.9rem; margin-bottom: 0.45rem; }
+      .cinema-chamada p { font-size: 0.84rem; line-height: 1.5; }
+      .cinema-chamadas { max-width: 34ch; }
+    }
 
     /* Aparelho e selos */
     .cinema-palco-celular {
@@ -1376,7 +1207,7 @@
       box-shadow: inset 0 0 0 2px #52525b, inset 0 0 0 6px #000,
                   0 40px 80px -15px rgba(0,0,0,0.9), 0 15px 25px -5px rgba(0,0,0,0.7);
     }
-    @media (max-width: 880px) { .cinema-celular { width: 180px; height: 368px; } }
+    @media (max-width: 880px) { .cinema-celular { width: 148px; height: 302px; } }
     .cinema-tela {
       position: absolute; inset: 6px; border-radius: 2.2rem; overflow: hidden;
       background: #050f09; color: #fff; box-shadow: inset 0 0 15px rgba(0,0,0,1);
@@ -1387,6 +1218,7 @@
       width: 86px; height: 24px; border-radius: 999px; background: #000; z-index: 5;
     }
     .cinema-anel { position: relative; width: 132px; height: 132px; margin: 0.4rem auto 1rem; }
+    @media (max-width: 880px) { .cinema-anel { width: 96px; height: 96px; } .cinema-contador { font-size: 1.5rem; } }
     .cinema-anel svg { position: absolute; inset: 0; width: 100%; height: 100%; }
     .cinema-anel .trilho { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 11; }
     .cinema-anel .marca {
@@ -1438,16 +1270,22 @@
     /* Posições das colunas do desktop, declaradas depois das regras base para
        não serem sobrescritas por ordem de arquivo */
     @media (min-width: 1024px) {
-      .cinema-conteudo > .cinema-chamada { order: 1; justify-self: start; text-align: left; }
+      .cinema-conteudo > .cinema-chamadas { order: 1; justify-self: start; }
+      .cinema-chamada { text-align: left; }
       .cinema-conteudo > .cinema-palco-celular { order: 2; }
       .cinema-conteudo > .cinema-marca { order: 3; justify-self: end; text-align: right; font-size: clamp(3rem, 5.2vw, 5.4rem); }
       .cinema-selo.alto { left: -10px; }
       .cinema-selo.baixo { right: -10px; }
     }
     @media (max-width: 880px) {
-      .cinema-selo { padding: 0.55rem 0.7rem; gap: 0.5rem; }
-      .cinema-selo.alto { left: -8px; }
-      .cinema-selo.baixo { right: -8px; }
+      .cinema-selo { padding: 0.5rem 0.65rem; gap: 0.45rem; }
+      /* Na tela estreita os selos sobem e descem para fora do aparelho, senão
+         cobririam o anel e as linhas da tela */
+      .cinema-selo.alto { top: -7%; left: -6px; }
+      .cinema-selo.baixo { bottom: -5%; right: -6px; }
+      .cinema-selo .sigla { width: 28px; height: 28px; font-size: 0.68rem; }
+      .cinema-selo strong { font-size: 0.74rem; }
+      .cinema-selo small { font-size: 0.62rem; }
     }
 
     /* ── SEÇÃO FINAL: CONTATO COM MAPA ── */
@@ -1715,8 +1553,8 @@
       <div class="cinema-malha" aria-hidden="true"></div>
 
       <div class="cinema-frase" data-cinema="frase">
-        <h2>Mais que uma corrida,</h2>
-        <h2>uma tradição no Rio.</h2>
+        <h2>Por que escolher</h2>
+        <h2>a Arcoverde?</h2>
       </div>
 
       <div class="cinema-final" data-cinema="final">
@@ -1764,9 +1602,19 @@
             </div>
           </div>
 
-          <div class="cinema-chamada" data-cinema="chamada">
-            <h3>Tecnologia com gente de verdade</h3>
-            <p>O aplicativo coloca motorista cooperado, central e passageiro na mesma tela: corrida acompanhada em tempo real, frota vistoriada diariamente e atendimento 24 horas.</p>
+          <!-- Os dois blocos de texto que eram os slides do carrossel "Por que
+               escolher a Arcoverde"; o segundo entra no lugar do primeiro -->
+          <div class="cinema-chamadas">
+            <div class="cinema-chamada" data-cinema="chamada1">
+              <h3>Mais que um táxi</h3>
+              <p class="destaque">Uma tradição que se move com você.</p>
+              <p><strong>Há décadas,</strong> fazemos parte da rotina do Rio de Janeiro. Hoje, unimos a experiência de nossos motoristas à tecnologia para oferecer uma mobilidade mais segura, prática e confiável.</p>
+            </div>
+            <div class="cinema-chamada" data-cinema="chamada2">
+              <h3>Segurança em cada corrida</h3>
+              <p class="destaque">Mais tranquilidade para você, do embarque ao destino.</p>
+              <p><strong>Atendimento de confiança:</strong> um serviço pensado para colocar o passageiro em primeiro lugar.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -1775,100 +1623,6 @@
     </div>
   </section>
 
-  <!-- 6. POR QUE ESCOLHER A ARCOVERDE — Carrossel -->
-  <section id="por-que-arcoverde">
-    <div class="pq-carousel-wrap" id="pqCarouselWrap" data-rise>
-      <div class="pq-carousel-track" id="pqTrack">
-
-        <!-- SLIDE 1: Por que escolher -->
-        <div class="arcoverde-section slide-1">
-          <div class="dot-grid">
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-          </div>
-          <h2 class="pq-main-title">POR QUE<br>ESCOLHER<br>A ARCOVERDE?</h2>
-          <div class="pq-circle-container">
-            <div class="pq-circle-outer"></div>
-            <div class="pq-circle-dashed"></div>
-            <div class="pq-car-image">
-              <img src="images/car-arcoverde.png" alt="Táxi Arcoverde">
-            </div>
-          </div>
-          <div class="pq-text-content">
-            <div class="pq-line-thick"></div>
-            <div class="pq-subtitle-block">
-              <div class="pq-line-thin"></div>
-              <p class="pq-subtitle-text"><strong>Mais que um táxi.</strong> Uma tradição que se move com você.</p>
-            </div>
-            <div class="pq-description-block">
-              <div class="pq-line-short"></div>
-              <p class="pq-description-text"><strong>Há décadas,</strong> fazemos parte da rotina do Rio de Janeiro. Hoje, unimos a experiência de nossos motoristas à tecnologia para oferecer uma mobilidade mais segura, prática e confiável.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- SLIDE 2: Segurança -->
-        <div class="arcoverde-section slide-2">
-          <div class="dot-grid">
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-            <span></span><span></span><span></span><span></span><span></span><span></span>
-          </div>
-          <!-- Título top-left -->
-          <h2 class="pq-main-title">
-            SEGURANÇA<br>EM CADA<br>CORRIDA
-            <span class="pq-slide-sub">Mais tranquilidade para você, do embarque ao destino.</span>
-          </h2>
-          <div class="pq-circle-container">
-            <div class="pq-circle-outer"></div>
-            <div class="pq-circle-dashed"></div>
-            <div class="pq-car-image">
-              <img src="images/car-arcoverde.png" alt="Táxi Arcoverde">
-            </div>
-          </div>
-          <!-- Texto bottom-right -->
-          <div class="pq-text-content">
-            <div class="pq-line-thick"></div>
-            <div class="pq-subtitle-block">
-              <div class="pq-line-thin"></div>
-              <p class="pq-subtitle-text"><strong>Atendimento de confiança</strong></p>
-            </div>
-            <div class="pq-description-block">
-              <div class="pq-line-short"></div>
-              <p class="pq-description-text">Um serviço pensado para colocar o passageiro em primeiro lugar.</p>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /track -->
-
-      <!-- Setas -->
-      <button class="pq-arrow pq-arrow-left" id="pqPrev" aria-label="Anterior">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <button class="pq-arrow pq-arrow-right" id="pqNext" aria-label="Próximo">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
-      </button>
-
-      <!-- Dots -->
-      <div class="pq-nav" id="pqNav">
-        <button class="pq-dot active" data-idx="0"></button>
-        <button class="pq-dot" data-idx="1"></button>
-      </div>
-
-    </div><!-- /carousel-wrap -->
-  </section>
 
 
 
@@ -2077,30 +1831,6 @@
 
   <!-- JAVASCRIPT: MENU MOBILE & SCROLLSPY & CARROSSEL -->
   <script>
-    /* ── Carrossel Por que Arcoverde ── */
-    (function() {
-      const track = document.getElementById('pqTrack');
-      const dots  = document.querySelectorAll('#pqNav .pq-dot');
-      const prev  = document.getElementById('pqPrev');
-      const next  = document.getElementById('pqNext');
-      if (!track) return;
-      let current = 0;
-      const total = track.children.length;
-
-      function goTo(idx) {
-        current = (idx + total) % total;
-        track.style.transform = `translateX(-${current * 100}%)`;
-        dots.forEach((d, i) => d.classList.toggle('active', i === current));
-      }
-
-      prev && prev.addEventListener('click', () => goTo(current - 1));
-      next && next.addEventListener('click', () => goTo(current + 1));
-      dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.idx)));
-
-      /* Auto-play 5s */
-      setInterval(() => goTo(current + 1), 5000);
-    })();
-
     (function() {
       const toggleBtn = document.getElementById("mobileToggle");
       const menu = document.getElementById("mobileMenu");
@@ -2326,7 +2056,7 @@
       const frase = pega('frase'), final = pega('final'), cartao = pega('cartao');
       const brilho = pega('brilho'), marca = pega('marca'), celular = pega('celular');
       const aparelho = pega('aparelho'), anel = pega('anel'), contador = pega('contador');
-      const chamada = pega('chamada');
+      const chamada1 = pega('chamada1'), chamada2 = pega('chamada2');
       const linhas = pegaTodos('linha'), selos = pegaTodos('selo');
 
       const MINUTOS = 4;              // mesmo tempo mostrado na tela do app
@@ -2368,8 +2098,8 @@
         // 12. no fim recua e sai por cima
         const sobe = saindo(fatia(p, 0.02, 0.2));
         const abre = suave(fatia(p, 0.2, 0.32));
-        const recua = suave(fatia(p, 0.78, 0.9));
-        const vaiEmbora = fatia(p, 0.9, 1);
+        const recua = suave(fatia(p, 0.8, 0.92));
+        const vaiEmbora = fatia(p, 0.92, 1);
         const larg = lerp(lerp(86, 100, abre), 86, recua);
         const alt = lerp(lerp(86, 100, abre), 86, recua);
         const raio = lerp(lerp(40, 0, abre), 40, recua);
@@ -2381,7 +2111,7 @@
 
         // 4. Marca, 5. aparelho, 6. linhas, 7. anel e contador, 8. selos, 9. chamada
         const entra = (a, b) => saindo(fatia(p, a, b));
-        const some = suave(fatia(p, 0.72, 0.84));     // 11. tudo recolhe antes do fim
+        const some = suave(fatia(p, 0.78, 0.87));     // 11. tudo recolhe antes do fim
         const vis = v => (v * (1 - some)).toFixed(3);
 
         const eM = entra(0.3, 0.42);
@@ -2410,12 +2140,18 @@
           el.style.transform = 'translateY(' + lerp(90, 0, e).toFixed(1) + 'px) scale(' + lerp(0.7, 1, e).toFixed(3) + ')';
         });
 
-        const eT = entra(0.48, 0.62);
-        chamada.style.opacity = vis(eT);
-        chamada.style.transform = 'translate3d(' + lerp(-50, 0, eT).toFixed(1) + 'px, 0, 0)';
+        // Primeiro texto entra, sai, e o segundo toma o lugar dele
+        const eT1 = entra(0.48, 0.58);
+        const sai1 = suave(fatia(p, 0.6, 0.66));
+        chamada1.style.opacity = vis(eT1 * (1 - sai1));
+        chamada1.style.transform = 'translate3d(' + lerp(-50, -sai1 * 40, eT1).toFixed(1) + 'px, 0, 0)';
+
+        const eT2 = entra(0.66, 0.74);
+        chamada2.style.opacity = vis(eT2);
+        chamada2.style.transform = 'translate3d(' + lerp(50, 0, eT2).toFixed(1) + 'px, 0, 0)';
 
         // 10. A chamada final aparece por trás enquanto o cartão recua
-        const eF = suave(fatia(p, 0.78, 0.9));
+        const eF = suave(fatia(p, 0.8, 0.92));
         final.style.opacity = eF.toFixed(3);
         final.style.transform = 'scale(' + lerp(0.8, 1, eF).toFixed(3) + ')';
         final.style.filter = 'blur(' + lerp(30, 0, eF).toFixed(1) + 'px)';
