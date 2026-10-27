@@ -725,9 +725,19 @@
       top: 0;
       height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+    }
+    /* "Táxi" fica fora do <h2> de propósito: o script mede a geometria das letras
+       a partir dele, e um filho a mais quebraria a conta */
+    .marca-taxi-alto {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(1rem, 3.4vw, 2.6rem);
+      color: #f9c000;
+      opacity: 0;
+      margin-bottom: clamp(0.3rem, 1vw, 0.8rem);
     }
     .marca-word {
       display: flex;
@@ -1877,7 +1887,8 @@
   <!-- 6. ABERTURA DA SEÇÃO DO CARRO: O "A" ABRE NA PALAVRA ARCOVERDE -->
   <section id="marca-reveal">
     <div class="marca-stage">
-      <h2 class="marca-word" id="marcaWord" aria-label="Arcoverde"><span class="marca-letter" aria-hidden="true">A</span><span class="marca-letter" aria-hidden="true">r</span><span class="marca-letter" aria-hidden="true">c</span><span class="marca-letter" aria-hidden="true">o</span><span class="marca-letter" aria-hidden="true">v</span><span class="marca-letter" aria-hidden="true">e</span><span class="marca-letter" aria-hidden="true">r</span><span class="marca-letter" aria-hidden="true">d</span><span class="marca-letter" aria-hidden="true">e</span></h2>
+      <span class="marca-taxi marca-taxi-alto" id="marcaTaxi" aria-hidden="true">Táxi</span>
+      <h2 class="marca-word" id="marcaWord" aria-label="Táxi Arcoverde"><span class="marca-letter" aria-hidden="true">A</span><span class="marca-letter" aria-hidden="true">r</span><span class="marca-letter" aria-hidden="true">c</span><span class="marca-letter" aria-hidden="true">o</span><span class="marca-letter" aria-hidden="true">v</span><span class="marca-letter" aria-hidden="true">e</span><span class="marca-letter" aria-hidden="true">r</span><span class="marca-letter" aria-hidden="true">d</span><span class="marca-letter" aria-hidden="true">e</span></h2>
     </div>
   </section>
 
@@ -2599,6 +2610,7 @@
       const word = document.getElementById('marcaWord');
       if (!sec || !word) return;
 
+      const taxi = document.getElementById('marcaTaxi');
       const letters = Array.prototype.slice.call(word.querySelectorAll('.marca-letter'));
       if (letters.length < 2) return;
       const rest = letters.slice(1);                 // as letras de "rcoverde"
@@ -2641,6 +2653,13 @@
         const mean = sum / rest.length;
         word.style.transform = 'translateX(' + (wordShift * (1 - mean)).toFixed(2) + 'px)';
         letters[0].style.transform = 'scale(' + (1.12 - 0.12 * easeOut(a)).toFixed(3) + ')';
+        // "Táxi" só assenta depois, com a palavra quase pronta: entrando junto ele
+        // competiria com as letras que ainda estão se juntando
+        if (taxi) {
+          const t = Math.max(0, Math.min(1, (a - 0.6) / 0.35));
+          taxi.style.opacity = t.toFixed(3);
+          taxi.style.transform = 'translateY(' + ((1 - easeOut(t)) * 18).toFixed(1) + 'px)';
+        }
       }
 
       // Com movimento reduzido, a palavra aparece pronta e nada é animado
