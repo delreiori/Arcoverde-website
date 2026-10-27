@@ -151,6 +151,57 @@
       opacity: 0.85;
     }
 
+    /* ── TERMOS DO SERVIÇO (ANTES DO RODAPÉ) ──
+       Um resumo em texto corrido do que a cooperativa faz e de onde atende. É o
+       trecho que buscadores leem para saber do que a página trata, então as
+       palavras entram em frases de verdade, e não numa lista solta: amontoado de
+       termos sem contexto é lido como enchimento e derruba a página. */
+    #termos-servico {
+      background: #062a18;
+      color: rgba(255, 248, 232, 0.72);
+      font-family: 'Inter', sans-serif;
+      padding: 4rem 6vw 3.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .termos-inner {
+      max-width: 60rem;
+      margin: 0 auto;
+    }
+    #termos-servico h2 {
+      margin: 0 0 1.2rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(1.1rem, 2vw, 1.5rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--cream);
+    }
+    #termos-servico p {
+      margin: 0 0 1.8rem;
+      font-size: 0.95rem;
+      line-height: 1.75;
+    }
+    .termos-lista {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 0.75rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .termos-lista li {
+      padding: 0.35rem 0.85rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+      color: rgba(255, 248, 232, 0.6);
+      white-space: nowrap;
+    }
+    @media (max-width: 600px) {
+      #termos-servico { padding: 3rem 1.5rem 2.5rem; }
+      .termos-lista li { white-space: normal; }
+    }
+
     /* ── SEÇÃO HERO ──
        Feixe de curvas correndo atrás do nome da cooperativa. Cada traço é um
        caminho SVG com pathLength="1": isso normaliza o comprimento, então um
@@ -2081,6 +2132,28 @@
   </section>
 
   <!-- RODAPÉ -->
+  <!-- TERMOS DO SERVIÇO: o resumo que buscadores leem antes do rodapé -->
+  <section id="termos-servico">
+    <div class="termos-inner">
+      <h2 data-rise>Táxi executivo no Rio de Janeiro</h2>
+      <p data-rise>A Táxi Arcoverde é uma cooperativa de táxi executivo no Rio de Janeiro, com ponto na Praça Cardeal Arcoverde, em Copacabana. Atendemos corrida comum, transfer executivo e contrato corporativo, sempre com motorista credenciado, carro vistoriado e tarifa fechada combinada antes do embarque. Fazemos transfer para o Aeroporto Santos Dumont e o Galeão, para o Porto do Rio e para hotéis e centros de convenções da Zona Sul: Copacabana, Ipanema, Leblon, Botafogo, Flamengo e Barra da Tijuca. O passageiro reserva pelo site, pelo WhatsApp ou pelo telefone, acompanha a corrida em tempo real pelo aplicativo e paga no cartão, Pix, dinheiro ou voucher. Atendimento 24 horas, todos os dias do ano.</p>
+      <ul class="termos-lista" data-rise>
+        <li>Táxi executivo Rio de Janeiro</li>
+        <li>Táxi Copacabana</li>
+        <li>Transfer aeroporto Galeão</li>
+        <li>Transfer Santos Dumont</li>
+        <li>Táxi 24 horas</li>
+        <li>Táxi para o Porto do Rio</li>
+        <li>Corrida com tarifa fechada</li>
+        <li>Táxi corporativo</li>
+        <li>Cooperativa de táxi</li>
+        <li>Táxi Zona Sul</li>
+        <li>Reserva de táxi online</li>
+        <li>Táxi com motorista credenciado</li>
+      </ul>
+    </div>
+  </section>
+
   <footer>
     <div class="brand" data-rise><span class="marca-taxi">Táxi</span>Arcoverde</div>
     <small data-rise>© 2026 Táxi Arcoverde — Rio de Janeiro, RJ</small>
