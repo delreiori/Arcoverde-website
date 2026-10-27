@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arco Verde Táxi | Rio de Janeiro</title>
+  <title>Táxi Arcoverde | Rio de Janeiro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -136,6 +136,19 @@
       .taxi-nav-links { display: none; }
       .btn-reservar { display: none; }
       .mobile-menu-toggle { display: flex; }
+    }
+
+    /* Marca empilhada: "Táxi" em cima, em corpo menor, e o nome embaixo.
+       Vale onde a marca aparece grande; no texto corrido ela fica na linha. */
+    .marca-taxi {
+      display: block;
+      font-size: 0.42em;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 0.12em;
+      opacity: 0.85;
     }
 
     /* ── SEÇÃO HERO ──
@@ -1789,7 +1802,7 @@
 
       <div class="cinema-frase" data-cinema="frase">
         <h2>Por que escolher</h2>
-        <h2>a Arcoverde?</h2>
+        <h2>a Táxi Arcoverde?</h2>
       </div>
 
       <div class="cinema-final" data-cinema="final">
@@ -1805,7 +1818,7 @@
         <div class="cinema-brilho" data-cinema="brilho" aria-hidden="true"></div>
 
         <div class="cinema-conteudo">
-          <h2 class="cinema-marca" data-cinema="marca">Arco Verde</h2>
+          <h2 class="cinema-marca" data-cinema="marca"><span class="marca-taxi">Táxi</span>Arcoverde</h2>
 
           <div class="cinema-palco-celular" data-cinema="celular">
             <div class="cinema-celular" data-cinema="aparelho">
@@ -1892,7 +1905,7 @@
           <span class="story-tag">Tradição &amp; Excelência</span>
           <h2 data-fill-text>Sobre <span>Nós</span></h2>
           <p data-fill-text>
-            Fundada em 2009, a Cooperativa Arco Verde Táxi Executivo é referência em mobilidade no Rio de Janeiro, oferecendo soluções de transporte que unem segurança, pontualidade, conforto e atendimento VIP.
+            Fundada em 2009, a Cooperativa Táxi Arcoverde é referência em mobilidade no Rio de Janeiro, oferecendo soluções de transporte que unem segurança, pontualidade, conforto e atendimento VIP.
           </p>
         </div>
       </div>
@@ -1926,7 +1939,7 @@
   <section id="blog">
     <div class="blog-inner">
 
-      <span class="blog-eyebrow" data-rise>Blog Arco Verde</span>
+      <span class="blog-eyebrow" data-rise>Blog Táxi Arcoverde</span>
       <h2 class="blog-title" data-rise data-fill-text>Histórias que <span>movem</span> o Rio</h2>
       <p class="blog-lead" data-rise data-fill-text>
         Bastidores da cooperativa, novidades do aplicativo e o que muda na mobilidade da cidade — contado por quem roda pelo Rio de Janeiro todos os dias.
@@ -1944,7 +1957,7 @@
         <a class="blog-card" href="#" data-rise>
           <span class="blog-tag">História</span>
           <h3>De Copacabana para a cidade inteira: 15 anos de cooperativa</h3>
-          <p>A trajetória da Arco Verde desde 2009, contada a partir dos pontos, dos cooperados e dos clientes que cresceram junto.</p>
+          <p>A trajetória da Táxi Arcoverde desde 2009, contada a partir dos pontos, dos cooperados e dos clientes que cresceram junto.</p>
           <span class="blog-meta"><span>7 min de leitura</span><span>→</span></span>
         </a>
 
@@ -1976,11 +1989,11 @@
 
       <div class="reservar-quadro" data-rise>
         <div class="reservar-barra">
-          <span>Sistema de reservas Arco Verde</span>
+          <span>Sistema de reservas Táxi Arcoverde</span>
           <a href="https://eb3.autocab.net/#/31377003" target="_blank" rel="noopener">Abrir em nova aba →</a>
         </div>
         <iframe
-          title="Sistema de reserva de corridas da Arco Verde"
+          title="Sistema de reserva de corridas da Táxi Arcoverde"
           src="https://eb3.autocab.net/#/31377003"
           loading="lazy"
           allow="geolocation"
@@ -2043,7 +2056,7 @@
 
         <div class="contato-mapa" data-rise>
           <iframe
-            title="Mapa da localização da Arco Verde Táxi em Copacabana, Rio de Janeiro"
+            title="Mapa da localização da Táxi Arcoverde em Copacabana, Rio de Janeiro"
             loading="lazy"
             allowfullscreen
             referrerpolicy="no-referrer-when-downgrade"
@@ -2060,8 +2073,8 @@
 
   <!-- RODAPÉ -->
   <footer>
-    <div class="brand" data-rise>🟢 Arco Verde</div>
-    <small data-rise>© 2026 Arco Verde Táxi — Rio de Janeiro, RJ</small>
+    <div class="brand" data-rise><span class="marca-taxi">Táxi</span>Arcoverde</div>
+    <small data-rise>© 2026 Táxi Arcoverde — Rio de Janeiro, RJ</small>
   </footer>
 
   <!-- JAVASCRIPT: MENU MOBILE & SCROLLSPY & CARROSSEL -->
@@ -2822,7 +2835,7 @@
         ctx.fillText('Viagem concluída', 270, 640);
         ctx.fillStyle = 'rgba(255,255,255,0.55)';
         ctx.font = '400 23px ' + FONT;
-        ctx.fillText('Obrigado por viajar com a Arco Verde', 270, 684);
+        ctx.fillText('Obrigado por viajar com a Táxi Arcoverde', 270, 684);
 
         ctx.strokeStyle = 'rgba(255,255,255,0.35)';          // estrelas para avaliar
         ctx.lineWidth = 3;
