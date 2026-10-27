@@ -227,6 +227,18 @@
       line-height: 1;
       letter-spacing: -0.045em;
     }
+    /* "Táxi" assenta depois que as letras terminam de subir: entrando junto, ele
+       competiria com a palavra que ainda está se montando */
+    .hero-taxi {
+      /* Proporcional ao nome, mas com um piso: no celular 0.17em do título já
+         cairia para uns 8px */
+      font-size: max(0.17em, 0.78rem);
+      letter-spacing: 0.3em;
+      color: #ffd400;
+      margin-bottom: 0.1em;
+      opacity: 0;
+      animation: hero-letra-sobe 0.8s 0.62s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+    }
     /* Cada letra sobe no lugar, uma logo depois da outra */
     .hero-letra {
       display: inline-block;
@@ -304,8 +316,8 @@
 
     @media (prefers-reduced-motion: reduce) {
       .hero-feixe,
-      .hero-conteudo, .hero-letra, .hero-sub, .hero-moldura { animation: none; }
-      .hero-letra { opacity: 1; }
+      .hero-conteudo, .hero-letra, .hero-taxi, .hero-sub, .hero-moldura { animation: none; }
+      .hero-letra, .hero-taxi { opacity: 1; }
     }
 
     /* ── SEÇÃO CONHEÇA NOSSO APP (Cortina que sobe sobre o Hero) ── */
@@ -725,19 +737,9 @@
       top: 0;
       height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       overflow: hidden;
-    }
-    /* "Táxi" fica fora do <h2> de propósito: o script mede a geometria das letras
-       a partir dele, e um filho a mais quebraria a conta */
-    .marca-taxi-alto {
-      font-family: 'Outfit', sans-serif;
-      font-size: clamp(1rem, 3.4vw, 2.6rem);
-      color: #f9c000;
-      opacity: 0;
-      margin-bottom: clamp(0.3rem, 1vw, 0.8rem);
     }
     .marca-word {
       display: flex;
@@ -1718,7 +1720,7 @@
     </div>
 
     <div class="hero-conteudo">
-      <h1 class="hero-titulo"><span class="hero-letra" style="--i: 0">A</span><span class="hero-letra" style="--i: 1">R</span><span class="hero-letra" style="--i: 2">C</span><span class="hero-letra" style="--i: 3">O</span><span class="hero-letra" style="--i: 4">V</span><span class="hero-letra" style="--i: 5">E</span><span class="hero-letra" style="--i: 6">R</span><span class="hero-letra" style="--i: 7">D</span><span class="hero-letra" style="--i: 8">E</span></h1>
+      <h1 class="hero-titulo"><span class="marca-taxi hero-taxi">Táxi</span><span class="hero-letra" style="--i: 0">A</span><span class="hero-letra" style="--i: 1">R</span><span class="hero-letra" style="--i: 2">C</span><span class="hero-letra" style="--i: 3">O</span><span class="hero-letra" style="--i: 4">V</span><span class="hero-letra" style="--i: 5">E</span><span class="hero-letra" style="--i: 6">R</span><span class="hero-letra" style="--i: 7">D</span><span class="hero-letra" style="--i: 8">E</span></h1>
 
       <p class="hero-sub">
         Táxi executivo no Rio de Janeiro: motorista credenciado, tarifa fechada
@@ -1887,8 +1889,7 @@
   <!-- 6. ABERTURA DA SEÇÃO DO CARRO: O "A" ABRE NA PALAVRA ARCOVERDE -->
   <section id="marca-reveal">
     <div class="marca-stage">
-      <span class="marca-taxi marca-taxi-alto" id="marcaTaxi" aria-hidden="true">Táxi</span>
-      <h2 class="marca-word" id="marcaWord" aria-label="Táxi Arcoverde"><span class="marca-letter" aria-hidden="true">A</span><span class="marca-letter" aria-hidden="true">r</span><span class="marca-letter" aria-hidden="true">c</span><span class="marca-letter" aria-hidden="true">o</span><span class="marca-letter" aria-hidden="true">v</span><span class="marca-letter" aria-hidden="true">e</span><span class="marca-letter" aria-hidden="true">r</span><span class="marca-letter" aria-hidden="true">d</span><span class="marca-letter" aria-hidden="true">e</span></h2>
+      <h2 class="marca-word" id="marcaWord" aria-label="Arcoverde"><span class="marca-letter" aria-hidden="true">A</span><span class="marca-letter" aria-hidden="true">r</span><span class="marca-letter" aria-hidden="true">c</span><span class="marca-letter" aria-hidden="true">o</span><span class="marca-letter" aria-hidden="true">v</span><span class="marca-letter" aria-hidden="true">e</span><span class="marca-letter" aria-hidden="true">r</span><span class="marca-letter" aria-hidden="true">d</span><span class="marca-letter" aria-hidden="true">e</span></h2>
     </div>
   </section>
 
@@ -2607,7 +2608,6 @@
       const word = document.getElementById('marcaWord');
       if (!sec || !word) return;
 
-      const taxi = document.getElementById('marcaTaxi');
       const letters = Array.prototype.slice.call(word.querySelectorAll('.marca-letter'));
       if (letters.length < 2) return;
       const rest = letters.slice(1);                 // as letras de "rcoverde"
@@ -2650,13 +2650,6 @@
         const mean = sum / rest.length;
         word.style.transform = 'translateX(' + (wordShift * (1 - mean)).toFixed(2) + 'px)';
         letters[0].style.transform = 'scale(' + (1.12 - 0.12 * easeOut(a)).toFixed(3) + ')';
-        // "Táxi" só assenta depois, com a palavra quase pronta: entrando junto ele
-        // competiria com as letras que ainda estão se juntando
-        if (taxi) {
-          const t = Math.max(0, Math.min(1, (a - 0.6) / 0.35));
-          taxi.style.opacity = t.toFixed(3);
-          taxi.style.transform = 'translateY(' + ((1 - easeOut(t)) * 18).toFixed(1) + 'px)';
-        }
       }
 
       // Com movimento reduzido, a palavra aparece pronta e nada é animado
