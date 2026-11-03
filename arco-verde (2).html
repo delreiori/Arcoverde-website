@@ -159,8 +159,6 @@
        de um botão porque é texto para robô, não para quem está lendo o site. */
     .rodape-termos {
       width: 100%;
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
-      padding-top: 1.5rem;
     }
     .rodape-termos summary {
       display: inline-flex;
@@ -2413,50 +2411,82 @@
           float x = uv.x * uAspecto;      // corrige a largura para a onda não esticar
           float y = uv.y;
 
-          // Maré: o ciclo lento que faz a água subir a praia e voltar
-          float mare = 0.5 + 0.5 * sin(uTime * 0.34);
-          float linha = mix(0.24, 0.56, mare);
-          // A beira não é reta: duas ondulações de passos diferentes a quebram
-          linha += 0.020 * sin(x * 4.5 + uTime * 0.7)
-                 + 0.011 * sin(x * 9.0 - uTime * 1.1);
-          float maxima = 0.56 + 0.020;    // até onde a água chega na maré cheia
+          // ── ONDE A ÁGUA ESTÁ ──
+          // Duas escalas de tempo: a maré, lenta, move a base; as marolas, de
+          // poucos segundos, é que dão vida. Cada marola sobe depressa e escorre
+          // devagar, como na areia de verdade, e vem com força sorteada para
+          // nenhuma ser igual à anterior.
+          float mare = 0.5 + 0.5 * sin(uTime * 0.17);
+          float base = mix(0.24, 0.40, mare);
 
-          vec3 areiaSeca  = vec3(0.290, 0.300, 0.195);
+          float faseT = uTime / 6.5;
+          float n = floor(faseT), ph = fract(faseT);
+          float forca = 0.55 + 0.45 * hash(vec2(n, 3.0));
+          float marola = (ph < 0.22
+              ? smoothstep(0.0, 1.0, ph / 0.22)
+              : 1.0 - smoothstep(0.0, 1.0, (ph - 0.22) / 0.78)) * forca;
+
+          // Uma segunda, defasada: assim o mar nunca fica parado entre duas
+          float faseB = faseT + 0.5;
+          float nB = floor(faseB), phB = fract(faseB);
+          float forcaB = 0.45 + 0.45 * hash(vec2(nB, 7.0));
+          float marolaB = (phB < 0.22
+              ? smoothstep(0.0, 1.0, phB / 0.22)
+              : 1.0 - smoothstep(0.0, 1.0, (phB - 0.22) / 0.78)) * forcaB;
+
+          float avanco = max(marola, marolaB);
+          float linha = base + 0.17 * avanco;
+          // A beira não é reta: três ondulações de passos diferentes a quebram
+          linha += 0.017 * sin(x * 4.3 + uTime * 0.9)
+                 + 0.010 * sin(x * 8.7 - uTime * 1.5)
+                 + 0.006 * sin(x * 17.0 + uTime * 2.2);
+
+          vec3 areiaSeca    = vec3(0.290, 0.300, 0.195);
           vec3 areiaMolhada = vec3(0.150, 0.198, 0.135);
-          vec3 aguaRasa   = vec3(0.106, 0.447, 0.310);
-          vec3 espumaCor  = vec3(0.839, 0.937, 0.871);
+          vec3 aguaRasa     = vec3(0.106, 0.447, 0.310);
+          vec3 espumaCor    = vec3(0.855, 0.945, 0.882);
 
           vec3 cor;
 
           if (y > linha) {
             // ── MAR ──
             float p = clamp((y - linha) / max(1.0 - linha, 0.001), 0.0, 1.0);
-            cor = mix(aguaRasa, uFundo, smoothstep(0.0, 0.75, p));
+            cor = mix(aguaRasa, uFundo, smoothstep(0.0, 0.72, p));
 
-            // Cristas correndo em direção à areia
-            float faixa = sin((y - uTime * 0.045) * 46.0
-                             + sin(x * 2.1 + uTime * 0.35) * 3.4
-                             + ruido(vec2(x * 1.6, y * 7.0)) * 2.0);
-            float brilho = smoothstep(0.86, 1.0, faixa) * (1.0 - p) * 0.42;
-            cor += brilho * vec3(0.25, 0.45, 0.35);
+            // Três trens de onda correndo para a areia, de passos e velocidades
+            // diferentes: sozinho, um só vira listra
+            // A modulação em x é contida de propósito: solta, as cristas viram
+            // fitas de luz atravessando o quadro em vez de ondas, que chegam na
+            // praia quase paralelas à beira
+            float o1 = sin(y * 30.0 - uTime * 2.0 + sin(x * 1.8 + uTime * 0.5) * 1.1);
+            float o2 = sin(y * 19.0 - uTime * 1.3 + sin(x * 2.9 - uTime * 0.3) * 1.4);
+            float o3 = sin(y * 52.0 - uTime * 3.0 + x * 0.8);
+            float cristas = smoothstep(0.80, 1.0, o1) * 0.40
+                          + smoothstep(0.86, 1.0, o2) * 0.30
+                          + smoothstep(0.93, 1.0, o3) * 0.16;
+            cor += cristas * (1.0 - p * 0.85) * vec3(0.22, 0.44, 0.34);
 
-            // Espuma na beira, rasgada pelo ruído
+            // Cintilação na superfície, para a água não ficar chapada
+            float cintila = ruido(vec2(x * 7.0 + uTime * 0.45, y * 24.0 - uTime * 1.2));
+            cor += smoothstep(0.70, 1.0, cintila) * (1.0 - p) * vec3(0.10, 0.19, 0.15);
+
+            // Espuma na beira: mais forte quando a marola está subindo
             float d = y - linha;
-            float espuma = smoothstep(0.055, 0.0, d);
-            espuma *= 0.45 + 0.55 * ruido(vec2(x * 22.0, y * 60.0 - uTime * 1.4));
-            cor = mix(cor, espumaCor, clamp(espuma, 0.0, 1.0) * 0.85);
+            float espuma = smoothstep(0.075, 0.0, d);
+            espuma *= 0.35 + 0.65 * ruido(vec2(x * 20.0, y * 55.0 - uTime * 2.4));
+            espuma *= 0.7 + 0.6 * avanco;
+            cor = mix(cor, espumaCor, clamp(espuma, 0.0, 1.0) * 0.9);
           } else {
             // ── AREIA ──
-            // A faixa molhada é o rastro que a água deixou ao recuar: vai da
-            // beira de agora até onde a maré chegou
-            float molhado = smoothstep(linha - 0.26, linha, y);
+            // A faixa molhada é o rastro que a água deixou ao recuar
+            float molhado = smoothstep(linha - 0.30, linha, y);
             cor = mix(areiaSeca, areiaMolhada, molhado);
             cor += (ruido(vec2(x * 160.0, y * 160.0)) - 0.5) * 0.022;   // grão
 
-            // Fio de espuma que fica preso logo abaixo da beira
-            float resto = smoothstep(0.018, 0.0, linha - y);
-            resto *= 0.4 + 0.6 * ruido(vec2(x * 26.0, uTime * 0.5));
-            cor = mix(cor, espumaCor, resto * 0.5);
+            // Bolhas que ficam presas na areia logo depois de a onda passar
+            float rastro = smoothstep(0.030, 0.0, linha - y);
+            rastro *= 0.3 + 0.7 * ruido(vec2(x * 30.0, y * 120.0 + uTime * 0.9));
+            cor = mix(cor, espumaCor, rastro * 0.55);
           }
 
           // Escurece as pontas para a praia morrer nas bordas do rodapé
