@@ -1619,10 +1619,25 @@
     }
 
     footer {
-      background: var(--green-dark); color: var(--cream);
+      /* Mesma cor da seção de contato, logo acima: o mar nasce de dentro dela,
+         sem emenda visível entre as duas */
+      position: relative;
+      overflow: hidden;
+      min-height: 420px;
+      background: #07321c; color: var(--cream);
       font-family: "Inter", sans-serif; padding: 2.5rem 6vw;
       display: flex; flex-direction: column; gap: 1.8rem;
     }
+    /* A praia fica atrás de tudo; o conteúdo do rodapé sobe por cima */
+    .rodape-praia {
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 62%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .rodape-praia canvas { display: block; width: 100%; height: 100%; }
+    footer > .rodape-linha, footer > .rodape-termos { position: relative; z-index: 1; }
     .rodape-linha {
       display: flex; justify-content: space-between; align-items: center;
       flex-wrap: wrap; gap: 1rem;
@@ -2173,6 +2188,8 @@
 
   <!-- RODAPÉ -->
   <footer>
+    <div class="rodape-praia" id="rodapePraia" aria-hidden="true"></div>
+
     <div class="rodape-linha">
       <div class="brand" data-rise><span class="marca-taxi">Táxi</span>Arcoverde</div>
       <small data-rise>© 2026 Táxi Arcoverde — Rio de Janeiro, RJ</small>
@@ -2354,6 +2371,157 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <script>
+    /* ── A PRAIA DO RODAPÉ ──
+       O mar inteiro é desenhado por um shader numa única superfície, e não por
+       uma malha com ondas de verdade: a cena é vista quase de cima, então o que
+       importa é onde a água está em cada ponto, não o relevo dela. Sai um
+       triângulo de geometria no lugar de milhares de vértices animados por
+       quadro, e a maré vira uma conta de uma linha.
+
+       A cor do horizonte é a mesma da seção de contato, logo acima, para o mar
+       nascer de dentro dela sem emenda. */
+    (function initRodapePraia() {
+      const caixa = document.getElementById('rodapePraia');
+      if (!caixa || typeof THREE === 'undefined') return;
+
+      const VERT = `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position.xy, 0.0, 1.0);
+        }`;
+
+      const FRAG = `
+        precision highp float;
+        varying vec2 vUv;
+        uniform float uTime;
+        uniform float uAspecto;
+        uniform vec3 uFundo;
+
+        float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+        float ruido(vec2 p) {
+          vec2 i = floor(p), f = fract(p);
+          vec2 u = f * f * (3.0 - 2.0 * f);
+          return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+                     mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+        }
+
+        void main() {
+          vec2 uv = vUv;
+          float x = uv.x * uAspecto;      // corrige a largura para a onda não esticar
+          float y = uv.y;
+
+          // Maré: o ciclo lento que faz a água subir a praia e voltar
+          float mare = 0.5 + 0.5 * sin(uTime * 0.34);
+          float linha = mix(0.24, 0.56, mare);
+          // A beira não é reta: duas ondulações de passos diferentes a quebram
+          linha += 0.020 * sin(x * 4.5 + uTime * 0.7)
+                 + 0.011 * sin(x * 9.0 - uTime * 1.1);
+          float maxima = 0.56 + 0.020;    // até onde a água chega na maré cheia
+
+          vec3 areiaSeca  = vec3(0.290, 0.300, 0.195);
+          vec3 areiaMolhada = vec3(0.150, 0.198, 0.135);
+          vec3 aguaRasa   = vec3(0.106, 0.447, 0.310);
+          vec3 espumaCor  = vec3(0.839, 0.937, 0.871);
+
+          vec3 cor;
+
+          if (y > linha) {
+            // ── MAR ──
+            float p = clamp((y - linha) / max(1.0 - linha, 0.001), 0.0, 1.0);
+            cor = mix(aguaRasa, uFundo, smoothstep(0.0, 0.75, p));
+
+            // Cristas correndo em direção à areia
+            float faixa = sin((y - uTime * 0.045) * 46.0
+                             + sin(x * 2.1 + uTime * 0.35) * 3.4
+                             + ruido(vec2(x * 1.6, y * 7.0)) * 2.0);
+            float brilho = smoothstep(0.86, 1.0, faixa) * (1.0 - p) * 0.42;
+            cor += brilho * vec3(0.25, 0.45, 0.35);
+
+            // Espuma na beira, rasgada pelo ruído
+            float d = y - linha;
+            float espuma = smoothstep(0.055, 0.0, d);
+            espuma *= 0.45 + 0.55 * ruido(vec2(x * 22.0, y * 60.0 - uTime * 1.4));
+            cor = mix(cor, espumaCor, clamp(espuma, 0.0, 1.0) * 0.85);
+          } else {
+            // ── AREIA ──
+            // A faixa molhada é o rastro que a água deixou ao recuar: vai da
+            // beira de agora até onde a maré chegou
+            float molhado = smoothstep(linha - 0.26, linha, y);
+            cor = mix(areiaSeca, areiaMolhada, molhado);
+            cor += (ruido(vec2(x * 160.0, y * 160.0)) - 0.5) * 0.022;   // grão
+
+            // Fio de espuma que fica preso logo abaixo da beira
+            float resto = smoothstep(0.018, 0.0, linha - y);
+            resto *= 0.4 + 0.6 * ruido(vec2(x * 26.0, uTime * 0.5));
+            cor = mix(cor, espumaCor, resto * 0.5);
+          }
+
+          // Escurece as pontas para a praia morrer nas bordas do rodapé
+          float vinheta = smoothstep(0.0, 0.16, uv.x) * smoothstep(1.0, 0.84, uv.x);
+          cor = mix(uFundo, cor, 0.25 + 0.75 * vinheta);
+          // E some no topo, onde encontra a seção de contato
+          cor = mix(cor, uFundo, smoothstep(0.72, 1.0, y));
+
+          gl_FragColor = vec4(cor, 1.0);
+        }`;
+
+      const cena = new THREE.Scene();
+      const camera = new THREE.Camera();
+      const uniforms = {
+        uTime: { value: 0 },
+        uAspecto: { value: 1 },
+        uFundo: { value: new THREE.Color(0x07321c) }
+      };
+      // Um triângulo que cobre a tela inteira: dois a menos que um quadrado e
+      // sem a costura da diagonal no meio
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(
+        new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3));
+      geo.setAttribute('uv', new THREE.BufferAttribute(
+        new Float32Array([0, 0, 2, 0, 0, 2]), 2));
+      cena.add(new THREE.Mesh(geo, new THREE.ShaderMaterial({
+        vertexShader: VERT, fragmentShader: FRAG, uniforms: uniforms, depthTest: false
+      })));
+
+      let renderer;
+      try {
+        renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+      } catch (e) { return; }                 // sem WebGL o rodapé fica liso
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      caixa.appendChild(renderer.domElement);
+
+      function medir() {
+        const r = caixa.getBoundingClientRect();
+        if (r.width < 2 || r.height < 2) return;
+        renderer.setSize(r.width, r.height, false);
+        uniforms.uAspecto.value = r.width / r.height;
+      }
+      medir();
+      window.addEventListener('resize', medir);
+
+      // Só anda quando o rodapé está na tela: no resto da página o relógio para
+      let visivel = false;
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (e) { visivel = e[0].isIntersecting; })
+          .observe(caixa);
+      } else { visivel = true; }
+
+      const parado = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const relogio = new THREE.Clock();
+      renderer.render(cena, camera);
+      (function quadro() {
+        requestAnimationFrame(quadro);
+        if (!visivel) { relogio.getDelta(); return; }
+        if (!parado) uniforms.uTime.value += relogio.getDelta();
+        else relogio.getDelta();
+        renderer.render(cena, camera);
+      })();
+    })();
+  </script>
+
 
   <script>
     /* ── ELEMENTOS SUBINDO PARA O LUGAR CONFORME A ROLAGEM ──
